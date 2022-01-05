@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "@yuyuid/config": ["./src/config/index"],
+      "@yuyuid/constants": ["./src/lib/constants/index"],
+      "@yuyuid/core": ["./src/lib/core/index"],
+      "@yuyuid/exception": ["./src/lib/exceptions/yuyuidError"],
+      "@yuyuid/middlewares": ["./src/api/middlewares/index"],
+      "@yuyuid/models": ["./src/models/index"],
+      "@yuyuid/services": ["./src/services/index"],
+      "@yuyuid/utils": ["./src/lib/utils/index"],
+      "@yuyuid/validators": ["./src/lib/validators/index"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

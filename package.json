@@ -1,0 +1,53 @@
+{
+  "name": "backend-skripsi",
+  "version": "1.0.0",
+  "description": "Backend application for skripsi",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/index.js",
+    "start:dev": "nodemon --exec babel-node src/index.js"
+  },
+  "keywords": [
+    "skripsi",
+    "pariwisata",
+    "travel",
+    "app",
+    "travel"
+  ],
+  "author": "mochamad yudi sobari",
+  "license": "MIT",
+  "dependencies": {
+    "@hapi/boom": "^9.1.4",
+    "bcryptjs": "^2.4.3",
+    "celebrate": "^15.0.0",
+    "config": "^3.3.6",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "cron": "^1.8.2",
+    "csurf": "^1.11.0",
+    "dotenv": "^10.0.0",
+    "events": "^3.3.0",
+    "express": "^4.17.2",
+    "express-jwt": "^6.1.0",
+    "express-validator": "^6.14.0",
+    "gravatar": "^1.8.2",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment-timezone": "^0.5.34",
+    "mongoose": "^6.1.2",
+    "nodemailer": "^6.7.2",
+    "nodemailer-sendgrid": "^1.0.3",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.5",
+    "@babel/node": "^7.16.5",
+    "@babel/plugin-proposal-class-properties": "^7.16.5",
+    "@babel/preset-env": "^7.16.5",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "babel-plugin-transform-export-extensions": "^6.22.0",
+    "copyfiles": "^2.4.1",
+    "nodemon": "^2.0.15"
+  }
+}

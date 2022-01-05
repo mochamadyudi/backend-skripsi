@@ -1,0 +1,24 @@
+{
+  "api": {
+    "port": 5000,
+    "prefix": "/api",
+    "jwtSecret": "yuyuidsecret"
+  },
+  "db": {
+    "name": "yuyuid",
+    "username": "root",
+    "password": "",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "sendgrid": {
+    "apiKey": "sstfab2t3kcm",
+    "emailFrom": "myudisobari12@gmail.com",
+    "fakeEmailTo": "agungseprulloh1996@gmail.com",
+    "subjectPrefix": "YuyuidTesting"
+  },
+  "url": {
+    "resetPassword": "http://localhost:5000/reset-password",
+    "verifyEmail": "http://localhost:5000/verify-email"
+  }
+}
