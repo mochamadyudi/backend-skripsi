@@ -1,4 +1,4 @@
-import {Cart, CartInfo, User} from "@yuyuid/models";
+import {Cart, CartInfo, UpRolePermissions, User} from "@yuyuid/models";
 import YuyuidError from "@yuyuid/exception";
 import bcrypt from 'bcryptjs'
 import { UserService, ThemeService, CartService} from "@yuyuid/services"
@@ -32,10 +32,6 @@ export class AuthService {
         Reflect.deleteProperty(user,"password");
 
         YuyuidEmitter.dispatch(YuyuidEvent.email.verificationEmail,user.email,token);
-
-        // return {
-        //     success:"testing"
-        // }
         return {user};
     }
 
@@ -75,7 +71,7 @@ export class AuthService {
                 username: user.username,
             }
         };
-        console.log(payload)
+
         const token = generateCustomToken(payload)
 
         return {
@@ -83,5 +79,11 @@ export class AuthService {
         }
     }
 
+    static async RolesPermissions(id,role_id){
+        await UpRolePermissions.insertMany({
+            user:id,
+            role:role_id
+        })
+    }
 
 }

@@ -1,6 +1,7 @@
 // import { MixedMiddlewares } from "@yuyuid/middlewares"
 import { Router } from 'express'
 import profile from './profile'
+import Permissions from '../permissions/roles/index'
 import {YuyuidConfig} from "@yuyuid/config";
 // import RouteUser from './users'
 const jwt = require("jsonwebtoken");
@@ -27,6 +28,7 @@ export default ()=> {
     const app = Router();
     app.use(auth);
     profile(app)
-    // RouteUser(app)
+    Permissions(app)
+
     return app;
 }

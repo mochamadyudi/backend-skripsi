@@ -2,16 +2,21 @@ import {Router} from 'express'
 import {TravelService, UserService} from "@yuyuid/services";
 import {YuyuidConfig} from "@yuyuid/config";
 import YuyuidError from "@yuyuid/exception";
+import formidable from "formidable";
+import {v2 as cloudinary} from "cloudinary";
+import BodyResponse from "../../../lib/handler/body-response";
+import {Travel} from "@yuyuid/models";
+import {MixedMiddlewares} from "@yuyuid/middlewares";
 
 const route = Router()
 
 export default (app) => {
     app.use('/', route)
 
-    route.get('/likes', async (req, res, next) => {
+    route.get('/likes', MixedMiddlewares.protectLogin[0], async (req, res, next) => {
         try {
-            // const token = await UserService.GetToken(req)
-            // const data = await UserService.UserLoaded(req.user.id)
+            const token = await UserService.GetToken(req)
+            const data = await UserService.UserLoaded(req.user.id)
             // return res.json({
             //     message:"User has been found",
             //     success: true,
@@ -27,70 +32,46 @@ export default (app) => {
         }
     })
 
-    route.post('/create', async (req, res, next) => {
+    /**
+     * [ CREATE TRAVEL ]
+     * @url {{END_POINT}}/travel/create
+     *
+     */
+    route.post('/create', MixedMiddlewares.protectLogin[0],  TravelService.create)
+
+    route.put('/update', MixedMiddlewares.protectLogin[0], TravelService.update)
+
+    route.get('/all', async (req, res, next) => {
         try {
-            const [err, travel] = await TravelService.create(req.body)
-
-            if (err) throw YuyuidError.internal('travel cant`t be created.');
-            const [errLikes,likes] = await TravelService.firstCreatLikes(travel.id)
-            const [errDiscuss,discuss] = await TravelService.firstCreateDiscuss(travel.id)
-
-            if (errLikes) throw YuyuidError.internal('initial Likes cant`t be created.');
-            if (errDiscuss) throw YuyuidError.internal('initial Discuss cant`t be created.');
-
-            return res.json({
-                message: "Create Successfully",
-                data: {
-                    id: travel.id,
-                    travel_name: travel?.travel_name,
-                    price: travel?.price,
-                    travel_detail: travel?.travel_detail,
-                    discuss: discuss.discuss,
-                    likes: likes.likes
-                }
-            }).status(200)
+            const [err, travel] = await TravelService.all(req.query)
+            if (err) throw YuyuidError.internal('error get travel ')
+            return res.status(200).json({error:false,message: "get Successfully",success:true,...travel})
 
         } catch (e) {
-            console.log(e)
             throw next(e)
         }
     })
 
-    route.get('/all', async (req,res,next)=> {
-        try{
-            const [err, travel] = await TravelService.all(req.query)
+    route.get('/:id', MixedMiddlewares.protectLogin[0],async (req, res, next) => {
+        try {
+            const {error,data,message} = await TravelService.single(req.params)
 
-            // console.log(travel)
-            if (err) throw YuyuidError.internal('error get travel ')
+            if (error) throw YuyuidError.internal('failed get travel')
+            const likes = await TravelService.getLikes(data.id)
+            const discuss = await TravelService.getDiscuss(data.id)
+
             return res.json({
-                message: "get Successfully",
-                ...travel
+                message: "success",
+                data: {
+                    travel:data,
+                    likes: likes?.likes ?? [],
+                    discuss: discuss?.discuss ?? []
+                }
             }).status(200)
-        }catch(e){
-            throw next(e)
-        }
-    })
-
-    route.get('/:id', async (req,res,next)=> {
-        try{
-            const [err,travel] = await TravelService.single(req.params)
-
-            if (err) throw YuyuidError.internal('failed get travel')
-            const likes = await TravelService.getLikes(travel.id)
-            const discuss = await TravelService.getDiscuss(travel.id)
-
-
-            return res.json({message: "success",
-                data : {
-                    travel,
-                    likes: likes.likes,
-                    discuss: discuss.discuss
-                }}).status(200)
-        }catch(err){
+        } catch (err) {
             return next(err)
         }
     })
-
 
 
 }

@@ -1,95 +1,178 @@
 import {TravelLikes} from "../models/travel/travel_likes.schema";
 import {Travel, TravelDiscuss} from "@yuyuid/models";
+import BodyResponse from "../lib/handler/body-response";
+import formidable from "formidable";
+import {v2 as cloudinary} from "cloudinary";
+import {HashId} from "@yuyuid/utils";
+import YuyuidError from "@yuyuid/exception";
+
 
 export class TravelService {
-    static async constructTravel(){}
+    static async constructTravel() {
+    }
 
-    static async all(query){
-        try{
-            console.log(query)
+    static async all(query) {
+        try {
             const page = query.current ? parseInt(query.current) : 1;
             const limit = query.limit ? parseInt(query.limit) : 20;
             const skipIndex = (page - 1) * limit;
-            const results = {};
-            const travelCount =  await Travel.count()
+            const travelCount = await Travel.count()
             const travel = await Travel.find({})
-                .sort({ name: "asc",date:-1 })
+                .sort({name: query?.order ?? "asc", date: -1})
                 .limit(limit)
                 .skip(skipIndex)
                 .exec();
 
             const data = {
-                total:travelCount,
+                total: travelCount,
                 total_page: Math.floor(travelCount / limit) + 1,
                 page: page,
                 limit,
                 data: travel
             }
 
-            return [null,data]
-        }catch(e){
-            return [e,null]
+            return [null, data]
+        } catch (e) {
+            return [e, null]
         }
     }
 
-    static async create(query){
-        try{
-            const {
-                travel_name,
-                images,
-                facility,  //
-                lat, // { location }
-                long, // { location }
-                travel_detail,
-                periods,
-                price,
-            } = query
-            const travelFields = {};
-            travelFields.travel_name = travel_name;
-            travelFields.images = images;
-            travelFields.facility = facility;
-            travelFields.travel_detail = travel_detail;
-            travelFields.location = {}
-
-            if (lat) travelFields.location.lat = lat
-            if (long) travelFields.location.long = long
-            travelFields.price = {}
+    static async create(req, res, next) {
+        try {
+            const form = new formidable.IncomingForm()
+            await form.parse(req, async function (err, fields, files, end) {
+                const {
+                    travel_name,
+                    facility,
+                    bio,
+                } = fields
 
 
-            if (price.specials) travelFields.price.specials = price.specials
-            if (price.regular ) travelFields.price.regular = price.regular
-            if (price.family ) travelFields.price.family = price.family
-            if (price.discount ) travelFields.price.discount = price.discount
+                const {thumbnail} = files
+                let location = {}
+                let periods = {}
+                let price = {}
+                try {
+                    location = JSON.parse(fields?.location)
+                    price = JSON.parse(fields?.price)
+                    periods = JSON.parse(fields?.period)
+                } catch (e) {
+                    return next(e)
+                }
 
-            travelFields.periods = [];
-            if (periods.length > 0){
-                travelFields.periods = periods
-            }
-            const travel = new Travel(travelFields)
-            await travel.save()
-            return [null,travel]
-        }catch(e){
-            return [e,null]
+                const generateSlug = await TravelService.GenerateSlug(travel_name)
+                const checked = await TravelService.isExists('slug', travel_name)
+                if (checked) throw YuyuidError.badData('Name is Exist!', checked)
+
+                let newThumbnail = null
+
+                try {
+                    await cloudinary.uploader.upload(thumbnail?.filepath, {secure: true, transformation: [
+                            {width: 150, height: 150, crop: "thumb"},
+                            {radius: 20}
+                        ]}, (error, result) => {
+                        console.log(error,result)
+                        if (!error) {
+                            if(result && Object.keys(result).length > 0 ){
+                                newThumbnail = {
+                                    name: result?.name ?? null,
+                                    original_filename: result?.original_filename ?? null,
+                                    resource_type: result?.resource_type ?? null,
+                                    format: result?.format ?? null,
+                                    bytes: result?.bytes ?? null,
+                                    prefix: result?.prefix ?? null,
+                                    url: result?.url ?? null,
+                                    public_id: result?.public_id ?? null,
+                                }
+                            }
+                            next(error)
+                        }
+                    });
+                } catch (e) {
+                    return next(e)
+                }
+
+                const travel = new Travel({
+                    travel_name,
+                    hash_id: HashId({count: 20}),
+                    slug: generateSlug,
+                    thumbnail: {...newThumbnail},
+                    photo: [],
+                    video: [],
+                    facility,
+                    bio,
+                    location,
+                    periods,
+                    price,
+                    is_deleted: false,
+                })
+                await travel.save()
+                return res.status(200).json(new BodyResponse({error: false, success: true, data: travel}))
+
+            })
+        } catch (err) {
+
+            return res.status(500).json(new BodyResponse({error: true, message: err.message}))
         }
     }
-    static async update(){}
-    static async delete(){}
-    static async single(params){
-        try{
-            const travel = await Travel.findOne({id:params?.id})
-            console.log(travel)
-            //    const profile = await Profile.findOne({
-            //       user: req.params.user_id
-            //     }).populate("user", ["name", "avatar"]);
-            // return [null, data]
-            return [null,travel]
-        }catch(err){
-            return [err,null]
+
+    static async update(req, res, next) {
+        try {
+
+        } catch (err) {
+            return next(err)
+        }
+
+    }
+
+    static async delete() {
+    }
+
+    static async single(params) {
+        try {
+            const travel = await Travel.findOne({id: params?.id})
+            // return [null,travel]
+            return new BodyResponse({error: false, message: "Successfully!", data: travel})
+        } catch (err) {
+            return new BodyResponse({error: true, message: err.message})
+            // return [err,null]
         }
     }
 
-    static async isExists(){
+    static async isExists(type = 'slug', value) {
+        const slug = await TravelService.GenerateSlug(value)
 
+        switch (type) {
+            case "slug":
+                const data = await TravelService.TravelBySlug(slug)
+                if(data) {
+                    return {
+                        error:true,
+                        data,
+                    }
+                }
+                break;
+            default:
+                return false;
+        }
+
+    }
+
+    static async GenerateSlug(val) {
+        const data = val.toString().toLowerCase().replace(/ /g, '-')
+        console.log("GENERATE SLUG : ",data)
+        return data
+    }
+
+
+    static async TravelBySlug(slug) {
+        try {
+            const data = await Travel.findOne({slug})
+            console.log("travel by slug", data)
+            return data
+        } catch (err) {
+
+        }
     }
 
 
@@ -97,37 +180,41 @@ export class TravelService {
      *
      * @returns {Promise<void>}
      */
-    static async firstCreatLikes(id){
-        try{
-            const likes = new TravelLikes({travel:id})
+    static async firstCreatLikes(id) {
+        try {
+            const likes = new TravelLikes({travel: id})
             await likes.save()
-            return [null,likes]
-        }catch(e){
-            return [e,null]
+            return [null, likes]
+        } catch (e) {
+            return [e, null]
         }
     }
-    static async firstCreateDiscuss(id){
-        try{
-            const discuss = new TravelDiscuss({travel:id})
+
+    static async firstCreateDiscuss(id) {
+        try {
+            const discuss = new TravelDiscuss({travel: id})
             await discuss.save()
-            return [null,discuss]
-        }catch(e){
-            return [e,null]
+            return [null, discuss]
+        } catch (e) {
+            return [e, null]
         }
     }
 
 
-    static async getLikes(id){
-        const likes = await TravelLikes.findOne({id:id})
+    static async getLikes(id) {
+        const likes = await TravelLikes.findOne({id: id})
         return likes
     }
-    static async getDiscuss(id){
-        const discuss = await TravelDiscuss.findOne({id:id})
+
+    static async getDiscuss(id) {
+        const discuss = await TravelDiscuss.findOne({id: id})
         return discuss
     }
 
 
+    static async addLikes() {
+    }
 
-    static async addLikes(){}
-    static async deleteLikes(){}
+    static async deleteLikes() {
+    }
 }

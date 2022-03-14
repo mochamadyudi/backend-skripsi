@@ -1,11 +1,14 @@
 {
   "api": {
     "port": 5000,
-    "prefix": "/api",
+    "prefix": "/api/v1",
     "jwtSecret": "yuyuidsecret"
   },
   "db": {
-    "name": "yuyuid",
+    "port": 27017,
+    "uri": "mongodb://localhost",
+    "name": "myskripsi",
+    "detail": "mongodb://localhost:27017/vodonesia",
     "username": "root",
     "password": "",
     "host": "localhost",

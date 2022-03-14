@@ -12,6 +12,7 @@ const signupValidator = async (req,res,next)=> {
         role:Joi.string().trim().required(),
         password: JoiPassword.required()
     })
+
     validator(schema.validate(req.body),next)
 }
 

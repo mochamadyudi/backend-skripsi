@@ -3,15 +3,15 @@ const CollectionDB = {
      * @admin_access
      */
     APP_OPTIONS: "app_options",
-    LOCATION:"location",
+    LOCATION: "location",
     CATEGORY: "category",
     EVENTS_NOW: "events_now",
     EVENTS_DISCOUNT: "events_discount",
     EVENTS_BANNER: "events_banner",
     EVENTS_ALERT: "events_alert",
     EVENTS_NOTIFICATION: "event_notification",
-    RATING:"ratting",
-    MENU_DASHBOARD:"menu_dashboard",
+    RATING: "ratting",
+    MENU_DASHBOARD: "menu_dashboard",
     PERMISSION_MENU: "permission_menu",
     PERMISSION_ROLE: "permission_role",
 
@@ -21,8 +21,8 @@ const CollectionDB = {
 
 
     TRAVEL: "travel",
-    TRAVEL_DISCUSS:"travel_discuss",
-    TRAVEL_TICKET:"travel_ticket",
+    TRAVEL_DISCUSS: "travel_discuss",
+    TRAVEL_TICKET: "travel_ticket",
 
 
     USER: "user",
@@ -30,7 +30,7 @@ const CollectionDB = {
     PASSWORD_RESET: "password_reset",
     FORGOT_EMAIL: "forgot_email",
     FORGOT_PHONE_NUMBER: "forgot_phone_number",
-    OTP_PHONE_NUMBER : "otp_phone_number",
+    OTP_PHONE_NUMBER: "otp_phone_number",
     ACTIVATION: "activation",
     SETTINGS: "settings",
 
@@ -39,7 +39,7 @@ const CollectionDB = {
 
 
     ROOMS: "room",
-    ROOMS_SCHEDULE:"",
+    ROOMS_SCHEDULE: "",
 
 
     CART: "cart",
@@ -49,7 +49,6 @@ const CollectionDB = {
     PAYMENT_LOG: "transaction",
 
 
-
     PAY_METHOD: "pay_method",
     PAY_METHOD_READY: "pay_method_ready",
 }
@@ -57,4 +56,4 @@ const CollectionDB = {
 Object.freeze(CollectionDB)
 
 
-    export { CollectionDB }
+export {CollectionDB}

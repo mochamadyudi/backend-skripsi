@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/index.js",
-    "start:dev": "nodemon --exec babel-node src/index.js"
+    "start:migrate": "node ./album-migrations/index.js",
+    "start:dev": "nodemon --exec babel-node src/index.js",
+    "seeder:import": "babel-node config/seeder.js",
+    "seeder:destroy": "babel-node config/seeder.js --d"
   },
   "keywords": [
     "skripsi",
@@ -19,8 +22,10 @@
   "license": "MIT",
   "dependencies": {
     "@hapi/boom": "^9.1.4",
+    "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
     "celebrate": "^15.0.0",
+    "cloudinary": "^1.28.1",
     "config": "^3.3.6",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -31,14 +36,23 @@
     "express": "^4.17.2",
     "express-jwt": "^6.1.0",
     "express-validator": "^6.14.0",
+    "firebase": "^9.6.8",
+    "form-data": "^4.0.0",
+    "formidable": "^2.0.1",
+    "googleapis": "^96.0.0",
     "gravatar": "^1.8.2",
+    "hashids": "^2.2.10",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
+    "migrate-mongo": "^8.2.3",
     "moment-timezone": "^0.5.34",
+    "mongo-seeding": "^3.7.1",
+    "mongodb": "^4.3.1",
     "mongoose": "^6.1.2",
     "nodemailer": "^6.7.2",
     "nodemailer-sendgrid": "^1.0.3",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",

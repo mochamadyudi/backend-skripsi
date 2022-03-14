@@ -10,7 +10,7 @@ const generateToken = (user)=> {
 }
 
 const generateCustomToken = (payload)=> {
-    return jwt.sign(payload,YuyuidConfig.jwtSecret,{expiresIn:"1m"})
+    return jwt.sign(payload,YuyuidConfig.jwtSecret,{expiresIn:"1d"})
 }
 
 const decodeJwtToken = (token)=> {

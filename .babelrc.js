@@ -21,6 +21,7 @@ module.exports = {
                     "@yuyuid/config":"./src/config/index",
                     "@yuyuid/constants": "./src/lib/constants/index",
                     "@yuyuid/core": "./src/lib/core/index",
+                    "@handler": "./src/lib/handler/index",
                     "@yuyuid/exception": "./src/lib/exceptions/yuyuidError",
                     "@yuyuid/utils": "./src/lib/utils/index",
                     "@yuyuid/middlewares": "./src/api/middlewares/index",
