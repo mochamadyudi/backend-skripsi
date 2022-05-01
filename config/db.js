@@ -1,7 +1,7 @@
 import mongodb from 'mongoose'
 import config from 'config'
 
-const url = config.get("db.detail")
+const url = process.env.DATABASE || config.get("db.detail")
 // const database = process.env.DATABASE || "mongodb+srv://vodonesia:arjuna46@vodonesia.vysbe.mongodb.net/vodonesia?retryWrites=true&w=majority"
 
 const connectDB = async ()=> {
