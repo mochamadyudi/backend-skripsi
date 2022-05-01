@@ -9,7 +9,7 @@
     "start": "node --exec babel-node app.js",
     "start:migrate": "node ./album-migrations/index.js",
     "start:dev": "nodemon --exec babel-node app.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --exec babel-node",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && npm install babel-cli -S",
     "seeder:import": "babel-node config/seeder.js",
     "seeder:destroy": "babel-node config/seeder.js --d"
   },
