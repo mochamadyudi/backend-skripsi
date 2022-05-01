@@ -24,7 +24,6 @@ export default (app)=> {
         }catch (err){
             throw next(err)
         }
-
     })
     route.get('/create/folder', async function(req,res,next){
         try{

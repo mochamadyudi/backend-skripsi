@@ -5,25 +5,48 @@ import { UserService, ThemeService, CartService} from "@yuyuid/services"
 import {YuyuidEmitter, encryptPassword, generateToken, generateCustomToken} from "@yuyuid/utils";
 
 import {YuyuidEvent} from "../lib/constants/event-name";
+import {Activations} from "../models/auth";
+import VillaService from "./villa.service";
 
 
 export class AuthService {
 
-    static async SignUp(userInputDto){
+    static async SignUp(req){
+        let userInputDto  = req.body
+
         await AuthService.VerifyUniqueEmail(userInputDto.email)
         const { hashedPassword, salt} = await encryptPassword(userInputDto.password)
         Reflect.set(userInputDto, "password",hashedPassword)
         Reflect.set(userInputDto,"salt",salt)
 
         const [err,user] = await UserService.create(userInputDto)
-        await UserService.firstAddProfile(user.id)
-        await CartService.FirstAddCart(user.id)
-        await ThemeService.SetTheme(user.id,1)
+
+        switch (userInputDto.role){
+            case "villa":
+                const villa = await VillaService.createVilla({user:user.id})
+                await ThemeService.VillaSetTheme(villa.id,1)
+                break;
+            case "customer":
+                await UserService.firstAddProfile(user.id)
+                await CartService.FirstAddCart(user.id)
+                await ThemeService.SetTheme(user.id,1)
+                break;
+            case "admin":
+                break;
+            default:
+                await UserService.firstAddProfile(user.id)
+                await CartService.FirstAddCart(user.id)
+                await ThemeService.SetTheme(user.id,1)
+        }
+
+        await this.createActivationsToken(user?.id, "user", req.ip ?? null)
+
 
         // console.log(user,err)
         if (err) throw YuyuidError.internal("User can't be created.");
         //
         const token = generateCustomToken({user})
+
 
 
 
@@ -35,6 +58,27 @@ export class AuthService {
         return {user};
     }
 
+    static async createActivationsToken(id, type,ip_address = null){
+        try{
+            const checked = await Activations.findOne({user: id})
+            if (checked !== null) throw YuyuidError.badRequest('Email has a been registered.');
+            // generateTokenActivate
+
+            let data = {
+                user: id,
+                refType: type,
+                ip_address
+            }
+            const token = generateCustomToken({data})
+            const activate = new Activations({
+                ...data,
+                token
+            });
+            await activate.save();
+        }catch(err){
+            throw YuyuidError.badRequest(err.message);
+        }
+    }
 
     static async VerifyUniqueEmail(email){
 

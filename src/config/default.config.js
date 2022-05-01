@@ -3,6 +3,7 @@ import config from 'config'
 export const YuyuidConfig = {
     apiPrefix: config.get("api.prefix"),
     jwtSecret: config.get("api.jwtSecret"),
+    jwtSecretActivate: config.get("api.jwtSecretActivate"),
     port: config.get("api.port"),
     sendGrid: config.get("sendgrid"),
     resetPasswordUrl: config.get("url.resetPassword"),
