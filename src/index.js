@@ -6,9 +6,7 @@ import routes from "./api";
 import { YuyuidConfig } from "./config";
 import bodyParser from 'body-parser'
 import connectDB from "../config/db";
-// import cloudinary from 'cloudinary'
 import 'dotenv/config'
-// const cloud = cloudinary?.v2
 const app = express();
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
 

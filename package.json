@@ -2,12 +2,13 @@
   "name": "backend-skripsi",
   "version": "1.0.0",
   "description": "Backend application for skripsi",
-  "main": "src/index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --exec babel-node src/index.js",
     "start:migrate": "node ./album-migrations/index.js",
-    "start:dev": "nodemon --exec babel-node src/index.js",
+    "start:dev": "nodemon --exec babel-node app.js",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install",
     "seeder:import": "babel-node config/seeder.js",
     "seeder:destroy": "babel-node config/seeder.js --d"
   },
@@ -24,6 +25,7 @@
     "@hapi/boom": "^9.1.4",
     "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
     "celebrate": "^15.0.0",
     "cloudinary": "^1.28.1",
     "config": "^3.3.6",
