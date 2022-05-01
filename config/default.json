@@ -9,7 +9,7 @@
     "port": 27017,
     "uri": "mongodb://localhost",
     "name": "myskripsi",
-    "detail": "mongodb://localhost:27017/vodonesia",
+    "detail": "mongodb+srv://vodonesia:arjuna46@vodonesia.vysbe.mongodb.net/vodonesia?retryWrites=true&w=majority",
     "username": "root",
     "password": "",
     "host": "localhost",
