@@ -6,7 +6,7 @@
   "proxy": "http://localhost:3000",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --exec babel-node src/index.js",
+    "start": "node --exec babel-node app.js",
     "start:migrate": "node ./album-migrations/index.js",
     "start:dev": "nodemon --exec babel-node app.js",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --exec babel-node",
