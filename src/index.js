@@ -36,9 +36,9 @@ cloud.config({
     secure: true
 });
 
-// app.use('/', (req,res)=> {
-//     return res.json({message:"OK!"}).status(200)
-// })
+app.use('/', (req,res)=> {
+    return res.json({message:"OK!"}).status(200)
+})
 app.use(YuyuidConfig.apiPrefix, routes())
 
 app.listen(PORT, ()=> console.log(`Server is running on : ${PORT}`))

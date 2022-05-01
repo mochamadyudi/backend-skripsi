@@ -9,7 +9,14 @@
     "start:migrate": "node ./album-migrations/index.js",
     "start:dev": "nodemon --exec babel-node src/index.js",
     "seeder:import": "babel-node config/seeder.js",
-    "seeder:destroy": "babel-node config/seeder.js --d"
+    "seeder:destroy": "babel-node config/seeder.js --d",
+    "build": "npm-run-all clean transpile copy-config copy-package copy-cert copy-assets",
+    "transpile": "babel src --out-dir dist/backend/src",
+    "copy-config": "copyfiles './config/*' ./dist/backend  --all  --error  && echo 'config files copied.'",
+    "copy-package": "copyfiles 'package.json' ./dist/backend  --all  --error  && echo 'package.json copied.'",
+    "copy-cert": "copyfiles './cert/*' ./dist/backend  --all  --error  && echo 'cert files copied.'",
+    "copy-assets": "copyfiles './src/lib/modules/email/assets/**/*' ./dist/backend --all  --error  && echo 'assets files copied.'",
+    "pm2:prod": "NODE_ENV=production pm2 start ./dist/backend/src/index.js --name backend"
   },
   "keywords": [
     "skripsi",
