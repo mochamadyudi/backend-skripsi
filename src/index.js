@@ -34,9 +34,8 @@ app.use((req,res,next)=> {
 //     secure: true
 // });
 
+app.use(YuyuidConfig.apiPrefix, routes())
 app.use('/', (req,res)=> {
     return res.json({message:"OK!"}).status(200)
 })
-app.use(YuyuidConfig.apiPrefix, routes())
-
 app.listen(PORT, ()=> console.log(`Server is running on : ${PORT}`))
