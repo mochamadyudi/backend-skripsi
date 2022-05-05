@@ -8,7 +8,6 @@ const request = require('request').defaults({ encoding: null });
 
 export default ()=> {
     const app = Router();
-
     auth(app)
 
     app.use('/villa', VillaRoute() )
@@ -16,5 +15,7 @@ export default ()=> {
 
     app.use('/self', userRoute())
     app.use('/travel', travelRoute())
+
+
     return app
 }

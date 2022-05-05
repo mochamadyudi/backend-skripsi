@@ -5,8 +5,10 @@ import YuyuidError from "@yuyuid/exception";
 import formidable from "formidable";
 import {v2 as cloudinary} from "cloudinary";
 import BodyResponse from "../../../lib/handler/body-response";
-import {Travel} from "@yuyuid/models";
+import {Travel, TravelDiscuss} from "@yuyuid/models";
 import {MixedMiddlewares} from "@yuyuid/middlewares";
+import {TravelLikes} from "../../../models/travel/travel_likes.schema";
+import {isAuth} from "../../middlewares/auth";
 
 const route = Router()
 
@@ -17,16 +19,16 @@ export default (app) => {
         try {
             const token = await UserService.GetToken(req)
             const data = await UserService.UserLoaded(req.user.id)
-            // return res.json({
-            //     message:"User has been found",
-            //     success: true,
-            //
-            //     data:{
-            //         token,
-            //         ...data,
-            //     }
-            // }).status(200);
-            return res.json({message: "Create Successfully", data:req.body}).status(200)
+            return res.json({
+                message:"User has been found",
+                success: true,
+
+                data:{
+                    token,
+                    ...data,
+                }
+            }).status(200);
+            // return res.json({message: "Create Successfully", data:req.body}).status(200)
         } catch (e) {
             return next(e)
         }
@@ -52,26 +54,64 @@ export default (app) => {
         }
     })
 
-    route.get('/:id', MixedMiddlewares.protectLogin[0],async (req, res, next) => {
+    route.get('/:id', async (req, res, next) => {
         try {
-            const {error,data,message} = await TravelService.single(req.params)
 
-            if (error) throw YuyuidError.internal('failed get travel')
-            const likes = await TravelService.getLikes(data.id)
-            const discuss = await TravelService.getDiscuss(data.id)
+            const {id} = req.params
 
-            return res.json({
-                message: "success",
-                data: {
-                    travel:data,
-                    likes: likes.likes ?likes.likes :  [],
-                    discuss: discuss.discuss ? discuss.discuss : []
-                }
-            }).status(200)
+            await Travel.findOne({
+                _id:id
+            })
+                .then(async (field)=> {
+                    if (field){
+                        const likes = await TravelLikes.findOne({travel:field.id}).select("-__v -_id -travel -date").populate('likes.user', ['firstName','lastName','email','is_verify'])
+                        const discuss= await TravelDiscuss.findOne({travel:field.id}).select("-__v -_id -travel -date").populate('discuss.user', ['firstName','lastName','email','is_verify'])
+
+                        return res.json({
+                            error:false,
+                            message: "Successfully!",
+                            data: {
+                                row: field,
+                                likes:typeof(likes?.likes) !== "undefined" ? likes.likes : [],
+                                discuss: typeof(discuss?.discuss) !== "undefined" ? discuss?.discuss : []
+                            }
+                        }).status(200)
+                    }else{
+                        return res.json({
+                            error:true,
+                            message: `Travel ${id} not found!`,
+                            data: null
+                        }).status(200)
+                    }
+                })
+                .catch((err)=> {
+                    return res.json({
+                        error:true,
+                        message: err.message,
+                        data: null
+                    }).status(200)
+                })
+
         } catch (err) {
             return next(err)
         }
     })
 
+
+    route.put('/likes/:id', isAuth, async (req,res)=> {
+        try{
+            // const {user} = req.body
+            // const {id} = req.params
+
+            return res.json({
+                error:false,
+                message: "halloooo",
+                data: null
+            })
+            console.log()
+        }catch(err){
+
+        }
+    })
 
 }

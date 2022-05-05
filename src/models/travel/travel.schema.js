@@ -22,97 +22,81 @@ const PeriodsSchema = new mongoose.Schema({
 });
 
 const PhotoSchema = new mongoose.Schema({
-    name: {type:String},
+    name: {type: String},
     original_filename: {type: String},
     prefix: {type: String},
     url: {type: String},
 })
 const VideoSchema = new mongoose.Schema({
-    name: {type:String},
+    name: {type: String},
     original_filename: {type: String},
     prefix: {type: String},
     url: {type: String}
 })
 
-const FacilitySchema = new mongoose.Schema( {
-    ac: {
-        type: Boolean,
-        default:false,
-    },
+const FacilitySchema = new mongoose.Schema({
     gazebo: {
         type: Boolean,
-        default:false,
+        default: false,
     },
     hall: {
         type: Boolean,
-        default:false,
+        default: false,
     },
     meeting_room: {
         type: Boolean,
-        default:false,
+        default: false,
     },
     parking: {
         type: Boolean,
-        default:false,
-    },
-    swimming_pool: {
-        type: Boolean,
-        default:false,
-    },
-    tv: {
-        type: Boolean,
-        default:false,
-    },
-    wifi: {
-        type: Boolean,
-        default:false,
+        default: false,
     },
 })
 
 //Option to not delete posts, this is why we're using this
 const TravelSchema = new Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+    },
     travel_name: {
         type: String
     },
-    slug:{
-        type: String,
-        default:null
-    },
-    hash_id: {
+    slug: {
         type: String,
         default: null
     },
     thumbnail: {
-        captions: {
+
+        prefix: {
             type: String,
-            default:null,
+            default: process.env.PREFIX_URL
         },
-        name: {type:String,default:null},
-        original_filename: {type: String,default:null},
-        prefix: {type: String,default:null},
-        url: {type: String,default:null},
+        url: {type: String, default: null},
     },
-    photo: {
-        type:Array,
-        default: [PhotoSchema]
-    },
-    video: {
-        type:Array,
-        default:[VideoSchema]
-    },
+    photo: [PhotoSchema],
+    video: [VideoSchema],
     facility: FacilitySchema,
+    categories: [
+        {
+            category: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "travel_category"
+            }
+        }
+    ],
     location: {
         country: {
             type: String,
-            default:null,
+            default: "indonesia",
         },
         province: {
-            type:String,
-            default:null,
+            type: String,
+            default: "jawa barat",
         },
         city: {
             type: String,
-            default:null
+            default: "Kab. karawang"
         },
         district: {
             type: String,
@@ -120,7 +104,7 @@ const TravelSchema = new Schema({
         },
         sub_district: {
             type: String,
-            default:null
+            default: null
         },
         zip_code: {
             type: String,
@@ -128,7 +112,7 @@ const TravelSchema = new Schema({
         },
         address: {
             type: String,
-            default:null,
+            default: null,
         },
         endpoint: {
             lat: {
@@ -143,13 +127,14 @@ const TravelSchema = new Schema({
     },
     bio: {
         type: String,
-        default:null,
+        default: null,
     },
-    periods: {
-        type:Array,
-        default:[PeriodsSchema]
+    periods: [PeriodsSchema],
+    is_free: {
+        type: Boolean,
+        default: true,
     },
-    price:{
+    price: {
         specials: {
             type: Number,
             default: null
@@ -162,24 +147,72 @@ const TravelSchema = new Schema({
             type: Number,
             default: null
         },
-        discount:{
+        discount: {
             type: Number,
             default: 0
         }
     },
     is_published: {
         type: Number,
-        enum: [-1,0,1], // -1 = draft | 0 = pending | 1 = published
-        default:0
+        enum: [-1, 0, 1], // -1 = draft | 0 = pending | 1 = published
+        default: 0
     },
-    is_deleted:{
+    is_deleted: {
         type: Boolean,
-        default:false
+        default: false
     },
     deleted_at: {
         type: Date,
         default: null,
     },
+    seen:{
+        type: Number,
+        default: 0
+    },
+    likes: [
+        {
+            user: {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"user"
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ],
+    comments: [
+        {
+            user: {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"user"
+            },
+            comment:{
+                type:Number,
+                default:0
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ],
+    rating:[
+        {
+            user: {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"user"
+            },
+            rate:{
+                type:Number,
+                default:0
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ],
     date: {
         type: Date,
         default: Date.now

@@ -202,12 +202,12 @@ export class TravelService {
 
 
     static async getLikes(id) {
-        const likes = await TravelLikes.findOne({id: id})
+        const likes = await TravelLikes.findOne({travel: id})
         return likes
     }
 
     static async getDiscuss(id) {
-        const discuss = await TravelDiscuss.findOne({id: id})
+        const discuss = await TravelDiscuss.findOne({travel: id})
         return discuss
     }
 

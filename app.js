@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import fs from 'fs'
 import path from 'path'
 import routes from "./src/api";
 import { YuyuidConfig } from "./src/config";
@@ -41,8 +42,25 @@ app.use(AppendExpressResponseProperty.appendError);
 // app.use('/', (req,res)=> {
 //     return res.json({message:"OK!"}).status(200)
 // })
+app.get("/public/uploads/:typefile/:folder/:filename", async (req,res,next)=> {
+    let paths = path.resolve(__dirname + req.url)
+    fs.readFile(paths, (err, data) => {
+        if (err) {
+            next(err) // Pass errors to Express.
+        } else {
+            res.sendFile(paths)
+        }
+    })
+})
+// app.get('/public/uploads/images/:folder/:filename', async(req,res)=> {
+//     console.log(req.params)
+//     return res.send('helloooo')
+// })
+
 app.post('/auth/reset/password/:token',AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix, routes())
+
+
 //
 if(process.env.NODE_ENV === "PRODUCTION"){
     app.use(express.static("client/build"));

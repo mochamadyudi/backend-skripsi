@@ -15,7 +15,7 @@ export default () => {
     drive(app)
     users(app)
     villa(app)
-    travels(app)
+    app.use('/travel',travels())
 
     app.post('/create/promotion/villa', async (req, res) => {
         try {
