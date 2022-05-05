@@ -58,7 +58,7 @@ async function CreateFolder(name) {
 
                 return new BodyResponse({error:true,message:err.message})
             } else {
-                return new BodyResponse({data: {...file,id:file.id}})
+                return new BodyResponse({data: {file,id:file.id}})
             }
         });
 
@@ -103,7 +103,7 @@ async function generatePublic(id){
             fileId:id,
             fields: "webViewLink, webContentLink"
         })
-        return response?.data
+        return response.data
     }catch(err){
         throw err
     }

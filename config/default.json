@@ -9,7 +9,7 @@
     "port": 27017,
     "uri": "mongodb://localhost",
     "name": "myskripsi",
-    "detail": "mongodb+srv://vodonesia:arjuna46@vodonesia.vysbe.mongodb.net/vodonesia?retryWrites=true&w=majority",
+    "detail": "mongodb://localhost:27017/vodonesia",
     "username": "root",
     "password": "",
     "host": "localhost",
@@ -22,7 +22,7 @@
     "subjectPrefix": "YuyuidTesting"
   },
   "url": {
-    "resetPassword": "http://localhost:5000/reset-password",
-    "verifyEmail": "http://localhost:5000/verify-email"
+    "resetPassword": "http://localhost:5000/auth/reset/password",
+    "verifyEmail": "http://localhost:5000/api/v1/auth/verify/email"
   }
 }

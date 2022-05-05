@@ -18,7 +18,7 @@ export class TravelService {
             const skipIndex = (page - 1) * limit;
             const travelCount = await Travel.count()
             const travel = await Travel.find({})
-                .sort({name: query?.order ?? "asc", date: -1})
+                .sort({name: query.order ?? "asc", date: -1})
                 .limit(limit)
                 .skip(skipIndex)
                 .exec();
@@ -53,9 +53,9 @@ export class TravelService {
                 let periods = {}
                 let price = {}
                 try {
-                    location = JSON.parse(fields?.location)
-                    price = JSON.parse(fields?.price)
-                    periods = JSON.parse(fields?.period)
+                    location = JSON.parse(fields.location)
+                    price = JSON.parse(fields.price)
+                    periods = JSON.parse(fields.period)
                 } catch (e) {
                     return next(e)
                 }
@@ -67,7 +67,7 @@ export class TravelService {
                 let newThumbnail = null
 
                 try {
-                    await cloudinary.uploader.upload(thumbnail?.filepath, {secure: true, transformation: [
+                    await cloudinary.uploader.upload(thumbnail.filepath, {secure: true, transformation: [
                             {width: 150, height: 150, crop: "thumb"},
                             {radius: 20}
                         ]}, (error, result) => {
@@ -75,14 +75,14 @@ export class TravelService {
                         if (!error) {
                             if(result && Object.keys(result).length > 0 ){
                                 newThumbnail = {
-                                    name: result?.name ?? null,
-                                    original_filename: result?.original_filename ?? null,
-                                    resource_type: result?.resource_type ?? null,
-                                    format: result?.format ?? null,
-                                    bytes: result?.bytes ?? null,
-                                    prefix: result?.prefix ?? null,
-                                    url: result?.url ?? null,
-                                    public_id: result?.public_id ?? null,
+                                    name: result.name ?? null,
+                                    original_filename: result.original_filename ?? null,
+                                    resource_type: result.resource_type ?? null,
+                                    format: result.format ?? null,
+                                    bytes: result.bytes ?? null,
+                                    prefix: result.prefix ?? null,
+                                    url: result.url ?? null,
+                                    public_id: result.public_id ?? null,
                                 }
                             }
                             next(error)
@@ -96,7 +96,7 @@ export class TravelService {
                     travel_name,
                     hash_id: HashId({count: 20}),
                     slug: generateSlug,
-                    thumbnail: {...newThumbnail},
+                    thumbnail: newThumbnail,
                     photo: [],
                     video: [],
                     facility,
@@ -130,7 +130,7 @@ export class TravelService {
 
     static async single(params) {
         try {
-            const travel = await Travel.findOne({id: params?.id})
+            const travel = await Travel.findOne({id: params.id})
             // return [null,travel]
             return new BodyResponse({error: false, message: "Successfully!", data: travel})
         } catch (err) {

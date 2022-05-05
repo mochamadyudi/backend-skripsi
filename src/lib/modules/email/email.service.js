@@ -2,13 +2,13 @@ import Email from "email-templates";
 import { createTransport } from "nodemailer";
 import sendGridTransport from "nodemailer-sendgrid";
 import { EmailConstant } from "./email.constant";
-import { BitevoConfig } from "@bitevo/config";
+import { YuyuidConfig } from "@yuyuid/config";
 import { join } from "path";
 
 export class EmailService {
   static getInstance() {
     if (!this.transporter || !this.email) {
-      const { apiKey, emailFrom } = BitevoConfig.sendGrid;
+      const { apiKey, emailFrom } = YuyuidConfig.sendGrid;
       const options = { apiKey };
       this.transporter = createTransport(sendGridTransport(options));
 

@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
+    // id:{
+    //     type: String,
+    //     default: mongoose.Types.ObjectId
+    // },
+
     role:{
         type: String,
         enum: ['customer','villa','admin']
@@ -39,10 +44,18 @@ const UserSchema = new mongoose.Schema({
     expires_in:{
         type:Date,
     },
+    is_verify: {
+        type: Boolean,
+        default: false,
+    },
     date: {
         type: Date,
         default: Date.now
     }
+},{
+    virtuals: true,
+    versionKey:false,
+    transform: function (doc, ret) {   delete ret._id  }
 });
 
 const User = mongoose.model("user", UserSchema);

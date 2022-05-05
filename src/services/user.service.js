@@ -25,9 +25,12 @@ export class UserService {
         }
     }
 
-    static async firstAddProfile(id = null) {
+    static async firstAddProfile(id = null, isadmin = false) {
         if (id !== null) {
-            const profile = new Profile({user: id})
+            const profile = new Profile({
+                user: id,
+                is_admin:isadmin,
+            })
             await profile.save();
 
         }
@@ -86,7 +89,7 @@ export class UserService {
     static async update(userInputDto) {
         try {
             // const user = await User.update(userInputDto, { where: { id: userInputDto.userId } });
-            // return [null, user?.length > 0];
+            // return [null, user.length > 0];
             return true;
         } catch (err) {
             return [err, null];
@@ -96,31 +99,31 @@ export class UserService {
     static async updateProfile(userInput = {}) {
         try {
             const fields = {
-                user: userInput?.id,
-                contact: userInput?.contact ?? null,
+                user: userInput.id,
+                contact: userInput.contact ?? null,
                 location: {
-                    lat: userInput?.location_lat ?? null,
-                    long: userInput?.location_long ?? null,
+                    lat: userInput.location_lat ?? null,
+                    long: userInput.location_long ?? null,
                 },
                 social: {
-                    youtube: userInput?.youtube ?? null,
-                    twitter: userInput?.twitter ?? null,
-                    facebook: userInput?.facebook ?? null,
-                    instagram: userInput?.instagram ?? null,
+                    youtube: userInput.youtube ?? null,
+                    twitter: userInput.twitter ?? null,
+                    facebook: userInput.facebook ?? null,
+                    instagram: userInput.instagram ?? null,
                 },
-                bio: userInput?.bio ?? null,
-                address: userInput?.address ?? [],
-                status: userInput?.status ?? null
+                bio: userInput.bio ?? null,
+                address: userInput.address ?? [],
+                status: userInput.status ?? null
 
             }
 
             try {
-                let profile = await Profile.findOne({user: userInput?.id});
+                let profile = await Profile.findOne({user: userInput.id});
                 //Look for profile by user
                 if (profile) {
                     //update!
                     profile = await Profile.findOneAndUpdate(
-                        {user: userInput?.id},
+                        {user: userInput.id},
                         {$set: fields},
                         {new: true}
                     );

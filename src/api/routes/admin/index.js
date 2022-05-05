@@ -1,33 +1,55 @@
-import { Router } from 'express'
-
-import {YuyuidConfig} from "@yuyuid/config";
-import {MixedMiddlewares} from "@yuyuid/middlewares";
-const jwt = require("jsonwebtoken");
+import {Router} from 'express'
 import drive from "./drive"
+import moment from "moment";
+import {VillaPromotion} from "../../../models/villa/villa_promotion.schema";
+import {Villa} from "../../../models/villa/villa.schema";
 
+import users from './users'
+import villa from './villa'
+import travels from './travel'
+import {isAdmins} from "../../middlewares/auth";
 
-const auth = (req,res,next)=> {
-    try {
-        //Check if there isn't a token
-        if (
-            (req.headers.authorization && req.headers.authorization.split(" ")[0] === "Token") ||
-            (req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer")
-        ) {
-            const token = req.headers.authorization.split(" ")[1]
-
-            const decoded = jwt.verify(token,YuyuidConfig.jwtSecret);
-            // console.log(decoded,token)
-            // console.log(decoded)
-            req.user = decoded.user;
-            next();
-        }
-    } catch (err) {
-        res.status(401).json({ message: "Token isnt valid!" });
-    }
-}
-export default ()=> {
+export default () => {
     const app = Router();
-    // app.use(auth);
+    app.use(isAdmins);
     drive(app)
+    users(app)
+    villa(app)
+    travels(app)
+
+    app.post('/create/promotion/villa', async (req, res) => {
+        try {
+
+            const {day, id, type} = req.body
+
+            const fields = {
+                villa: id,
+                type,
+                start_date: moment(Date()).utc(true).day(1).local(),
+                end_date: moment(Date()).utc(true).day(Number(day) + 1).local()
+            }
+            const checked = await VillaPromotion.findOne({villa: id})
+            if (!checked) {
+                const villaPromotion = new VillaPromotion({
+                    ...fields
+                })
+
+                await villaPromotion.save();
+            }
+            const villa = await VillaPromotion.findOne({villa: id}).populate("villa", ["slug", "name", "thumbnail", "bio", "description"])
+
+            return await res.json({
+                error: false,
+                message: checked ? "This data already exists!": "succeed!\n your villa will appear, please wait a moment",
+                data: villa
+            })
+        } catch (err) {
+            return res.json({
+                error: true,
+                message: err.message,
+                data: null
+            })
+        }
+    })
     return app;
 }

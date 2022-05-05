@@ -63,13 +63,13 @@ export default (app)=> {
                 const {thumbnail} = files
 
                 const uploaded = await uploadFile({
-                    path: thumbnail?.filepath,
-                    fileName:thumbnail?.newFilename,
-                    mimetype: thumbnail?.mimetype
+                    path: thumbnail.filepath,
+                    fileName:thumbnail.newFilename,
+                    mimetype: thumbnail.mimetype
                 })
-                const responsePublic = await generatePublic(uploaded?.id)
+                const responsePublic = await generatePublic(uploaded.id)
 
-                return res.status(200).json({...responsePublic, ...uploaded,prefix_url:process.env.PREFIX_DRIVE_URI})
+                return res.status(200).json({responsePublic, uploaded,prefix_url:process.env.PREFIX_DRIVE_URI})
 
             })
         }catch(err){

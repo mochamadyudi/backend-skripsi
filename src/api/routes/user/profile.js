@@ -13,13 +13,14 @@ export default (app)=> {
     route.get('/profile' , async (req,res,next)=> {
         try{
             const token = await UserService.GetToken(req)
-            const data = await UserService.UserLoaded(req.user.id)
+            const {user,profile} = await UserService.UserLoaded(req.user.id)
             return res.json({
                 message:"User has been found",
                 success: true,
                 data:{
                     token,
-                    ...data,
+                    user,
+                    profile
                 }
             }).status(200);
         }catch(e){
@@ -31,7 +32,7 @@ export default (app)=> {
         try{
             const  form = new formidable.IncomingForm();
             return await form.parse(req, async function (err, fields, files) {
-                await cloudinary.uploader.upload(files?.file?.filepath, {
+                await cloudinary.uploader.upload(files.file.filepath, {
                     upload_preset: "default-preset-aku",
                     categorization: "google_tagging",
                     auto_tagging: 0.6
@@ -49,9 +50,9 @@ export default (app)=> {
 
     route.put('/profile/update', async (req,res,next)=>{
         try{
-            await UserService.updateProfile({id:req.user.id,...req.body})
+            await UserService.updateProfile({id:req.user.id,data:req.body})
                 .then((response)=> {
-                    return res.status(response?.status ?? 200).json({...response})
+                    return res.status(response.status ? response.status : 200).json(response)
                 })
                 .catch((err)=> {
                     return res.status(500).json(new BodyResponse({error:true,status:500,message:err.message}))

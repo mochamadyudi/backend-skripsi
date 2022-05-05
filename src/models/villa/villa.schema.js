@@ -76,11 +76,21 @@ const VillaSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    location: {
+        lat: {
+            type: String,
+            default :null
+        },
+        long:{
+            type: String,
+            default :null
+        }
+    },
     date: {
         type: Date,
         default: Date.now
     }
-});
+},{ versionKey: false });
 
 const Villa = mongoose.model("villa", VillaSchema);
 

@@ -11,10 +11,13 @@ const verifyCurrentUser = async (req,res,next)=> {
         if (!userRecord){
             throw YuyuidError.unauthorized();
         }
-        const currentUser = userRecord.toJSON();
+        let currentUser = userRecord.toJSON();
         Reflect.deleteProperty(currentUser,"password")
         Reflect.deleteProperty(currentUser, "salt")
-        req.user = {...currentUser,userId: currentUser.id}
+        req.user = {
+            currentUser,
+            userId: currentUser.id
+        }
         return next();
     }catch(e){
         return next(e);

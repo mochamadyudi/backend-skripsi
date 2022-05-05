@@ -1,6 +1,7 @@
-class AppendExpressResponseProperty {
-    transformSuccessBody(res,body = {}){
-        const message = body?.message;
+
+export default class AppendExpressResponseProperty {
+    static transformSuccessBody(res,body = {}){
+        const message = body.message;
         Reflect.deleteProperty(body,'message');
 
         const transformedBody = {
@@ -8,12 +9,12 @@ class AppendExpressResponseProperty {
             success: true,
             message,
             requestTime: new Date().getTime(),
-            data: body?.data ?? body
+            data: body.data ?body.data : body
         }
         return transformedBody
     }
 
-    transformErrorBody(res,body){
+    static transformErrorBody(res,body){
         const {status,message,error} = body
         const transformedBody = {
             status,
@@ -26,19 +27,17 @@ class AppendExpressResponseProperty {
         return transformedBody
     }
 
-    appendSuccess(req,res,next){
+    static appendSuccess(req,res,next){
         res.success = res.json
         const old = res.success.bind(res)
         res.success = (body)=> old(this.transformSuccessBody(res,body))
         next()
     }
 
-    appendError(req,res,next){
+    static appendError(req,res,next){
         res.success = res.json
         const old = res.success.bind(res)
         res.error = (body)=> old(this.transformSuccessBody(res,body))
         next()
     }
 }
-const ResponseProperty = AppendExpressResponseProperty
-export default ResponseProperty

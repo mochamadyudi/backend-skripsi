@@ -23,9 +23,18 @@ const signinValidator = async (req,res,next)=> {
     })
     validator(schema.validate(req.body),next)
 }
+const changePasswordValidator = async (req,res,next)=> {
+    const schema = JoiBase.append({
+        old_password: Joi.string().required(),
+        password: Joi.string().trim().required(),
+        confirm_password: Joi.string().trim().required(),
+    })
+    validator(schema.validate(req.body),next)
+}
 
 
 export default {
     signupValidator,
-    signinValidator
+    signinValidator,
+    changePasswordValidator
 }

@@ -13,7 +13,7 @@ export default (app)=> {
     route.post('/roles/create', PermissionsValidator.RolesValidator , async (req,res,next)=> {
         try{
             const newRoles = await PermissionsService.Create(req.body)
-            return res.status(200).json({...newRoles})
+            return res.status(200).json(newRoles)
         }catch(err){
             return res.status(500).json(new BodyResponse({
                 error:true,

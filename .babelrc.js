@@ -1,4 +1,7 @@
 module.exports = {
+    "ignore": [
+        "**/*.test.js"
+    ],
     presets: [
         [
             require.resolve('@babel/preset-env'),
@@ -10,6 +13,7 @@ module.exports = {
         ],
     ],
     plugins: [
+        // require.resolve("babel-plugin-transform-object-rest-spread"),
         require.resolve("babel-plugin-transform-export-extensions"),
         require.resolve("@babel/plugin-proposal-class-properties"),
         require.resolve("@babel/plugin-proposal-private-methods"),

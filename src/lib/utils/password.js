@@ -13,4 +13,6 @@ const encryptPassword = async (password) => {
     return { hashedPassword, salt };
 };
 
+
+
 export { encryptPassword };

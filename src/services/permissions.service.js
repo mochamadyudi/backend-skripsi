@@ -4,7 +4,7 @@ import BodyResponse from "../lib/handler/body-response";
 
 export class PermissionsService {
     static async Create(userInput){
-        await PermissionsService.verifyRolesBySlug(userInput?.slug)
+        await PermissionsService.verifyRolesBySlug(userInput.slug)
         return await PermissionsService.createRoles(userInput)
     }
 

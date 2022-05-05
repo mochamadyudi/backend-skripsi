@@ -8,7 +8,7 @@ export default (app)=> {
     route.get('/load', async (req,res,next)=> {
         try{
             console.log(req.header)
-            return res.success({ data: { ...req.user } }).status(200);
+            return res.success({ data: req.user }).status(200);
         }catch(e){
             return next(e)
         }

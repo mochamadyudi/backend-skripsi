@@ -26,7 +26,7 @@ export default (app) => {
             //         ...data,
             //     }
             // }).status(200);
-            return res.json({message: "Create Successfully", ...req.body}).status(200)
+            return res.json({message: "Create Successfully", data:req.body}).status(200)
         } catch (e) {
             return next(e)
         }
@@ -45,7 +45,7 @@ export default (app) => {
         try {
             const [err, travel] = await TravelService.all(req.query)
             if (err) throw YuyuidError.internal('error get travel ')
-            return res.status(200).json({error:false,message: "get Successfully",success:true,...travel})
+            return res.status(200).json({error:false,message: "get Successfully",success:true,data:travel})
 
         } catch (e) {
             throw next(e)
@@ -64,8 +64,8 @@ export default (app) => {
                 message: "success",
                 data: {
                     travel:data,
-                    likes: likes?.likes ?? [],
-                    discuss: discuss?.discuss ?? []
+                    likes: likes.likes ?likes.likes :  [],
+                    discuss: discuss.discuss ? discuss.discuss : []
                 }
             }).status(200)
         } catch (err) {

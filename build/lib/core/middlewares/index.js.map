@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../src/lib/core/middlewares/index.js"],"names":["errorHandler","coreMiddleware"],"mappings":"AAAA,OAAOA,YAAP,MAAyB,yBAAzB;;AAEA,OAAO,MAAMC,iBAAiB,EAAED,YAAF,EAAvB","file":"index.js","sourcesContent":["import errorHandler from './express-error-handler'\r\n\r\nexport const coreMiddleware = { errorHandler }\r\n"]}
