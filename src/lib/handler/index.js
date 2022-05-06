@@ -1,5 +1,4 @@
 import BodyResponse from "./body-response";
-
-export default {
+export {
     BodyResponse
 }

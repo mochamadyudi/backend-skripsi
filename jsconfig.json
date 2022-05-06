@@ -7,6 +7,7 @@
       "@yuyuid/config": ["./src/config/index"],
       "@yuyuid/constants": ["./src/lib/constants/index"],
       "@yuyuid/core": ["./src/lib/core/index"],
+      "@yuyuid/handler": ["./src/lib/handler"],
       "@handler": ["./src/lib/handler/index"],
       "@yuyuid/exception": ["./src/lib/exceptions/yuyuidError"],
       "@yuyuid/middlewares": ["./src/api/middlewares/index"],

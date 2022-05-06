@@ -3,6 +3,7 @@ import {Router} from "express";
 import formidable from "formidable";
 import Category from './category'
 import mv from 'mv'
+import waterfall from "async-waterfall"
 import fs from 'fs'
 
 import path from 'path'
@@ -17,6 +18,8 @@ import {Travel, TravelDiscuss} from "@yuyuid/models";
 import Pagination from "../../../../lib/utils/Pagination";
 import {TravelCategory} from "../../../../models/travel/travel_categories.schema.";
 import {TravelLikes} from "../../../../models/travel/travel_likes.schema";
+import {TravelRating} from "../../../../models/travel/travel_rating.schema";
+import {TravelService} from "@yuyuid/services";
 
 export default () => {
     const app = Router()
@@ -35,11 +38,15 @@ export default () => {
             await travel.save();
 
             await new TravelLikes({
-                travel:travel?.id,
+                travel: travel?.id,
             }).save()
             await new TravelDiscuss({
-                travel:travel?.id
+                travel: travel?.id
             }).save();
+
+            await new TravelRating({
+                travel: travel?.id
+            }).save()
 
             return res.json({
                 error: false,
@@ -202,90 +209,47 @@ export default () => {
     })
 
 
+    app.get('/list',TravelService._getTravelLists)
 
-    app.get('/list', async (req,res)=> {
-        try{
-
-            const {page, limit, direction} = Pagination(req.query)
-
-            const user = await Travel.find().populate("categories.category", ['slug', 'name','is_verify','is_published'])
-                // .and(options)
-                .limit(limit)
-                .skip(limit * (page > 1 ? page - 1 : 0))
-                .sort({
-                    date: direction === "desc" ? -1 : 1
-                })
-
-
-            const count = await Travel.find()
-                // .and(options)
-                .count()
-
-
-            return res.json({
-                error: false,
-                message: null,
-                query: {
-                    limit,
-                    page: page > 0 ? page : 1,
-                    direction,
-                },
-                pagination: {
-                    total_page: limit > 0 ? Math.ceil(count / limit) : 1,
-                    current_page: page > 0 ? page : 1,
-                    total_record: count,
-                },
-                data: user
-            })
-
-            return res.json({
-                error:false,
-                message: null,
-                data: null
-            })
-        }catch(err){
-            return res.json({
-                error:true,
-                message: err.message,
-                data: null,
-            })
-        }
-    })
-
-    app.get('/update/published/:id', async (req,res)=> {
-        try{
+    app.get('/update/published/:id', async (req, res) => {
+        try {
             const {id} = req.params
             await Travel.findOneAndUpdate(
-                {_id:id},
-                {$set:{
-                    is_published: 1
+                {_id: id},
+                {
+                    $set: {
+                        is_published: 1
                     },
-            },{
-                    new :true
+                }, {
+                    new: true
                 }
-            ).then((field)=> {
-                if(field !== null){
+            ).then((field) => {
+                if (field !== null) {
                     return res.json({
-                        error:false,
+                        error: false,
                         message: `Successfully! ${field?.travel_name} is updated!`,
                         data: field
                     })
-                }else{
+                } else {
                     return res.json({
-                        error:true,
+                        error: true,
                         message: `travel ${id} not found!`,
                         data: null
                     })
                 }
             })
-        }catch(err){
+        } catch (err) {
             return res.json({
-                error:true,
+                error: true,
                 message: err.message,
                 data: null
             })
         }
     })
+
+
+    app.delete("/delete/:id", TravelService._deleteTravelById)
+
     return app
 
 

@@ -169,34 +169,6 @@ const TravelSchema = new Schema({
         type: Number,
         default: 0
     },
-    likes: [
-        {
-            user: {
-                type:mongoose.Schema.Types.ObjectId,
-                ref:"user"
-            },
-            date: {
-                type: Date,
-                default: Date.now
-            }
-        }
-    ],
-    comments: [
-        {
-            user: {
-                type:mongoose.Schema.Types.ObjectId,
-                ref:"user"
-            },
-            comment:{
-                type:Number,
-                default:0
-            },
-            date: {
-                type: Date,
-                default: Date.now
-            }
-        }
-    ],
     rating:[
         {
             user: {
@@ -217,6 +189,9 @@ const TravelSchema = new Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    timestamps:true,
+    versionKey:false
 });
 
 const Travel = mongoose.model('travel', TravelSchema)

@@ -32,6 +32,9 @@ const TicketSchema = new Schema({
         type: Date,
         default: Date.now()
     }
+}, {
+    timestamps:true,
+    versionKey:false
 });
 const TravelTicket = mongoose.model("travel_ticket", TicketSchema)
 export {TravelTicket}

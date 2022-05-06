@@ -2,9 +2,10 @@ import {Router} from "express";
 import Pagination from "../../../../lib/utils/Pagination";
 import {TravelCategory} from "../../../../models/travel/travel_categories.schema.";
 import {encryptChar} from "@yuyuid/utils";
+import {Travel} from "@yuyuid/models";
 
 const route = Router()
-export default (app)=> {
+export default (app) => {
     app.use('/category', route)
 
     /**
@@ -18,24 +19,23 @@ export default (app)=> {
             let is_verify = 0
             let is_published = 0
 
-            if (typeof (req.query?.is_verify) !== "undefined" && typeof(req.query?.is_published) !== "undefined") {
+            if (typeof (req.query?.is_verify) !== "undefined" && typeof (req.query?.is_published) !== "undefined") {
                 let is_verify = req.query?.is_verify
                 let is_published = req.query?.is_published
-                return await getData(true, [{is_verify},{is_published}])
-            }else if (typeof (req.query?.is_published) !== "undefined" && typeof (req.query?.is_verify) === "undefined" ) {
+                return await getData(true, [{is_verify}, {is_published}])
+            } else if (typeof (req.query?.is_published) !== "undefined" && typeof (req.query?.is_verify) === "undefined") {
                 let is_published = req.query?.is_published
                 return await getData(true, [{is_published}])
-            }else if (typeof (req.query?.is_published) === "undefined" && typeof (req.query?.is_verify) !== "undefined"){
+            } else if (typeof (req.query?.is_published) === "undefined" && typeof (req.query?.is_verify) !== "undefined") {
                 let is_verify = req.query?.is_verify
                 return await getData(true, [{is_verify}])
-            }else{
+            } else {
                 return await getData(false)
             }
 
 
-
-            async function getData(query = false, options =[]){
-                if (query){
+            async function getData(query = false, options = []) {
+                if (query) {
                     const user = await TravelCategory.find()
                         .and(options)
                         .limit(limit)
@@ -66,8 +66,7 @@ export default (app)=> {
                         data: user
                     })
 
-                }
-                else{
+                } else {
                     const user = await TravelCategory.find()
                         .limit(limit)
                         .skip(limit * (page > 1 ? page - 1 : 0))
@@ -151,10 +150,23 @@ export default (app)=> {
         try {
             const {id} = req.params
 
-            await TravelCategory.findOneAndRemove({_id: id})
-                .then((field) => {
-                    if (typeof (field) !== "undefined" && field !== null) {
 
+
+
+            await TravelCategory.findOneAndRemove({_id: id})
+                .then(async (field) => {
+                    if (typeof (field) !== "undefined" && field !== null) {
+                        await Travel.updateMany(
+                            {},
+                            {
+                                "$pull": {
+                                    categories : {
+                                        "category": id
+                                    }
+                                }
+                            },
+                            { "multi" : false }
+                        )
                         return res.json({
                             error: false,
                             message: `category ${field?.name} is deleted`,
@@ -177,134 +189,139 @@ export default (app)=> {
                         data: null
                     })
                 })
-        } catch (err) {
-            return res.json({
-                error: true,
-                message: err.message,
-                data: null
-            })
-        }
-    })
-
-    /**
-     * GET SINGLE BY SLUG NAME
-     */
-    route.get('/slug/:slug_name', async (req, res) => {
-        try {
-            const {slug_name} = req.params
-            const cat = await TravelCategory.findOne({
-                slug:slug_name
-            })
-            if (cat) {
+        } catch
+            (err)
+            {
                 return res.json({
-                    error: false,
-                    message: "Successfully!",
-                    data: cat
-                }).status(200)
-            } else {
-                return res.json({
-                    error: false,
-                    message: `Category ${slug_name} not found!`,
+                    error: true,
+                    message: err.message,
                     data: null
-                }).status(200)
+                })
             }
-
-        } catch (err) {
-            return res.json({
-                error: true,
-                message: err.message,
-                data: null
-            }).status(500)
         }
-    })
+    )
 
-    route.put('/verify/:id', async (req,res)=> {
-        try{
-            let {id} = req.params
-            await TravelCategory.findOneAndUpdate(
-                {_id: id},
-                {$set: {
-                        is_verify:1
-                    }},
-                {new: true}
-            )
-                .then((field)=> {
-                    if (field){
+        /**
+         * GET SINGLE BY SLUG NAME
+         */
+        route.get('/slug/:slug_name', async (req, res) => {
+            try {
+                const {slug_name} = req.params
+                const cat = await TravelCategory.findOne({
+                    slug: slug_name
+                })
+                if (cat) {
+                    return res.json({
+                        error: false,
+                        message: "Successfully!",
+                        data: cat
+                    }).status(200)
+                } else {
+                    return res.json({
+                        error: false,
+                        message: `Category ${slug_name} not found!`,
+                        data: null
+                    }).status(200)
+                }
+
+            } catch (err) {
+                return res.json({
+                    error: true,
+                    message: err.message,
+                    data: null
+                }).status(500)
+            }
+        })
+
+        route.put('/verify/:id', async (req, res) => {
+            try {
+                let {id} = req.params
+                await TravelCategory.findOneAndUpdate(
+                    {_id: id},
+                    {
+                        $set: {
+                            is_verify: 1
+                        }
+                    },
+                    {new: true}
+                )
+                    .then((field) => {
+                        if (field) {
+                            return res.json({
+                                error: false,
+                                message: "Successfully!",
+                                data: field
+                            })
+                        } else {
+                            return res.json({
+                                error: true,
+                                message: `Category ${id} not found!`,
+                                data: null
+                            })
+                        }
+                    })
+                    .catch((err) => {
                         return res.json({
-                            error:false,
-                            message: "Successfully!",
-                            data: field
-                        })
-                    }else{
-                        return res.json({
-                            error:true,
-                            message: `Category ${id} not found!`,
+                            error: true,
+                            message: err.message,
                             data: null
                         })
-                    }
-                })
-                .catch((err)=> {
-                    return res.json({
-                        error:true,
-                        message: err.message,
-                        data: null
                     })
+            } catch (err) {
+                return res.json({
+                    error: true,
+                    message: err.message,
+                    data: null
                 })
-        }catch(err){
-            return res.json({
-                error:true,
-                message: err.message,
-                data: null
-            })
-        }
-    })
-
-    route.put('/update/:id', async (req,res)=> {
-        try{
-            let {id} = req.params
-            let body = req.body
-            let fields = {}
-            fields.about = {}
-            if (typeof(body?.title) !== "undefined") fields.about.title = body.title
-            if (typeof(body?.content) !== "undefined") fields.about.content = body.content
-            if(typeof(body.name) !== "undefined") {
-                fields.name = body.name
-                fields.slug = body.name.toString().toLowerCase().replace(/ /g, '-')
             }
-            fields.is_published = 1
-            await TravelCategory
-                .findOneAndUpdate(
-                    {_id:id},
-                    {$set: fields},
-                    {new: true})
-                .then((field)=> {
-                    if(field){
+        })
+
+        route.put('/update/:id', async (req, res) => {
+            try {
+                let {id} = req.params
+                let body = req.body
+                let fields = {}
+                fields.about = {}
+                if (typeof (body?.title) !== "undefined") fields.about.title = body.title
+                if (typeof (body?.content) !== "undefined") fields.about.content = body.content
+                if (typeof (body.name) !== "undefined") {
+                    fields.name = body.name
+                    fields.slug = body.name.toString().toLowerCase().replace(/ /g, '-')
+                }
+                fields.is_published = 1
+                await TravelCategory
+                    .findOneAndUpdate(
+                        {_id: id},
+                        {$set: fields},
+                        {new: true})
+                    .then((field) => {
+                        if (field) {
+                            return res.json({
+                                error: false,
+                                message: `Successfully! Category ${field?.name} is Updated!`,
+                                data: field
+                            })
+                        } else {
+                            return res.json({
+                                error: true,
+                                message: `Error! Category ID ${id} not found!`,
+                                data: null
+                            })
+                        }
+                    })
+                    .catch((err) => {
                         return res.json({
-                            error:false,
-                            message: `Successfully! Category ${field?.name} is Updated!`,
-                            data: field
-                        })
-                    }else{
-                        return res.json({
-                            error:true,
-                            message: `Error! Category ID ${id} not found!`,
+                            error: true,
+                            message: err.message,
                             data: null
                         })
-                    }
-                })
-                .catch((err)=> {
-                    return res.json({
-                        error:true,
-                        message: err.message,
-                        data: null
                     })
+            } catch (err) {
+                return res.json({
+                    error: true,
+                    message: err.message,
+                    data: null
                 })
-        }catch(err){
-            return res.json({
-                error:true,
-                message: err.message,
-                data: null
-            })
-        }
-    })
-}
+            }
+        })
+    }

@@ -1,7 +1,8 @@
 import {Router} from "express";
 import Pagination from "../../../../lib/utils/Pagination";
-import {Villa} from "../../../../models/villa/villa.schema";
+import {Villa} from "@yuyuid/models";
 import moment from "moment";
+import VillaService from "../../../../services/villa.service";
 
 const route = Router()
 export default (app)=> {
@@ -9,7 +10,8 @@ export default (app)=> {
     route.get('/profile', async (req,res)=> {
         res.json({error:false,message: "oK!"})
     })
-    app.get("/search/:q", async (req,res)=> {
+
+    route.get("/search/:q", async (req,res)=> {
         try{
             let {q} = req.params
 
@@ -48,28 +50,16 @@ export default (app)=> {
         }
     })
 
-    app.get("/detail/:id", async (req,res)=> {
+    route.get("/detail/:id", async (req,res)=> {
         try{
             const {id} = req.params
-            const villa = await Villa.findOne({_id:id})
+            const villa = await Villa.findOne({_id:id}).select("-__v")
             if(villa){
                 return res.json({
                     error:false,
                     message: null,
                     data: {
-                        id: villa.id,
-                        social: villa.social,
-                        location: villa.location,
-                        villa_type: villa.villa_type,
-                        slug: villa.slug,
-                        name: villa.name,
-                        website: villa.website,
-                        bio: villa.bio,
-                        thumbnail: villa.thumbnail,
-                        description: villa.description,
-                        photos: villa.photos,
-                        videos: villa.videos,
-                        is_deleted: villa.is_deleted,
+                        ...villa?._doc,
                         created_at: moment(villa.date,"YYYY MM DD").format("YYYY MMMM DD LTS")
                     }
                 })
@@ -88,7 +78,7 @@ export default (app)=> {
             }).status(500)
         }
     })
-    app.get("/detail/slug/:slug", async (req,res)=> {
+    route.get("/detail/slug/:slug", async (req,res)=> {
         try{
             let {slug} = req.params
             const villa = await Villa.findOne({slug})
@@ -129,4 +119,12 @@ export default (app)=> {
             }).status(500)
         }
     })
+
+    route.get('/promotion', VillaService.getVillaPromotion)
+
+    route.get('/list', VillaService.getVilla)
+
+
+
+
 }

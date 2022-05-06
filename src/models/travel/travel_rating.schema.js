@@ -2,25 +2,23 @@ const mongoose = require("mongoose");
 
 
 //Create reference to user model, associated with _id in database
-const TravelDiscussSchema = new mongoose.Schema({
+const TravelRatingSchema = new mongoose.Schema({
     travel: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "travel"
     },
-    discuss: [
+    rates: [
         {
             user: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "user"
             },
-            comment: {
-                type: String,
-                default: null
+            rate: {
+                type: Number,
+                default: 0
             }
         }
     ],
-
-
     date: {
         type: Date,
         default: Date.now
@@ -30,5 +28,5 @@ const TravelDiscussSchema = new mongoose.Schema({
     versionKey:false
 });
 
-const TravelDiscuss = mongoose.model("travel_discuss", TravelDiscussSchema);
-export { TravelDiscuss }
+const TravelRating = mongoose.model("travel_rating", TravelRatingSchema);
+export { TravelRating }

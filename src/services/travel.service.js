@@ -5,6 +5,7 @@ import formidable from "formidable";
 import {v2 as cloudinary} from "cloudinary";
 import {HashId} from "@yuyuid/utils";
 import YuyuidError from "@yuyuid/exception";
+import Pagination from "../lib/utils/Pagination";
 
 
 export class TravelService {
@@ -217,4 +218,116 @@ export class TravelService {
 
     static async deleteLikes() {
     }
+
+
+
+
+    static async GetDiscuss(id){
+        const discuss = await TravelDiscuss.findOne({travel:id}).populate("discuss.user",["firstName","lastName","email","avatar"])
+        return discuss === null ? [] : typeof(discuss?.discuss) !== "undefined" ? discuss?.discuss :[]
+    }
+    static async GetLikes(id){
+        const likes = await TravelLikes.findOne({travel:id}).populate("likes.user",["firstName","lastName","email","avatar"])
+        return likes === null ? [] : typeof(likes?.likes) !== "undefined" ? likes?.likes :[]
+    }
+
+
+
+    static async _getTravelLists(req,res){
+        try{
+            const {page, limit, direction} = Pagination(req.query)
+
+            const count = await Travel.find().count()
+            await Travel.find({}).populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
+                .limit(limit)
+                .skip(limit * (page > 1 ? page - 1 : 0))
+                .sort({
+                    date: direction === "desc" ? -1 : 1
+                })
+                .exec(async function (err, field) {
+
+                    if (!err) {
+                        let data = []
+                        if(Array.isArray(field)){
+                            for(let i = 0 ; i < field.length;i++){
+                                let item = field[i]
+                                const discuss = await TravelService.GetDiscuss(item._id)
+                                const likes = await TravelService.GetLikes(item._id)
+
+                                data.push({
+                                    ...item._doc,
+                                    discuss,
+                                    likes
+                                })
+
+                            }
+                        }
+
+                        return res.json({
+                            error: false,
+                            message: null,
+                            query: {
+                                limit,
+                                page: page > 0 ? page : 1,
+                                direction,
+                            },
+                            pagination: {
+                                total_page: limit > 0 ? Math.ceil(count / limit) : 1,
+                                current_page: page > 0 ? page : 1,
+                                total_record: count,
+                            },
+                            data: data
+                        })
+                    }
+                })
+
+
+        }catch(err){
+            return res.json({
+                error:true,
+                message: err.message,
+                data: null
+            })
+        }
+    }
+
+
+    static async _deleteTravelById(req,res){
+        try{
+            const {id} = req.params
+            await TravelDiscuss.findOneAndRemove({travel:id})
+            await TravelLikes.findOneAndRemove({travel:id})
+            await Travel.findOneAndRemove({_id:id})
+                .then((field)=> {
+                    if (field){
+                        return res.json({
+                            error:false,
+                            message: `Successfully! deleted Travel by id ${field?.travel_name}`,
+                            data: null
+                        })
+                    }else{
+                        return res.json({
+                            error:true,
+                            message: `Error! deleted Travel by id ${id}`,
+                            data: null
+                        })
+                    }
+                })
+                .catch((err)=> {
+                    return res.json({
+                        error:true,
+                        message: `Error! deleted Travel by id ${id}`,
+                        data: null
+                    })
+                })
+        }catch(err){
+            return res.json({
+                error:true,
+                message: err.message,
+                data: null
+            })
+        }
+    }
+
+
 }
