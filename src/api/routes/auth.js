@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import {AuthValidator} from "../../lib/validator";
 import {AuthService} from "@yuyuid/services";
-import {Profile, UpRole, User} from "@yuyuid/models";
+import {Profile, UpRole, User, Villa} from "@yuyuid/models";
 import {PermissionsService} from "../../services/permissions.service";
 import ActivationService from "../../services/activation.service";
 import {isAuth} from "../middlewares/auth";
+import {BodyResponse} from "@handler";
 
 
 const route = Router()
@@ -18,29 +19,105 @@ export default (app)=> {
     route.get('/loaduser',isAuth, async (req,res)=> {
         try{
             const user = await User.findById(req.user.id).select("-password");
-            const profile = await Profile.findOne({ user: user.id }).populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"]);
+            console.log({user})
 
-            if (profile){
-                await res.json({
-                    error:false,
-                    message: null,
-                    data: profile
-                });
-            }else{
-                await res.json({
-                    error:false,
-                    message: null,
-                    data: user
+            if (user){
+                if(typeof(user?.role) !== "undefined"){
+                    switch (user?.role){
+                        case "admin":
+                        case "customer":
+                            return await Profile.findOne({ user: user.id })
+                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                                .then((field)=> {
+                                    if(field){
+                                        return res.json(new BodyResponse({
+                                            error:false,
+                                            message: "Successfully!",
+                                            data: field
+                                        })).status(200)
+                                    }else{
+                                        return res.json(new BodyResponse({
+                                            error:true,
+                                            message: "profile not found!",
+                                            data: null
+                                        })).status(200)
+                                    }
+                                })
+                                .catch((err)=> {
+                                    return res.json(new BodyResponse({
+                                        error:true,
+                                        message: err.message,
+                                        data: null
+                                    })).status(500)
+                                })
+                        case "villa":
+                            return await Villa.findOne({user:user.id})
+                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                                .populate({
+                                    path:"likes",
+                                    options: {
+                                        limit: 10,
+                                        sort: { date: -1},
+                                        skip: 0
+                                    },
+                                    select:["likes"]
+                                })
+                                .populate({
+                                    path:"discuss",
+                                    options: {
+                                        limit: 10,
+                                        sort: { date: -1},
+                                        skip: 0
+                                    },
+                                    select: ["discuss"]
+                                })
+                                .populate({
+                                    path:"rates",
+                                    options: {
+                                        limit: 10,
+                                        sort: { date: -1},
+                                        skip: 0
+                                    },
+                                    select:["rates"]
+                                })
 
-                });
-                // account = {
-                //     ...account,
-                //     profile: false
-                // }
+                                .then((field)=> {
+                                    if(field){
+                                        return res.json(new BodyResponse({
+                                            error:false,
+                                            message: "Successfully!",
+                                            data: field
+                                        })).status(200)
+                                    }else{
+                                        return res.json(new BodyResponse({
+                                            error:true,
+                                            message: "profile not found!",
+                                            data: null
+                                        })).status(200)
+                                    }
+                                })
+                                .catch((err)=> {
+                                    return res.json(new BodyResponse({
+                                        error:true,
+                                        message: err.message,
+                                        data: null
+                                    })).status(500)
+                                })
+                        default:
+                            return res.json(new BodyResponse({
+                                error:true,
+                                message: "Role not found!",
+                                data: null
+                            })).status(500)
+                    }
+                }
             }
-
         }catch(err){
-            res.status(500).send("Server error");
+            return res.json(new BodyResponse({
+                error:true,
+                message: err.message,
+                data: null
+            })).status(500)
         }
     })
 

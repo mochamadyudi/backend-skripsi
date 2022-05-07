@@ -49,7 +49,7 @@ const isVillas = async (req,res,next)=> {
         if(req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
             const token = req.headers.authorization.split(" ")[1]
             const {user} = jwt.verify(token, YuyuidConfig.jwtSecret);
-            if(user.role === "customer"){
+            if(user.role === "villa"){
                 next();
             }else{
                 res.json({

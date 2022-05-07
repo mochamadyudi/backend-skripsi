@@ -29,6 +29,7 @@ export class AuthService {
 
         switch (userInputDto.role) {
             case "villa":
+
                 const villa = await VillaService.createVilla({user: user.id})
                 await ThemeService.VillaSetTheme(villa.id, 1)
                 break;

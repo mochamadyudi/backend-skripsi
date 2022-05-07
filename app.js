@@ -15,6 +15,8 @@ import { coreMiddleware } from "@yuyuid/core";
 import {AuthService} from "@yuyuid/services";
 // import AppendExpressResponseProperty from "./src/lib/core/append-express-response-property";
 
+import sharp from 'sharp'
+
 const app = express();
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
 
@@ -39,11 +41,15 @@ jobLoaders();
 // AppendExpressResponseProperty()
 app.use(AppendExpressResponseProperty.appendSuccess);
 app.use(AppendExpressResponseProperty.appendError);
+
 // app.use('/', (req,res)=> {
 //     return res.json({message:"OK!"}).status(200)
 // })
-app.get("/public/uploads/:typefile/:folder/:filename", async (req,res,next)=> {
+app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
     let paths = path.resolve(__dirname + req.url)
+    // await sharp(paths).resize(200,200)
+        // .jpeg({quality : 50}).toFile([paths.split(".")[0],"-small",".",paths.split(".")[1]].join(""))
+        // .png({quality : 50}).toFile([paths.split(".")[0],"-small",".",paths.split(".")[1]].join(""));
     fs.readFile(paths, (err, data) => {
         if (err) {
             next(err) // Pass errors to Express.

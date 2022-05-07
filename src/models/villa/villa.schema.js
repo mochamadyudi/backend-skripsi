@@ -19,6 +19,18 @@ const VillaSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     },
+    rates:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"villa_rates"
+    },
+    likes: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"villa_like"
+    },
+    discuss:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"villa_discuss"
+    },
     villa_type: {
         type: Number,
         default:1,
@@ -37,8 +49,14 @@ const VillaSchema = new mongoose.Schema({
         default: null,
     },
     thumbnail: {
-        type: String,
-        default: null
+        url:{
+            type:String,
+            default:null
+        },
+        prefix:{
+            type:String,
+            default:null
+        }
     },
     photos: [photos],
     videos: [videos],
@@ -64,6 +82,20 @@ const VillaSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    contact:{
+        phone_number: {
+            type: Number,
+            default:null,
+        },
+        email: {
+            type:String,
+            default: null,
+        },
+        whatsapp:{
+            type:String,
+            default:null
+        }
+    },
     description: {
         type: String,
         default: null
@@ -72,25 +104,66 @@ const VillaSchema = new mongoose.Schema({
         type: Boolean,
         default : false,
     },
-    updated_at: {
-        type: Date,
-        default: null,
+    is_update:{
+        type: Boolean,
+        default:false,
+    },
+    is_published:{
+        type: Number,
+        default:0
+    },
+    seen:{
+        type: Number,
+        default:0
     },
     location: {
-        lat: {
+        country: {
             type: String,
-            default :null
+            default: "indonesia",
         },
-        long:{
+        province: {
             type: String,
-            default :null
+            default: "jawa barat",
+        },
+        city: {
+            type: String,
+            default: "Kab. karawang"
+        },
+        district: {
+            type: String,
+            default: null
+        },
+        sub_district: {
+            type: String,
+            default: null
+        },
+        zip_code: {
+            type: String,
+            default: null
+        },
+        address: {
+            type: String,
+            default: null,
+        },
+        endpoint: {
+            lat: {
+                type: String,
+                default: null
+            },
+            long: {
+                type: String,
+                default: null
+            }
         }
     },
     date: {
         type: Date,
         default: Date.now
     }
-},{ versionKey: false });
+},{
+    timestamps:true,
+    versionKey: false
+});
 
 const Villa = mongoose.model("villa", VillaSchema);
 

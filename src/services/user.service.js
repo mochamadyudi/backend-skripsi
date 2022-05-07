@@ -61,6 +61,7 @@ export class UserService {
     static async UserLoaded(id) {
         try {
             const user = await UserService.UserChecked(id)
+            console.log({user})
             const profile = await UserService.getMyProfile(id)
 
             return {
