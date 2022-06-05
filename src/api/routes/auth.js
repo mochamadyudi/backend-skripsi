@@ -129,10 +129,11 @@ export default (app)=> {
         try {
 
             const newUser = await AuthService.SignUp(req);
-            // const roles = await PermissionsService.FindRolesByName(newUser.user.role)
-            // await AuthService.RolesPermissions(newUser.user._id,roles.id)
-
-            return res.json({ message: "Register successfully", ...newUser }).status(201);
+            let user = {}
+            Object.keys(newUser).forEach((key,index)=> {
+                user = (newUser[key])
+            })
+            return res.json({ message: "Register successfully",data:user }).status(201);
         } catch (e) {
             return next(e);
         }

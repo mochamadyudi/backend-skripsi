@@ -2,6 +2,7 @@ import verifyCurrentUser from './verifyCurrentUser'
 import jwt from "jsonwebtoken";
 import {YuyuidConfig} from "@yuyuid/config";
 import {Villa} from "../../../models/villa/villa.schema";
+import {BodyResponse} from "@handler";
 
 const isAuth = async (req, res, next) => {
     try {
@@ -12,10 +13,10 @@ const isAuth = async (req, res, next) => {
             req.user = user
             next();
         }else{
-            res.status(401).json({message: "unAuthorization!"});
+            res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
         }
     } catch (err) {
-        res.status(401).json({message: "Token isnt valid!"});
+        res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
     }
 }
 
@@ -37,10 +38,13 @@ const isAdmins = async (req,res,next)=> {
 
         }
         else{
-            res.status(401).json({message: "unAuthorization!"});
+            res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
         }
     } catch (err) {
-        res.status(200).json({message: "Permission Denied!!"});
+        res.status(500).json(new BodyResponse({
+            status:500,
+            error:true,
+            message: err?.message ?? "Permission Denied!!"}));
     }
 }
 const isVillas = async (req,res,next)=> {
@@ -52,18 +56,19 @@ const isVillas = async (req,res,next)=> {
             if(user.role === "villa"){
                 next();
             }else{
-                res.json({
+                res.json(new BodyResponse({
                     error:true,
+                    status:500,
                     message: "Permission Denied!"
-                }).status(500)
+                })).status(500)
             }
 
         }
         else{
-            res.status(401).json({message: "unAuthorization!"});
+            res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
         }
     } catch (err) {
-        res.status(200).json({message: "Permission Denied!!"});
+        res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
     }
 }
 export {

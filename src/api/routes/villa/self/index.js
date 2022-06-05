@@ -6,14 +6,19 @@ import {YuyuidConfig} from "@yuyuid/config";
 import Pagination from "../../../../lib/utils/Pagination";
 import {BodyResponse} from "@handler";
 import VillaService from "../../../../services/villa.service";
+import Rooms from './rooms'
+import uploadFileMiddleware from "../../../../lib/modules/uploaded";
 
 
 
-
+const route = Router();
 export default ()=> {
-    const app = Router();
+    const app = Router(route);
+
     app.use(isAuth);
     app.use(isVillas)
+
+    Rooms(app)
 
     app.get('/profile', async (req,res)=> {
         try{
@@ -66,7 +71,7 @@ export default ()=> {
     })
 
 
-    app.put("/profile/update", async (req,res)=> {
+    app.put("/profile/update", uploadFileMiddleware,async (req,res)=> {
         try{
             let {id} = req.user
             return await Villa.findOne({user:id})
@@ -113,5 +118,8 @@ export default ()=> {
         }
     })
 
+    route.put('/update/thumbnail/:id', uploadFileMiddleware, async(req,res)=>{
+        console.log(req)
+    })
     return app;
 }

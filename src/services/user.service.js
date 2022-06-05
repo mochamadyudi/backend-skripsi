@@ -19,6 +19,8 @@ export class UserService {
                 role
             });
             await user.save();
+            Reflect.deleteProperty(user,"salt")
+            Reflect.deleteProperty(user,"password")
             return [null, user];
         } catch (err) {
             return [err, null]

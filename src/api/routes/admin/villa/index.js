@@ -2,7 +2,8 @@ import {Router} from "express";
 import {User} from "@yuyuid/models";
 import Pagination from "../../../../lib/utils/Pagination";
 import {isAdmins} from "../../../middlewares/auth";
-import {Villa} from "../../../../models/villa/villa.schema";
+import {Villa} from "@yuyuid/models";
+import uploadFileMiddleware from "../../../../lib/modules/uploaded";
 
 
 const route = Router()
@@ -97,6 +98,5 @@ export default (app)=> {
             }).status(500)
         }
     })
-
 
 }

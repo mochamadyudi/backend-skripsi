@@ -10,7 +10,7 @@ import path from 'path'
 import {
     changeFileName,
     getPathUploadsImages,
-    HashId,
+    HashId, pathUploadedByDate,
     uploadImageWithHashFolder,
     uploadVideoWithHashFolder
 } from "@yuyuid/utils";
@@ -48,6 +48,7 @@ export default () => {
                 travel: travel?.id
             }).save()
 
+            console.log({travel})
             return res.json({
                 error: false,
                 message: "successfully",
@@ -92,17 +93,19 @@ export default () => {
                                 break
                         }
                         if (fileCheck) {
+
                             let filename = changeFileName(item.originalFilename.toString().toLowerCase().replace(/ /g, "_"), fileExtensions)
-                            const filePath = uploadImageWithHashFolder(fields?.id, filename)
+                            const {prefix_date, path_full,only_date} = pathUploadedByDate(filename)
+
                             newImages.push({
                                 original_filename: item.originalFilename,
                                 name: filename,
-                                prefix: `/public/uploads/images/`,
-                                url: `/${fields?.id}/${filename}`
+                                prefix: `${process.env.PREFIX_URL}`,
+                                url: `${prefix_date}/${filename}`
                             })
                             images.push({
                                 oldpath,
-                                newpath: filePath,
+                                newpath: path_full,
                             })
                         }
 
@@ -158,17 +161,20 @@ export default () => {
                         var oldpath = item.filepath;
 
                         if (item.mimetype === "video/mp4") {
-                            let filename = changeFileName(item.originalFilename.replace(/ /g, "_"), "mp4")
-                            const filePath = uploadVideoWithHashFolder(fields?.id, filename)
+                            let filename = changeFileName(files.thumbnail.originalFilename.toString().toLowerCase().replace(/ /g, "_"), "mp4")
+                            const {prefix_date, path_full,only_date} = pathUploadedByDate(filename)
+                            // let filename = changeFileName(item.originalFilename.replace(/ /g, "_"), "mp4")
+                            // const filePath = uploadVideoWithHashFolder(fields?.id, filename)
+
                             newVideo.push({
                                 original_filename: item.originalFilename,
                                 name: filename,
-                                prefix: `/public/uploads/videos/`,
-                                url: `/${fields?.id}/${filename}`
+                                prefix: `${process.env.PREFIX_URL}/public/uploads`,
+                                url: `${prefix_date}/${filename}`
                             })
                             video.push({
                                 oldpath,
-                                newpath: filePath,
+                                newpath: path_full,
                             })
                         }
                     }

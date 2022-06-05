@@ -230,7 +230,7 @@ export default class VillaService {
                         {
                             $set:{
                                 thumbnail: {
-                                    prefix:`/public/uploads`,
+                                    prefix:`${process.env.PREFIX_URL}/public/uploads`,
                                     url:`${prefix_date}/${filename}`
                                 }
                             }

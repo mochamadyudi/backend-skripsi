@@ -1,8 +1,8 @@
 import {Router} from 'express'
 import drive from "./drive"
 import moment from "moment";
-import {VillaPromotion} from "../../../models/villa/villa_promotion.schema";
-import {Villa} from "../../../models/villa/villa.schema";
+import {VillaPromotion} from "@yuyuid/models";
+import {Villa} from "@yuyuid/models";
 
 import users from './users'
 import villa from './villa'

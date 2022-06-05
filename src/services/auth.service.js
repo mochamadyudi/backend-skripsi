@@ -63,11 +63,12 @@ export class AuthService {
 
 
 
-        console.log({id:user.id,token})
+        // console.log({id:user?.id,token})
         Reflect.set(user, "token", token)
         Reflect.set(user, "email", userInputDto.email)
         Reflect.deleteProperty(user, "salt");
         Reflect.deleteProperty(user, "password");
+        console.log({user})
 
         YuyuidEmitter.dispatch(YuyuidEvent.email.verificationEmail, userInputDto.email, token);
         return {user};
