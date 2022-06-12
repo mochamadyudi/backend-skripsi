@@ -8,6 +8,7 @@ import {BodyResponse} from "@handler";
 import VillaService from "../../../../services/villa.service";
 import Rooms from './rooms'
 import uploadFileMiddleware from "../../../../lib/modules/uploaded";
+import ResizeModule from "../../../../lib/modules/resize.module";
 
 
 
@@ -53,7 +54,11 @@ export default ()=> {
                     select:["rates"]
                 })
                 .populate("user",["email","avatar","firstName","lastName","username"])
-                .select("name social _id villa_type slug bio thumbnail description videos photos")
+                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
+                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
+                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
+                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
+                .select("name social _id villa_type slug bio thumbnail description videos photos locations")
                 .exec()
 
             return res.json({
@@ -71,7 +76,9 @@ export default ()=> {
     })
 
 
-    app.put("/profile/update", uploadFileMiddleware,async (req,res)=> {
+
+
+    app.put("/profile/update",async (req,res)=> {
         try{
             let {id} = req.user
             return await Villa.findOne({user:id})
@@ -118,8 +125,10 @@ export default ()=> {
         }
     })
 
-    route.put('/update/thumbnail/:id', uploadFileMiddleware, async(req,res)=>{
-        console.log(req)
-    })
+    app.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
+
+    app.put('/photos/add', uploadFileMiddleware, VillaService._addPhotos)
+    app.delete('/photos/:id', uploadFileMiddleware, VillaService._deletePhoto)
+
     return app;
 }

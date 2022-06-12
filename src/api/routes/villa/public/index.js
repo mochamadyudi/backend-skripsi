@@ -20,6 +20,40 @@ export default (app)=> {
 
             const villa = await Villa.find({ name: { $regex: '.*' + q + '.*' },$options: 'i' }).limit(limit)
                 .skip(limit * (page > 1 ? page: 0))
+                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                .populate({
+                    path:"likes",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["likes"]
+                })
+                .populate({
+                    path:"discuss",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select: ["discuss"]
+                })
+                .populate({
+                    path:"rates",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["rates"]
+                })
+                .populate("user",["email","avatar","firstName","lastName","username"])
+                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
+                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
+                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
+                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
+                .select("name social _id villa_type slug bio thumbnail description videos photos locations")
                 .sort({
                     date: direction === "desc"?-1:1
                 })
@@ -54,6 +88,42 @@ export default (app)=> {
         try{
             const {id} = req.params
             const villa = await Villa.findOne({_id:id}).select("-__v")
+                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                .populate({
+                    path:"likes",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["likes"]
+                })
+                .populate({
+                    path:"discuss",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select: ["discuss"]
+                })
+                .populate({
+                    path:"rates",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["rates"]
+                })
+                .populate("user",["email","avatar","firstName","lastName","username"])
+                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
+                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
+                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
+                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
+                .select("name social _id villa_type slug bio thumbnail description videos photos locations")
+
+
             if(villa){
                 return res.json({
                     error:false,
@@ -82,27 +152,44 @@ export default (app)=> {
         try{
             let {slug} = req.params
             const villa = await Villa.findOne({slug})
+                .populate({
+                    path:"likes",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["likes"]
+                })
+                .populate({
+                    path:"discuss",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select: ["discuss"]
+                })
+                .populate({
+                    path:"rates",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["rates"]
+                })
+                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
+                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
+                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
+                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
+                // .select("name social _id villa_type slug bio thumbnail description videos photos locations")
 
             if(villa){
                 return res.json({
                     error:false,
                     message: null,
-                    data: {
-                        id: villa.id,
-                        social: villa.social,
-                        location: villa.location,
-                        villa_type: villa.villa_type,
-                        slug: villa.slug,
-                        name: villa.name,
-                        website: villa.website,
-                        bio: villa.bio,
-                        thumbnail: villa.thumbnail,
-                        description: villa.description,
-                        photos: villa.photos,
-                        videos: villa.videos,
-                        is_deleted: villa.is_deleted,
-                        created_at: moment(villa.date,"YYYY MM DD").format("YYYY MMMM DD LTS")
-                    }
+                    data: villa,
                 })
             }else{
                 return res.json({

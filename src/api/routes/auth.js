@@ -80,7 +80,10 @@ export default (app)=> {
                                     },
                                     select:["rates"]
                                 })
-
+                                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
+                                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
+                                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
+                                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
                                 .then((field)=> {
                                     if(field){
                                         return res.json(new BodyResponse({

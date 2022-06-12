@@ -49,14 +49,42 @@ const VillaSchema = new mongoose.Schema({
         default: null,
     },
     thumbnail: {
-        url:{
-            type:String,
-            default:null
+        // url:{
+        //     type:String,
+        //     default:null
+        // },
+        // prefix_url:{
+        //     type:String,
+        //     default:null
+        // },
+        path:{
+            type: String,
+            default :null
         },
-        prefix:{
-            type:String,
-            default:null
-        }
+        filename: {
+            type: String,
+            default :null
+        },
+        destination:{
+            type: String,
+            default :null
+        },
+        resize_active:{
+            type: Array,
+            default :[]
+        },
+        prefix_url:{
+            type: String,
+            default :null
+        },
+        originalname:{
+            type: String,
+            default :null
+        },
+        format:{
+            type: String,
+            default :null
+        },
     },
     photos: [photos],
     videos: [videos],
@@ -116,45 +144,40 @@ const VillaSchema = new mongoose.Schema({
         type: Number,
         default:0
     },
-    location: {
-        country: {
-            type: String,
-            default: "indonesia",
+    locations:{
+        provinces:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_provinces"
         },
-        province: {
-            type: String,
-            default: "jawa barat",
+        regencies:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_regencies"
         },
-        city: {
-            type: String,
-            default: "Kab. karawang"
+        districts:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_districts"
         },
-        district: {
-            type: String,
-            default: null
+        sub_districts:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_vilages"
         },
-        sub_district: {
-            type: String,
-            default: null
-        },
-        zip_code: {
+        address:{
             type: String,
             default: null
         },
-        address: {
-            type: String,
-            default: null,
+        lat:{
+            type: Number,
+            default:null
         },
-        endpoint: {
-            lat: {
-                type: String,
-                default: null
-            },
-            long: {
-                type: String,
-                default: null
-            }
+        lng:{
+            type: Number,
+            default:null
+        },
+        zip_code:{
+            type:Number,
+            default:null
         }
+
     },
     date: {
         type: Date,

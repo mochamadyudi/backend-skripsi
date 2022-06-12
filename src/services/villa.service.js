@@ -23,6 +23,7 @@ import {thumbnail} from "easyimage";
 import Jimp from 'jimp'
 import moment from "moment";
 import path from "path";
+import ResizeModule from "../lib/modules/resize.module";
 
 
 export default class VillaService {
@@ -190,87 +191,68 @@ export default class VillaService {
 
     static async _putThumbnail(req,res){
         try{
-            var form = new formidable.IncomingForm();
-            form.parse(req, async function (err, fields, files) {
-                var oldpath = files.thumbnail.filepath;
-
-                const villa = await Villa.findOne({user:req.user.id})
-
-                const {extension,status} = await ImagesChecker.mimeType(files.thumbnail.mimetype)
-                // console.log({extension,status,files})
-                if (status) {
-                    let filename = changeFileName(files.thumbnail.originalFilename.toString().toLowerCase().replace(/ /g, "_"), extension)
-                    const {prefix_date, path_full,only_date} = pathUploadedByDate(filename)
-
-                    // console.log(dates.join("/"))
-                    mv(oldpath,path_full , function (err) {
-                        if (err) throw err;
-                    })
-
-                    // return res.json({
-                    //     error:false,
-                    //     message:"successfully!",
-                    //     data:path_full,
-                    //     prefix_date
-                    // })
-
-                    // im.identify(['-format', '%wx%h', filePath], function(err, output){
-                    //     if (err) throw err;
-                    //     console.log('dimension: '+output);
-                    //     // dimension: 3904x2622
-                    // });
-                    // const thumbnailInfo = await thumbnail({
-                    //     src: filePath,
-                    //     width: 100,
-                    //     height: 100,
-                    // });
-                    // console.log({thumbnailInfo})
-                    await Villa.findOneAndUpdate(
-                        {user:req.user.id},
-                        {
-                            $set:{
-                                thumbnail: {
-                                    prefix:`${process.env.PREFIX_URL}/public/uploads`,
-                                    url:`${prefix_date}/${filename}`
-                                }
-                            }
-                        },
-                        {new:true})
-                        .then((field)=> {
-                            if(field){
-                                return res.json(
-                                    new BodyResponse({
-                                        error:true,
-                                        message:"Successfully!",
-                                        status:200,
-                                        data: field,
-                                        only_date
-                                    })
-                                ).status(200)
-                            }else{
-                                return res.json(
-                                    new BodyResponse({
-                                        error:true,
-                                        message:"Not found!",
-                                        status:200,
-                                        data: null
-                                    })
-                                ).status(200)
-                            }
+            let files = {}
+            if(typeof(req?.files) !== "undefined"){
+                if (Array.isArray(req.files) && req.files.length > 0 ){
+                    for(let i = 0;i< req.files.length;i++){
+                        /**
+                         * RESIZE [ 70, 50, 30 ]
+                         */
+                        let filename = req.files[i].filename.toString().toLowerCase().replace(/ /g,"-")
+                        await new ResizeModule({
+                            filename: filename,
+                            destination: req.files[i].destination,
+                            path:req.files[i].path,
+                            resize: [80,50,30]
                         })
-                        .catch((err)=> {
-                            return res.json(
-                                new BodyResponse({
-                                    error:true,
-                                    message:err.message,
-                                    status:500,
-                                    data:null
-                                })
-                            ).status(500)
-                        })
+                        files = {
+                            prefix_url:`${process.env.APP_URL}/public${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`,
+                            originalname: req.files[i]?.originalname,
+                            filename: filename,
+                            resize_active: [80,50,30],
+                            format: req.files[i]?.mimetype,
+                            path: ['public',`${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`].join('')
+                        }
+
+                    }
                 }
-            });
-
+            }
+            await Villa.findOneAndUpdate({user:req.user.id},{
+                $set:{
+                    thumbnail:files,
+                }
+            })
+                .then((field)=> {
+                    if(field){
+                        return res.json(
+                            new BodyResponse({
+                                error:false,
+                                message:"Successfully!",
+                                status:200,
+                                data: field,
+                            })
+                        ).status(200)
+                    }else{
+                        return res.json(
+                            new BodyResponse({
+                                error:true,
+                                message:"Not found!",
+                                status:200,
+                                data: null
+                            })
+                        ).status(200)
+                    }
+                })
+                .catch((err)=> {
+                    return res.json(
+                        new BodyResponse({
+                            error:true,
+                            message:err.message,
+                            status:500,
+                            data:null
+                        })
+                    ).status(500)
+                })
         }catch(err){
             return res.json({
                 error: true,
@@ -279,7 +261,18 @@ export default class VillaService {
             }).status(500)
         }
     }
+    static async _addPhotos(req,res){
+        try{
 
+        }catch(err){
+
+        }
+    }
+    static async _deletePhoto(req,res){
+        try{
+
+        }catch(err){}
+    }
 
     static async initialLikes() {
         const likes = new VillaLikes({})

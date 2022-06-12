@@ -284,7 +284,7 @@ export default (app)=> {
             })).status(500)
         }
     })
-    route.get('/vilages', async (req,res)=> {
+    route.get('/villages', async (req,res)=> {
         try{
             let findParams = {}
 

@@ -9,9 +9,10 @@ export default ()=> {
 
     app.get('/list', async (req,res)=> {
         try{
+            console.log(req.user)
             const {page, limit, direction} = Pagination(req.query)
-            const count = await Room.find().count()
-            await Room.find()
+            const count = await Room.find({user:req.user?.id}).count()
+            await Room.find({user:req.user?.id})
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
