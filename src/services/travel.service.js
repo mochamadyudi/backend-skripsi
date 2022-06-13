@@ -6,6 +6,7 @@ import {v2 as cloudinary} from "cloudinary";
 import {HashId} from "@yuyuid/utils";
 import YuyuidError from "@yuyuid/exception";
 import Pagination from "../lib/utils/Pagination";
+import {TravelCategory} from "../models/travel/travel_categories.schema.";
 
 
 export class TravelService {
@@ -68,13 +69,15 @@ export class TravelService {
                 let newThumbnail = null
 
                 try {
-                    await cloudinary.uploader.upload(thumbnail.filepath, {secure: true, transformation: [
+                    await cloudinary.uploader.upload(thumbnail.filepath, {
+                        secure: true, transformation: [
                             {width: 150, height: 150, crop: "thumb"},
                             {radius: 20}
-                        ]}, (error, result) => {
-                        console.log(error,result)
+                        ]
+                    }, (error, result) => {
+                        console.log(error, result)
                         if (!error) {
-                            if(result && Object.keys(result).length > 0 ){
+                            if (result && Object.keys(result).length > 0) {
                                 newThumbnail = {
                                     name: result.name ?? null,
                                     original_filename: result.original_filename ?? null,
@@ -129,12 +132,16 @@ export class TravelService {
     static async delete() {
     }
 
-    static async single(req,res) {
+    static async single(req, res) {
         try {
 
             const {id} = req.params
             await Travel.findById({_id: id})
-                .populate('categories.category',['name','slug','is_published','about','createdAt','hash_id'])
+                .populate('categories.category', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
+                .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('locations.regencies', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .then(async (field) => {
                     const likes = await TravelLikes.findOne({travel: field.id}).select("-__v -_id -travel -date").populate('likes.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
                     const discuss = await TravelDiscuss.findOne({travel: field.id}).select("-__v -_id -travel -date").populate('discuss.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
@@ -192,9 +199,9 @@ export class TravelService {
         switch (type) {
             case "slug":
                 const data = await TravelService.TravelBySlug(slug)
-                if(data) {
+                if (data) {
                     return {
-                        error:true,
+                        error: true,
                         data,
                     }
                 }
@@ -207,7 +214,7 @@ export class TravelService {
 
     static async GenerateSlug(val) {
         const data = val.toString().toLowerCase().replace(/ /g, '-')
-        console.log("GENERATE SLUG : ",data)
+        console.log("GENERATE SLUG : ", data)
         return data
     }
 
@@ -259,7 +266,7 @@ export class TravelService {
     }
 
 
-    static async _addLikes(req,res) {
+    static async _addLikes(req, res) {
         try {
 
             const {user} = req.body
@@ -351,25 +358,41 @@ export class TravelService {
     }
 
 
-
-
-    static async GetDiscuss(id){
-        const discuss = await TravelDiscuss.findOne({travel:id}).populate("discuss.user",["firstName","lastName","email","avatar"])
-        return discuss === null ? [] : typeof(discuss?.discuss) !== "undefined" ? discuss?.discuss :[]
-    }
-    static async GetLikes(id){
-        const likes = await TravelLikes.findOne({travel:id}).populate("likes.user",["firstName","lastName","email","avatar"])
-        return likes === null ? [] : typeof(likes?.likes) !== "undefined" ? likes?.likes :[]
+    static async GetDiscuss(id) {
+        const discuss = await TravelDiscuss.findOne({travel: id}).populate("discuss.user", ["firstName", "lastName", "email", "avatar"])
+        return discuss === null ? [] : typeof (discuss?.discuss) !== "undefined" ? discuss?.discuss : []
     }
 
+    static async GetLikes(id) {
+        const likes = await TravelLikes.findOne({travel: id}).populate("likes.user", ["firstName", "lastName", "email", "avatar"])
+        return likes === null ? [] : typeof (likes?.likes) !== "undefined" ? likes?.likes : []
+    }
 
 
-    static async _getTravelLists(req,res){
-        try{
+    static async _getTravelLists(req, res) {
+        try {
             const {page, limit, direction} = Pagination(req.query)
+            let obj = {}
 
-            const count = await Travel.find().count()
-            await Travel.find({}).populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
+            if (typeof(req.query?.taxonomy) === "undefined" || req.query?.taxonomy === null){
+                obj = {
+                    'categories.slug': {
+                        $ne : null
+                    }
+                }
+            }else{
+                obj = {
+                    'categories.slug': {
+                        "$exists": true,
+                        $in: req.query?.taxonomy,
+                        $regex: '.*'+ req.query?.taxonomy + "*.",
+                        $options: "i"
+                    }
+                }
+            }
+
+            const count = await Travel.find({...obj}).count()
+            await Travel.find({...obj}).populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
@@ -379,8 +402,8 @@ export class TravelService {
 
                     if (!err) {
                         let data = []
-                        if(Array.isArray(field)){
-                            for(let i = 0 ; i < field.length;i++){
+                        if (Array.isArray(field)) {
+                            for (let i = 0; i < field.length; i++) {
                                 let item = field[i]
                                 const discuss = await TravelService.GetDiscuss(item._id)
                                 const likes = await TravelService.GetLikes(item._id)
@@ -413,9 +436,9 @@ export class TravelService {
                 })
 
 
-        }catch(err){
+        } catch (err) {
             return res.json({
-                error:true,
+                error: true,
                 message: err.message,
                 data: null
             })
@@ -423,37 +446,37 @@ export class TravelService {
     }
 
 
-    static async _deleteTravelById(req,res){
-        try{
+    static async _deleteTravelById(req, res) {
+        try {
             const {id} = req.params
-            await TravelDiscuss.findOneAndRemove({travel:id})
-            await TravelLikes.findOneAndRemove({travel:id})
-            await Travel.findOneAndRemove({_id:id})
-                .then((field)=> {
-                    if (field){
+            await TravelDiscuss.findOneAndRemove({travel: id})
+            await TravelLikes.findOneAndRemove({travel: id})
+            await Travel.findOneAndRemove({_id: id})
+                .then((field) => {
+                    if (field) {
                         return res.json({
-                            error:false,
+                            error: false,
                             message: `Successfully! deleted Travel by id ${field?.travel_name}`,
                             data: null
                         })
-                    }else{
+                    } else {
                         return res.json({
-                            error:true,
+                            error: true,
                             message: `Error! deleted Travel by id ${id}`,
                             data: null
                         })
                     }
                 })
-                .catch((err)=> {
+                .catch((err) => {
                     return res.json({
-                        error:true,
+                        error: true,
                         message: `Error! deleted Travel by id ${id}`,
                         data: null
                     })
                 })
-        }catch(err){
+        } catch (err) {
             return res.json({
-                error:true,
+                error: true,
                 message: err.message,
                 data: null
             })

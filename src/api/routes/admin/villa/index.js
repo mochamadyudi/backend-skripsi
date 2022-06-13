@@ -46,7 +46,6 @@ export default (app)=> {
                 if(req.query.is_new === "1"){
                     obj = {
                         "$exists": true,
-
                     }
                 }else{
                     obj = {

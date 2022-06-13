@@ -82,48 +82,63 @@ const TravelSchema = new Schema({
             category: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "travel_category"
-            }
-        }
-    ],
-    location: {
-        country: {
-            type: String,
-            default: "indonesia",
-        },
-        province: {
-            type: String,
-            default: "jawa barat",
-        },
-        city: {
-            type: String,
-            default: "Kab. karawang"
-        },
-        district: {
-            type: String,
-            default: null
-        },
-        sub_district: {
-            type: String,
-            default: null
-        },
-        zip_code: {
-            type: String,
-            default: null
-        },
-        address: {
-            type: String,
-            default: null,
-        },
-        endpoint: {
-            lat: {
+            },
+            hash_id: {
+                type: String,
+                default: null,
+            },
+            name: {
                 type: String,
                 default: null
             },
-            long: {
+            slug: {
+                type: String,
+                default: null
+            },
+            createdAt: {
+                type: String,
+                default:null,
+            },
+            updatedAt: {
                 type: String,
                 default: null
             }
         }
+    ],
+    locations:{
+        provinces:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_provinces"
+        },
+        regencies:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_regencies"
+        },
+        districts:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_districts"
+        },
+        sub_districts:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"location_vilages"
+        },
+        address:{
+            type: String,
+            default: null
+        },
+        lat:{
+            type: Number,
+            default:null
+        },
+        lng:{
+            type: Number,
+            default:null
+        },
+        zip_code:{
+            type:Number,
+            default:null
+        }
+
     },
     bio: {
         type: String,

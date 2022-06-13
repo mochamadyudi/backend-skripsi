@@ -32,10 +32,10 @@ export default () => {
      */
     app.post('/create', async (req, res) => {
         try {
+            console.log({...req.body})
             const travel = new Travel({
                 ...req.body
             })
-            await travel.save();
 
             await new TravelLikes({
                 travel: travel?.id,
@@ -47,6 +47,8 @@ export default () => {
             await new TravelRating({
                 travel: travel?.id
             }).save()
+
+            await travel.save();
 
             console.log({travel})
             return res.json({
