@@ -106,6 +106,11 @@ const TravelSchema = new Schema({
         }
     ],
     locations:{
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
         provinces:{
             type: mongoose.Schema.Types.ObjectId,
             ref:"location_provinces"
@@ -126,13 +131,17 @@ const TravelSchema = new Schema({
             type: String,
             default: null
         },
-        lat:{
-            type: Number,
-            default:null
-        },
-        lng:{
-            type: Number,
-            default:null
+        // lat:{
+        //     type: Number,
+        //     default:null
+        // },
+        // lng:{
+        //     type: Number,
+        //     default:null
+        // },
+        coordinates: {
+            type: [Number],
+            required:true,
         },
         zip_code:{
             type:Number,
@@ -209,6 +218,9 @@ const TravelSchema = new Schema({
     versionKey:false
 });
 
-const Travel = mongoose.model('travel', TravelSchema)
+TravelSchema.index({locations:"2dsphere"})
 
+const Travel = mongoose.model('travel', TravelSchema)
+// Travel.createIndexes({})
+// Travel.syncIndexes({'locations':"2dsphere"})
 export {Travel}

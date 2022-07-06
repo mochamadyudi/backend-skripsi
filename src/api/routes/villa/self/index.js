@@ -7,21 +7,20 @@ import Pagination from "../../../../lib/utils/Pagination";
 import {BodyResponse} from "@handler";
 import VillaService from "../../../../services/villa.service";
 import Rooms from './rooms'
-import uploadFileMiddleware from "../../../../lib/modules/uploaded";
+import {uploadFileMiddleware} from "../../../../lib/modules/uploaded";
 import ResizeModule from "../../../../lib/modules/resize.module";
 
 
 
 const route = Router();
 export default ()=> {
-    const app = Router(route);
-
-    app.use(isAuth);
-    app.use(isVillas)
+    const app = Router();
+    app.use("/",isAuth,isVillas,route)
+    // app.use(isAuth);
 
     Rooms(app)
 
-    app.get('/profile', async (req,res)=> {
+    route.get('/profile', async (req,res)=> {
         try{
             let user = req.user
             const villa = await Villa.findOne({user: user?.id})
@@ -78,7 +77,7 @@ export default ()=> {
 
 
 
-    app.put("/profile/update",async (req,res)=> {
+    route.put("/profile/update",async (req,res)=> {
         try{
             let {id} = req.user
             return await Villa.findOne({user:id})
@@ -111,24 +110,24 @@ export default ()=> {
     })
 
 
-    app.put('/profile/thumbnail', VillaService._putThumbnail)
+    // route.put('/profile/thumbnail', VillaService._putThumbnail)
 
     /**
      * admin scope
      */
-    app.get("/all", async (req,res)=> {
-        try{
-            const villa = await Villa.find().sort({ date: -1 });
-            return await res.json(villa).status(200);
-        }catch(err){
-            return res.json({error:true,message:err.message}).status(500)
-        }
-    })
+    // route.get("/all", async (req,res)=> {
+    //     try{
+    //         const villa = await Villa.find().sort({ date: -1 });
+    //         return res.json(villa).status(200);
+    //     }catch(err){
+    //         return res.json({error:true,message:err.message}).status(500)
+    //     }
+    // })
 
-    app.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
-
-    app.put('/photos/add', uploadFileMiddleware, VillaService._addPhotos)
-    app.delete('/photos/:id', uploadFileMiddleware, VillaService._deletePhoto)
+    // route.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
+    //
+    // route.put('/photos/add', uploadFileMiddleware, VillaService._addPhotos)
+    // route.delete('/photos/:id', uploadFileMiddleware, VillaService._deletePhoto)
 
     return app;
 }

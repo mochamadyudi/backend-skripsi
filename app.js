@@ -46,9 +46,6 @@ jobLoaders();
 app.use(AppendExpressResponseProperty.appendSuccess);
 app.use(AppendExpressResponseProperty.appendError);
 
-// app.use('/', (req,res)=> {
-//     return res.json({message:"OK!"}).status(200)
-// })
 app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
     let paths = path.resolve(__dirname + req.url)
     // await sharp(paths).resize(200,200)
@@ -62,21 +59,23 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
         }
     })
 })
-// app.get('/public/uploads/images/:folder/:filename', async(req,res)=> {
-//     console.log(req.params)
-//     return res.send('helloooo')
-// })
+app.get('/public/uploads/images/:folder/:filename', async(req,res)=> {
+    console.log(req.params)
+    return res.send('helloooo')
+})
 
 app.post('/auth/reset/password/:token',AuthService.ResetPassword)
-app.use(YuyuidConfig.apiPrefix, routes())
+app.use(YuyuidConfig.apiPrefix,routes())
 
-
+app.use('/', (req,res)=> {
+    return res.json({message:"OK!"}).status(200)
+})
 //
-// if(process.env.NODE_ENV === "PRODUCTION"){
+if(process.env.NODE_ENV === "PRODUCTION"){
     app.use(express.static("client/build"));
     app.get("*", (req, res) => {
         res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
     });
-// }
+}
 
 app.listen(PORT, ()=> console.log(`Server is running on : ${PORT}`))

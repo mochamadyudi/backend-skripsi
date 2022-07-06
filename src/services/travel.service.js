@@ -381,25 +381,40 @@ export class TravelService {
                     }
                 }
             }else{
-                obj = {
-                    'categories.slug': {
-                        "$exists": true,
-                        $in: req.query?.taxonomy,
-                        $regex: '.*'+ req.query?.taxonomy + "*.",
-                        $options: "i"
+                if(req.query.taxonomy === "recomendation" || req.query.taxonomy === "top-10"){
+                    obj = {}
+                }else{
+                    obj = {
+                        'categories.slug': {
+                            "$exists": true,
+                            $in: req.query?.taxonomy,
+                            $regex: '.*'+ req.query?.taxonomy + "*.",
+                            $options: "i"
+                        }
                     }
+                }
+
+            }
+            const count = await Travel.find().count()
+
+            let travel = Travel.find({...obj})
+
+
+            if(typeof(req.query.taxonomy) !== "undefined"){
+                if(req.query.taxonomy === "recomendation" || req.query.taxonomy === "top-10"){
+                    travel
+                        .where('seen')
+                        .gt(req.query.taxonomy === "recomendation" ? 40 : 250)
                 }
             }
 
-            const count = await Travel.find({...obj}).count()
-            await Travel.find({...obj}).populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
+            travel.populate("categories.category", ['slug', 'name', 'is_verify', 'is_published','background'])
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
                     date: direction === "desc" ? -1 : 1
                 })
-                .exec(async function (err, field) {
-
+                travel.exec(async function (err, field) {
                     if (!err) {
                         let data = []
                         if (Array.isArray(field)) {

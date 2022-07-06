@@ -116,6 +116,7 @@ export default (app) => {
             const hashing = await encryptChar(name, 5)
             const tax_cat = new TravelCategory({
                 name,
+                background:req.body?.background ?? "#fff",
                 slug: newslug,
                 hash_id: hashing
             })

@@ -177,7 +177,6 @@ const VillaSchema = new mongoose.Schema({
             type:Number,
             default:null
         }
-
     },
     date: {
         type: Date,
@@ -187,6 +186,8 @@ const VillaSchema = new mongoose.Schema({
     timestamps:true,
     versionKey: false
 });
+
+
 
 const Villa = mongoose.model("villa", VillaSchema);
 

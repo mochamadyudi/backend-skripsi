@@ -38,6 +38,9 @@ const TravelCategoriesSchema = new mongoose.Schema({
             default: null
         }
     },
+    background:{
+        type:String,
+    },
     date: {
         type: Date,
         default: Date.now

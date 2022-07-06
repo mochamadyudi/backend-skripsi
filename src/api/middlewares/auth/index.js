@@ -1,7 +1,6 @@
 import verifyCurrentUser from './verifyCurrentUser'
 import jwt from "jsonwebtoken";
 import {YuyuidConfig} from "@yuyuid/config";
-import {Villa} from "../../../models/villa/villa.schema";
 import {BodyResponse} from "@handler";
 
 const isAuth = async (req, res, next) => {

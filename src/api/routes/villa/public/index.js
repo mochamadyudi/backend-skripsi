@@ -1,6 +1,6 @@
 import {Router} from "express";
 import Pagination from "../../../../lib/utils/Pagination";
-import {Villa} from "@yuyuid/models";
+import {Villa,Travel} from "@yuyuid/models";
 import moment from "moment";
 import VillaService from "../../../../services/villa.service";
 
@@ -8,7 +8,7 @@ const route = Router()
 export default (app)=> {
     app.use('/',route)
     route.get('/profile', async (req,res)=> {
-        res.json({error:false,message: "oK!"})
+        return res.json({error:false,message: "oK!"})
     })
 
     route.get("/search/:q", async (req,res)=> {
@@ -211,6 +211,31 @@ export default (app)=> {
 
     route.get('/list', VillaService.getVilla)
 
+
+    route.get('/list/near-me', async (req,res)=> {
+        try{
+            await Travel.find({
+                locations:{
+                    $near: {
+                        $geometry:{
+                            lat:req.body.lat,
+                            lng:req.body.lng
+                        },
+                        $maxDistance: 5000
+                    }
+                }
+            }).exec((err,travel)=> {
+                if(err){
+                    console.log(err)
+                }
+                if(travel){
+                    console.log(travel)
+                }
+            })
+        }catch(err){
+
+        }
+    })
 
 
 

@@ -155,7 +155,8 @@ export default (app)=> {
         } catch (e) {
             return res.json({
                 status:"error",
-                message: e.message}).status(400);
+                message: e.message
+            }).status(400);
         }
     });
 

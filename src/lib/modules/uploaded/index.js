@@ -35,4 +35,14 @@ const uploadFiles = multer({
     }
 }).array("files",10);
 const uploadFileMiddleware =  util.promisify(uploadFiles);
-export default uploadFileMiddleware
+
+const uploadFileSingle = multer({
+    storage: storage,
+    fileFilter: function(req,file,cb){
+        checkFileType(file,cb)
+    }
+})
+export {
+    uploadFileMiddleware,
+    uploadFileSingle
+}

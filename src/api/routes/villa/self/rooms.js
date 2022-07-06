@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import RoomController from "../../../../controllers/room.controller";
-import uploadFiles from "../../../../lib/modules/uploaded";
+import {uploadFileMiddleware} from "../../../../lib/modules/uploaded";
 import {Room} from "@yuyuid/models";
 import sharp from "sharp";
 import fs from "fs";
@@ -12,7 +12,7 @@ export default (app)=> {
 
     route.post('/create', new RoomController().create)
 
-    route.put('/update/photo/:id', uploadFiles, async (req,res,next)=> {
+    route.put('/update/photo/:id', uploadFileMiddleware, async (req,res)=> {
 
         try{
             let {id} = req.params
@@ -23,7 +23,6 @@ export default (app)=> {
                         /**
                          * RESIZE [ 70, 50, 30 ]
                          */
-                        console.log(req.files[i])
                         let filename = req.files[i].filename.toString().toLowerCase().replace(/ /g,"-")
                         await new ResizeModule({
                             filename: filename,
@@ -42,7 +41,7 @@ export default (app)=> {
                 }
 
             }
-            await Room.findOneAndUpdate({_id:id},{
+            return await Room.findOneAndUpdate({_id:id},{
                 $push:{
                     images:files
                 }
@@ -79,13 +78,10 @@ export default (app)=> {
             })
         }
 
-        return {
-            req,
-            error:false,
-            message: "Successfully!",
-            data: null
-        }
-    })//new RoomController().updateImages
+    })
+
+    //new RoomController().updateImages
+
     route.delete("/delete/photo/:id/:image_id", async (req,res)=>{
         try{
             await Room.findOneAndUpdate({_id:req.params.id},{
@@ -126,6 +122,7 @@ export default (app)=> {
             })
         }
     })
+
     route.get('/lists',new RoomController().getRooms)
 
     route.put('/update/schedule', new RoomController().putSchedule)

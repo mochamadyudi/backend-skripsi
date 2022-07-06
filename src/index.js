@@ -34,7 +34,7 @@ app.use((req,res,next)=> {
 //     secure: true
 // });
 
-app.use(YuyuidConfig.apiPrefix, routes())
+app.use(YuyuidConfig.apiPrefix, routes)
 app.use('/', (req,res)=> {
     return res.json({message:"OK!"}).status(200)
 })
