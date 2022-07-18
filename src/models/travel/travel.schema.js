@@ -87,6 +87,20 @@ const TravelSchema = new Schema({
                 type: String,
                 default: null,
             },
+            about: {
+                title: {
+                    type: String,
+                    default:null,
+                },
+                content:{
+                    type: String,
+                    default:null
+                }
+            },
+            is_published:{
+                type: Boolean,
+                default:false
+            },
             name: {
                 type: String,
                 default: null

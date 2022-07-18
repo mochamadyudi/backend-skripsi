@@ -23,4 +23,13 @@ export default class BodyResponse{
             }
         }
     }
+
+    error({message = '',status= 500}){
+        return {
+            status,
+            error:true,
+            message,
+            data: null
+        }
+    }
 }

@@ -137,8 +137,8 @@ const VillaSchema = new mongoose.Schema({
         default:false,
     },
     is_published:{
-        type: Number,
-        default:0
+        type: Boolean,
+        default:false
     },
     seen:{
         type: Number,
@@ -184,7 +184,15 @@ const VillaSchema = new mongoose.Schema({
     }
 },{
     timestamps:true,
-    versionKey: false
+    versionKey: false,
+    toJSON: {
+        transform: function(doc, ret, options) {
+            ret.id = ret._id;
+            delete ret._id;
+            delete ret.__v;
+            return ret;
+        }
+    }
 });
 
 

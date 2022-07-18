@@ -108,10 +108,10 @@ export default (app) => {
         }
     })
 
-    route.get('/:id', TravelService.single)
-
-
     route.put('/likes/:id', isAuth, TravelService._addLikes)
+
+
+    route.get('/:id', TravelService.single)
 
 
 }

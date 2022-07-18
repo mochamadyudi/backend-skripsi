@@ -6,3 +6,5 @@ export * from './generate-url'
 export * from './encrypt'
 export * from './get-path'
 export * from './images-checker'
+
+export * from './utils-options'

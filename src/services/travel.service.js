@@ -373,6 +373,19 @@ export class TravelService {
         try {
             const {page, limit, direction} = Pagination(req.query)
             let obj = {}
+            let taxonomy = ""
+            if(typeof(req.query?.taxonomy) !== "undefined"){
+                try{
+                    let taxParse = JSON.parse(req.query?.taxonomy)
+                    if(taxParse !== null){
+                        if(Array.isArray(taxParse) && taxParse.length> 0){
+                            taxonomy = taxParse
+                        }
+                    }
+                }catch(err){
+                    taxonomy = req.query.taxonomy
+                }
+            }
 
             if (typeof(req.query?.taxonomy) === "undefined" || req.query?.taxonomy === null){
                 obj = {
@@ -387,15 +400,20 @@ export class TravelService {
                     obj = {
                         'categories.slug': {
                             "$exists": true,
-                            $in: req.query?.taxonomy,
-                            $regex: '.*'+ req.query?.taxonomy + "*.",
-                            $options: "i"
+                            $all: taxonomy,
+                            // $regex: '.*'+ taxonomy + "*.",
+                            // $options: "i"
                         }
                     }
                 }
 
             }
-            const count = await Travel.find().count()
+
+            if(typeof(req.query?.notIn) !== "undefined"){
+                Reflect.set(obj,"_id",{$ne:req.query?.notIn})
+            }
+
+            const count = await Travel.find({...obj}).count()
 
             let travel = Travel.find({...obj})
 
@@ -408,7 +426,7 @@ export class TravelService {
                 }
             }
 
-            travel.populate("categories.category", ['slug', 'name', 'is_verify', 'is_published','background'])
+            travel.populate("categories.category",["_id",'name','is_published','slug','about'])
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
@@ -419,12 +437,27 @@ export class TravelService {
                         let data = []
                         if (Array.isArray(field)) {
                             for (let i = 0; i < field.length; i++) {
-                                let item = field[i]
+                                let item = field[i]?._doc
                                 const discuss = await TravelService.GetDiscuss(item._id)
                                 const likes = await TravelService.GetLikes(item._id)
-
+                                // if(typeof(item?.categories) !== "undefined"){
+                                //     if(Array.isArray(item?.categories) && item.categories.length > 0){
+                                //         let Categories = []
+                                //         for(let k = 0 ; k < item?.categories?.length; k ++){
+                                //             let cat = (item?.categories[k])?.toJSON()
+                                //             Reflect.set(item?.categories[k],'about',cat?.about)
+                                //             Reflect.set(item?.categories[k],'categoryId',cat?.category?._id)
+                                //             Reflect.set(item?.categories[k],'is_published',typeof(cat?.category?.is_published) === "number" ? cat?.category?.is_published > 0 : cat?.category?.is_published)
+                                //             Reflect.deleteProperty(item?.categories[k],'category')
+                                //             Categories.push({
+                                //                 ...cat
+                                //             })
+                                //         }
+                                //         Reflect.set(item, "categories",Categories)
+                                //     }
+                                // }
                                 data.push({
-                                    ...item._doc,
+                                    ...item,
                                     discuss,
                                     likes
                                 })

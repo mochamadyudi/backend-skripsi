@@ -11,16 +11,10 @@ import 'dotenv/config'
 import AppendExpressResponseProperty from "./src/lib/core/append-express-response-property"
 import "./src/loaders/events"
 import jobLoaders from './src/loaders/jobs'
-import { coreMiddleware } from "@yuyuid/core";
 import {AuthService} from "@yuyuid/services";
-// import AppendExpressResponseProperty from "./src/lib/core/append-express-response-property";
-
-import sharp from 'sharp'
 
 const app = express();
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
-// console.log(connectDB.prototype.hasOwnProperty('connected'))
-// connectDB()
 
 (async function(){
     await connectDB()
