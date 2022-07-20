@@ -3,6 +3,8 @@ import {Profile, User} from "@yuyuid/models";
 import Pagination from "../../../../lib/utils/Pagination";
 import {isAdmins} from "../../../middlewares/auth";
 import {Villa} from "../../../../models/villa/villa.schema";
+import {ObjResolve} from "@yuyuid/utils";
+import {ObjectId} from "mongodb";
 
 
 const route = Router()
@@ -142,29 +144,74 @@ export default (app) => {
 
     route.get('/search/:q', async (req, res) => {
         try {
-            const {page, limit, direction} = Pagination(req.query)
-            const {q} = req.params
-            const users  = await User.find({
-                $or: [
-                    {
-                        firstName: {
-                            $regex:new RegExp("^" + q.toLowerCase(), "i")
-                        }
-                    },
-                    {
-                        lastName: {
-                            $regex:new RegExp("^" + q.toLowerCase(), "i")
-                        }
+            let {query, params} = req
+            const {page, limit, direction} = Pagination(query)
+            const {q} = params
+            let match = {}
+
+            Reflect.set(match, "$or", [
+                {
+                    firstName: {
+                        $regex: q,
+                        $options: "-i"
                     }
-                ],
-            })
+                },
+                {
+                    lastName: {
+                        $regex: q,
+                        $options: "-i"
+                    }
+                }
+            ])
+
+
+            // Reflect.set(options,"$lookup",{
+            //     from:"users_profiles",
+            //     localField:"user",
+            //     foreignField:"_id",
+            //     as:"userProfile"
+            // })
+
+            const users = await User.aggregate([
+                {
+                    $match: {
+                        ...match,
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users_profiles",
+                        localField: "_id",
+                        foreignField: "user",
+                        as: "profiles",
+                    }
+                },
+                {
+                    "$unwind": "$profiles"
+                },
+            ])
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
                     date: direction === "desc" ? -1 : 1
                 })
 
-            const count = await User.find().count()
+            // const users  = await User.find({
+            //     ...options,
+            //     $lookup:{
+            //         from:"users_profiles",
+            //         localField:"user",
+            //         foreignField:"_id",
+            //         as:"profiles"
+            //     }
+            // },undefined,{rawResult:true})
+            //     .limit(limit)
+            //     .skip(limit * (page > 1 ? page - 1 : 0))
+            //     .sort({
+            //         date: direction === "desc" ? -1 : 1
+            //     })
+
+            const count = await User.find({...options}).count()
 
             return res.json({
                 error: false,
@@ -179,6 +226,7 @@ export default (app) => {
                     current_page: page > 0 ? page : 1,
                     total_record: count,
                 },
+                options,
                 data: users
             })
         } catch (err) {
