@@ -370,31 +370,32 @@ export class TravelService {
 
 
     static async _getTravelLists(req, res) {
+        let { query } = req
         try {
-            const {page, limit, direction} = Pagination(req.query)
+            const {page, limit, direction} = Pagination(query)
             let obj = {}
             let taxonomy = ""
-            if(typeof(req.query?.taxonomy) !== "undefined"){
+            if(typeof(query?.taxonomy) !== "undefined"){
                 try{
-                    let taxParse = JSON.parse(req.query?.taxonomy)
+                    let taxParse = JSON.parse(query?.taxonomy)
                     if(taxParse !== null){
                         if(Array.isArray(taxParse) && taxParse.length> 0){
                             taxonomy = taxParse
                         }
                     }
                 }catch(err){
-                    taxonomy = req.query.taxonomy
+                    taxonomy = query.taxonomy
                 }
             }
 
-            if (typeof(req.query?.taxonomy) === "undefined" || req.query?.taxonomy === null){
+            if (typeof(query?.taxonomy) === "undefined" || query?.taxonomy === null){
                 obj = {
                     'categories.slug': {
                         $ne : null
                     }
                 }
             }else{
-                if(req.query.taxonomy === "recomendation" || req.query.taxonomy === "top-10"){
+                if(query.taxonomy === "recomendation" || query.taxonomy === "top-10"){
                     obj = {}
                 }else{
                     obj = {
@@ -406,11 +407,24 @@ export class TravelService {
                         }
                     }
                 }
-
             }
 
-            if(typeof(req.query?.notIn) !== "undefined"){
-                Reflect.set(obj,"_id",{$ne:req.query?.notIn})
+            if (typeof (query?.is_published) !== "undefined") {
+                let isPublished = []
+                try {
+                    if (query?.is_published !== "") {
+                        isPublished = JSON.parse(query?.is_published) ?? [true, false]
+                    }
+                } catch (err) {
+                    isPublished = [true, false]
+                }
+                Reflect.set(obj, "is_published", {
+                    $in: isPublished
+                })
+            }
+
+            if(typeof(query?.notIn) !== "undefined"){
+                Reflect.set(obj,"_id",{$ne:query?.notIn})
             }
 
             const count = await Travel.find({...obj}).count()
