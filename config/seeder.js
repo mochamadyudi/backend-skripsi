@@ -5,7 +5,8 @@ import {
     ProfileSeeders,
     UpRolePermissionsSeeder,
     upRoleSeeder,
-    UsersSeeders
+    UsersSeeders,locationSeeder
+
 } from '../seeders/index';
 
 import connectDB from './db'
@@ -17,6 +18,7 @@ const SeederDestroyed= async()=> {
     await UsersSeeders.destroy();
     await ProfileSeeders.destroy();
     await CartSeeders.destroy();
+    await locationSeeder.destroy()
     await CartInfoSeeders.destroy();
     await UpRolePermissionsSeeder.destroy();
     process.exit()
@@ -25,9 +27,11 @@ const SeederImported = async ()=> {
     await upRoleSeeder.initial();
     await UsersSeeders.initial();
     await ProfileSeeders.initial();
+    await locationSeeder.initial()
     await CartSeeders.initial();
     await CartInfoSeeders.initial();
     await UpRolePermissionsSeeder.initial();
+
     process.exit();
 }
 

@@ -132,7 +132,11 @@ const ProfileSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-}, {versionKey: false});
+}, {
+    virtuals: true,
+    versionKey:false,
+    transform: function (doc, ret) {   delete ret._id  },
+});
 
 const Profile = mongoose.model("users_profile", ProfileSchema);
 export {Profile}

@@ -25,8 +25,9 @@ export class AuthService {
         Reflect.set(userInputDto, "salt", salt)
 
         const [err, user] = await UserService.create(userInputDto)
+        if(err) throw YuyuidError.badData(err)
 
-
+        console.log({user,err})
         switch (userInputDto.role) {
             case "villa":
 
@@ -148,7 +149,7 @@ export class AuthService {
     static async VerifyUniqueEmail(email) {
 
         const user = await User.findOne({email})
-        if (user !== null) throw YuyuidError.badRequest('Email has a been registered.');
+        if (user !== null) throw YuyuidError.badData('Email has a been registered.');
 
     }
 

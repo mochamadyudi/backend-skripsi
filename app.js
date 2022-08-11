@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser"
 import fs from 'fs'
 import path from 'path'
 import routes from "./src/api";
+import RoutesV2 from './src/api/v2/index'
 import { YuyuidConfig } from "./src/config";
 import bodyParser from 'body-parser'
 import connectDB from "./config/db";
@@ -36,15 +37,9 @@ app.use((req,res,next)=> {
 })
 
 jobLoaders();
-// AppendExpressResponseProperty()
-app.use(AppendExpressResponseProperty.appendSuccess);
-app.use(AppendExpressResponseProperty.appendError);
 
 app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
     let paths = path.resolve(__dirname + req.url)
-    // await sharp(paths).resize(200,200)
-        // .jpeg({quality : 50}).toFile([paths.split(".")[0],"-small",".",paths.split(".")[1]].join(""))
-        // .png({quality : 50}).toFile([paths.split(".")[0],"-small",".",paths.split(".")[1]].join(""));
     fs.readFile(paths, (err, data) => {
         if (err) {
             next(err) // Pass errors to Express.
@@ -53,18 +48,10 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
         }
     })
 })
-app.get('/public/uploads/images/:folder/:filename', async(req,res)=> {
-    console.log(req.params)
-    return res.send('helloooo')
-})
 
 app.post('/auth/reset/password/:token',AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix,routes())
-
-app.use('/', (req,res)=> {
-    return res.json({message:"OK!"}).status(200)
-})
-//
+app.use('/api/v2',RoutesV2())
 if(process.env.NODE_ENV === "PRODUCTION"){
     app.use(express.static("client/build"));
     app.get("*", (req, res) => {

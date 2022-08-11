@@ -3,3 +3,8 @@ export * from './travel'
 export * from './villa'
 export * from './users'
 
+export * from './locations/location-province.schema'
+export * from './locations/location-vilage.schema'
+export * from './locations/location-regencie.schema'
+export * from './locations/location-district.schema'
+export * from './locations/location-suggestion.schema'

@@ -19,8 +19,6 @@ export default (app)=> {
     route.get('/loaduser',isAuth, async (req,res)=> {
         try{
             const user = await User.findById(req.user.id).select("-password");
-            console.log({user})
-
             if (user){
                 if(typeof(user?.role) !== "undefined"){
                     switch (user?.role){
@@ -170,7 +168,6 @@ export default (app)=> {
             // let {token} = req.paA
             //  await ActivationService.VerifyEmail(token)
             const {error,message,data} = await ActivationService.VerifyEmail(token)
-            console.log({error,message,data})
             return res.json({error,message,data}).status(200)
         }catch(err){
             return res.json({

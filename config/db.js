@@ -1,4 +1,5 @@
 import mongodb from 'mongoose'
+import 'dotenv/config'
 import config from 'config'
 
 const url = process.env.DATABASE_DEV || config.get("db.detail")

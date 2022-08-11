@@ -1,0 +1,24 @@
+versionversion: '3'
+services:
+  db:
+    image: node
+    container_name: 'be_jastip'
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - npm-cache:/root/.npm
+    ports:
+      - "5001:5001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 300m
+        reservations:
+          memory: 100m
+
+volumes:
+  npm-cache:
+    external: 

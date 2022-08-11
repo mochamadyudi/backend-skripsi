@@ -18,7 +18,8 @@ export default (app)=> {
             const {page ,limit,direction} = Pagination(req.query)
 
 
-            const villa = await Villa.find({ name: { $regex: '.*' + q + '.*' },$options: 'i' }).limit(limit)
+            const villa = await Villa.find({ name: { $regex: '.*' + q + '.*' },$options: 'i' })
+                .limit(limit)
                 .skip(limit * (page > 1 ? page: 0))
                 .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
                 .populate({

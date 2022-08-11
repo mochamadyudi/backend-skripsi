@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: node
+    container_name: 'be_skripsi'
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - npm-cache:/root/.npm
+    ports:
+      - "5000:5000"
+
+volumes:
+  npm-cache:
+    external: false

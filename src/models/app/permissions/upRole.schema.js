@@ -22,6 +22,10 @@ const UpRoleSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+},{
+    virtuals: true,
+    versionKey:false,
+    transform: function (doc, ret) {   delete ret._id  },
 });
 
 const UpRole = mongoose.model("up_role", UpRoleSchema);

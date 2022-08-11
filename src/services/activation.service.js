@@ -31,8 +31,6 @@ export default class ActivationService {
     static async VerifyEmail(token){
         try{
             const {status,data} = await ActivationService.CheckedToken(token)
-
-            console.log({status,data})
             if (status){
                 const findUser = await User.findOne({email: data.email})
                 if (findUser && findUser.is_verify === false){

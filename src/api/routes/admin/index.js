@@ -3,7 +3,7 @@ import drive from "./drive"
 import moment from "moment";
 import {VillaPromotion} from "@yuyuid/models";
 import {Villa} from "@yuyuid/models";
-
+import permissionsRoute from './permissions/index'
 import users from './users'
 import villa from './villa'
 import travels from './travel'
@@ -12,6 +12,7 @@ import {isAdmins} from "../../middlewares/auth";
 export default () => {
     const app = Router();
     app.use(isAdmins);
+    permissionsRoute(app)
     drive(app)
     users(app)
     villa(app)
