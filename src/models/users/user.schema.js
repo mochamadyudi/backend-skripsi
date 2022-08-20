@@ -53,6 +53,23 @@ const UserSchema = new mongoose.Schema({
     transform: function (doc, ret) {   delete ret._id  },
 });
 
+UserSchema.virtual('villa-likes', {
+    ref: 'villa_likes',
+    localField: '_id',
+    foreignField: 'user'
+});
+UserSchema.virtual('user-profiles',{
+    ref: 'users_profile',
+    localField: '_id', // Of post collection
+    foreignField: 'user',    // Of user collection
+    justOne: true
+})
+UserSchema.virtual('user_villa_profiles',{
+    ref: 'villa',
+    localField: '_id', // Of post collection
+    foreignField: 'likes',    // Of user collection
+    justOne: true
+})
 const User = mongoose.model("user", UserSchema);
 
 export { User }

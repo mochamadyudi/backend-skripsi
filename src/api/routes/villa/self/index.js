@@ -9,14 +9,16 @@ import VillaService from "../../../../services/villa.service";
 import Rooms from './rooms'
 import {uploadFileMiddleware} from "../../../../lib/modules/uploaded";
 import ResizeModule from "../../../../lib/modules/resize.module";
+import VillaController from "../../../../controllers/villa.controller";
 
 
 
 const route = Router();
 export default ()=> {
     const app = Router();
-    app.use("/",isAuth,isVillas,route)
+    app.use("/",isAuth,route)
     // app.use(isAuth);
+    //isVillas
 
     Rooms(app)
 
@@ -75,7 +77,7 @@ export default ()=> {
     })
 
 
-
+    route.post('/create', new VillaController()._create)
 
     route.put("/profile/update",async (req,res)=> {
         try{
@@ -109,6 +111,8 @@ export default ()=> {
         }
     })
 
+
+    route.get('/likes/:id', new VillaController()._createLikes)
 
     // route.put('/profile/thumbnail', VillaService._putThumbnail)
 

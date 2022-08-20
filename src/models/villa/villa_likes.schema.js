@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const mongoose = require("mongoose");
 
 
@@ -8,6 +10,10 @@ const VillaLikesSchema = new mongoose.Schema({
             user: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "user"
+            },
+            date: {
+                type: Date,
+                default: moment().utc().format("YYYY-MM-DD HH:mm:ss")
             }
         }
     ],
@@ -16,9 +22,16 @@ const VillaLikesSchema = new mongoose.Schema({
         default: Date.now
     }
 }, {
-    timestamps:true,
-    versionKey:false
+    timestamps: true,
+    versionKey: false,
+    count: true,
 });
-
+VillaLikesSchema.virtual('user', {
+        ref: 'user',
+        localField: 'likes.user',
+        foreignField: '_id',
+        count: true,
+    }
+)
 const VillaLikes = mongoose.model("villa_like", VillaLikesSchema);
-export { VillaLikes }
+export {VillaLikes}

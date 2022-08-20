@@ -1,7 +1,7 @@
 import { JoiBase, JoiEmail, JoiPassword } from "./extended.validator";
+import { validator } from './validator'
 import Joi from "joi"
 
-const validator = ({ error, _ }, next) => (error ? next(error) : next());
 
 const RolesValidator = async (req,res,next)=> {
     const schema = JoiBase.append({

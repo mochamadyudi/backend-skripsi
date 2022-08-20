@@ -1,4 +1,5 @@
 import {makeIdRandom} from "@yuyuid/utils";
+import moment from 'moment'
 
 const mongoose = require("mongoose");
 const photos = new mongoose.Schema({
@@ -13,20 +14,36 @@ const videos = new mongoose.Schema({
         default :null
     },
 });
+const rates = new mongoose.Schema({
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"user"
+    },
+    rate:{
+        type: Number,
+        default:0,
+    },
+    date: {
+        type: Date,
+        default: moment().utc().format("YYYY-MM-DD HH:mm:ss")
+    }
+})
+
 
 const VillaSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user"
     },
-    rates:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"villa_rates"
-    },
-    likes: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"villa_like"
-    },
+    rates:[rates],
+    likes: [
+        {
+            user:{
+                type: mongoose.Schema.Types.ObjectId,
+                ref:"user"
+            }
+        }
+    ],
     discuss:{
         type: mongoose.Schema.Types.ObjectId,
         ref:"villa_discuss"
@@ -165,6 +182,10 @@ const VillaSchema = new mongoose.Schema({
             type: String,
             default: null
         },
+        coordinates: {
+            type: [Number],
+            required:true,
+        },
         lat:{
             type: Number,
             default:null
@@ -177,6 +198,40 @@ const VillaSchema = new mongoose.Schema({
             type:Number,
             default:null
         }
+    },
+    facility: {
+        ac: {
+            type: Boolean,
+            default:false
+        },
+        tv: {
+            type: Boolean,
+            default:false
+        },
+        hall: {
+            type: Boolean,
+            default:false
+        },
+        gazebo: {
+            type: Boolean,
+            default:false
+        },
+        wifi: {
+            type: Boolean,
+            default:false
+        },
+        swimming_pool: {
+            type: Boolean,
+            default:false
+        },
+        parking: {
+            type: Boolean,
+            default:false
+        },
+        meeting_room: {
+            type: Boolean,
+            default:false
+        },
     },
     date: {
         type: Date,
@@ -195,8 +250,12 @@ const VillaSchema = new mongoose.Schema({
     }
 });
 
-
-
-const Villa = mongoose.model("villa", VillaSchema);
+VillaSchema.virtual('villa-profiles', {
+    ref: 'user',
+    localField: 'user', // Of post collection
+    foreignField: '_id',    // Of user collection
+    justOne: true
+})
+let Villa = mongoose.model("villa", VillaSchema, );
 
 export { Villa }

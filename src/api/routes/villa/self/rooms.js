@@ -6,11 +6,12 @@ import sharp from "sharp";
 import fs from "fs";
 import path from 'path'
 import ResizeModule from "../../../../lib/modules/resize.module";
+import {RoomsValidator} from "../../../../lib/validator";
 const route = Router()
 export default (app)=> {
     app.use("/rooms",route)
 
-    route.post('/create', new RoomController().create)
+    route.post('/create',RoomsValidator.Create, new RoomController().create)
 
     route.put('/update/photo/:id', uploadFileMiddleware, async (req,res)=> {
 

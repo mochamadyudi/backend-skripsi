@@ -1,4 +1,4 @@
-import {Travel, Villa} from "@yuyuid/models";
+import {Travel, Villa, VillaLikes} from "@yuyuid/models";
 import YuyuidError from "@yuyuid/exception";
 import {
     changeFileName,
@@ -9,7 +9,7 @@ import {
 } from "@yuyuid/utils";
 import VillaController from "../controllers/villa.controller";
 import {BodyResponse} from '@yuyuid/handler'
-import {VillaLikes} from "../models/villa/travel_likes.schema";
+
 import {VillaDiscuss} from "../models/villa/villa_discuss.schema";
 import {VillaRates} from "../models/villa/villa_rates.schema";
 import formidable from "formidable";
@@ -35,9 +35,9 @@ export default class VillaService {
      */
     static async createVilla(payload) {
         try {
-            const likes = await VillaService.initialLikes()
-            const rates = await VillaService.initialRates()
-            const discuss = await VillaService.initialDiscuss()
+            // const likes = await VillaService.initialLikes()
+            // const rates = await VillaService.initialRates()
+            // const discuss = await VillaService.initialDiscuss()
             //    rates:{
             //         type: mongoose.Schema.Types.ObjectId,
             //         ref:"villa_rates"
@@ -52,20 +52,20 @@ export default class VillaService {
             //     },
             const villa = new Villa({
                 ...payload,
-                likes: likes.id,
-                rates: rates.id,
-                discuss: discuss.id,
+                // likes: likes.id,
+                // rates: rates.id,
+                // discuss: discuss.id,
                 user: payload.user,
-                slug: makeIdRandom(10),
+                slug: payload?.slug ?? makeIdRandom(10),
                 facility: {
-                    ac: false,
-                    tv: false,
-                    hall: false,
-                    gazebo: false,
-                    wifi: false,
-                    swimming_pool: false,
-                    parking: false,
-                    meeting_room: false,
+                    ac: payload?.facility?.ac ?? false,
+                    tv: payload?.facility?.tv ?? false,
+                    hall: payload?.facility?.hall ?? false,
+                    gazebo: payload?.facility?.gazebo ?? false,
+                    wifi: payload?.facility?.wifi ?? false,
+                    swimming_pool: payload?.facility?.swimming_pool ?? false,
+                    parking: payload?.facility?.parking ?? false,
+                    meeting_room: payload?.facility?.meeting_room ?? false,
                 }
             });
             await villa.save()
@@ -140,11 +140,11 @@ export default class VillaService {
         try {
             await new VillaController()._get(null, {query: req.query, params: req.params})
                 .then(({data, error, message, status, pagination, query}) => {
-                    return res.json({
+                    return res.json(new BodyResponse({
                         error, message, status,
                         pagination, query,
                         data
-                    })
+                    }))
                 }).catch(({data, error, message, status, pagination, query}) => {
                     return res.json({
                         error, message, status,
@@ -156,6 +156,22 @@ export default class VillaService {
 
         } catch (err) {
             return new BodyResponse({error: true, message: err.message})
+        }
+    }
+
+    static async getLikes(req,res){
+        try{
+            let { id } = req.params
+            return await new VillaController()._getLikes(id,req.query)
+                .then((val)=> {
+                    return res.json({message:"success!"})
+                })
+                .catch((err)=> {
+                    console.log(err)
+                    return res.json({message: err.message})
+                })
+        }catch(err){
+            return res.json({message: err.message})
         }
     }
 
@@ -290,6 +306,25 @@ export default class VillaService {
         const discuss = new VillaRates({})
         await discuss.save()
         return {id: discuss.id}
+    }
+
+
+
+    static async checkVillaFoundByUser(id){
+        try{
+            return await Villa.findOne({
+                user:id,
+            })
+                .then((result)=> {
+                    console.log(result)
+                    return [ null, result]
+                })
+                .catch((err)=> {
+                    return [ err , null ]
+                })
+        }catch(err){
+            return [ err, null ]
+        }
     }
 
 

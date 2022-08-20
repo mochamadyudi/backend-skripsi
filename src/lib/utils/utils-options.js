@@ -16,6 +16,31 @@ export const ObjResolve = (obj = {},key = '')=> {
     }
     return null
 }
+export const ToBoolean = (str)=> {
+    if(Boolean(JSON.parse(str))) return JSON.parse(str)
+    return false
+}
+export const StrToArr = (str)=> {
+    try{
+        if(typeof (str) === "string"){
+            if(Array.isArray(JSON.parse(str))){
+                return JSON.parse(str)
+            }
+            return []
+        }
+        return []
+    }catch(err){
+        return []
+    }
+}
+export const ObjArr = (obj,key = '')=> {
+    if(ObjResolve(obj,key)){
+        if(Array.isArray(JSON.parse(ObjResolve(obj,key)))){
+            return JSON.parse(ObjResolve(obj,key))
+        }
+    }
+    return []
+}
 
 export class OptParams{
     static name(query,obj){
@@ -98,6 +123,17 @@ export class OptParams{
             }catch(err){
 
             }
+        }
+    }
+
+    static villaNotIn(obj,order,val){
+        try{
+            Reflect.set(obj, order, {
+                $exists: true,
+                $nin: val
+            })
+        }catch(err){
+
         }
     }
 }

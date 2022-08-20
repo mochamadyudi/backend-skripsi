@@ -185,7 +185,7 @@ export class AuthService {
             }
         };
 
-        const token = generateCustomToken(payload)
+        const token = await generateCustomToken(payload)
 
         return {
             ...payload,

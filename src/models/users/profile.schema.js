@@ -138,5 +138,11 @@ const ProfileSchema = new mongoose.Schema({
     transform: function (doc, ret) {   delete ret._id  },
 });
 
+ProfileSchema.virtual('profiles',{
+    ref: 'user',
+    localField: 'user', // Of post collection
+    foreignField: '_id',    // Of user collection
+    justOne: true
+})
 const Profile = mongoose.model("users_profile", ProfileSchema);
 export {Profile}

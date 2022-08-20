@@ -4,7 +4,7 @@ import {RoomSchedule} from "../models/rooms/room_schedule.schema";
 import formidable from "formidable";
 import {generatePublic, uploadFile} from "../lib/modules/google-apis";
 import ImagesChecker from "../lib/utils/images-checker";
-import {changeFileName, pathUploadedByDate} from "@yuyuid/utils";
+import {changeFileName, ObjResolve, pathUploadedByDate, ToBoolean} from "@yuyuid/utils";
 import mv from "mv";
 import Pagination from "../lib/utils/Pagination";
 import RoomLib from "../services/lib/room.lib";
@@ -16,46 +16,33 @@ export default class RoomController {
         try {
             let body = req.body
             let user = req.user
-            const villa = await Villa.findOne({user: user?.id})
-            const {schedule_id} = await new RoomController().createInitialSchedule()
 
-            if (schedule_id) {
-                await new RoomController().createRoom(body, {
-                    villa: villa?.id ?? villa?._id ?? null,
-                    user: user?.id ?? user?._id ?? null,
-                    schedule: schedule_id,
-                }).then(async ({error, data, status}) => {
-                    if (!error) {
-                        await new RoomController().updateRefRoomsSchedule(schedule_id, data?._id)
-                        return res.json(data).status(status)
-                    } else {
-                        return res.json(new BodyResponse({
-                            error: true,
-                            message: "undefined",
-                            data: null,
-                        }))
-                    }
+            return await new RoomController().createRoom(body, {
+                villa: user?.profile?.id ?? null,
+                user: user?.id ?? user?._id ?? null,
+            }).then(async ({error, data, status}) => {
+                if (!error) {
+                    return res.json(new BodyResponse({
+                        status:status,
+                        error:false,
+                        message: "Successfully created!",
+                        data:data
+                    })).status(status)
+                } else {
+                    return res.json(new BodyResponse({
+                        error: true,
+                        message: "undefined",
+                        data: null,
+                    }))
+                }
+            })
+                .catch((err) => {
+                    return res.json(new BodyResponse({
+                        error: true,
+                        message: err?.message,
+                        data: null,
+                    }))
                 })
-                    .catch((err) => {
-                        return res.json(new BodyResponse({
-                            error: true,
-                            message: err?.message,
-                            data: null,
-                        }))
-                    })
-                // if (typeof(rooms) !== "undefined"){
-                //     if (!rooms?.error) {
-                //         await new RoomController().updateRefRoomsSchedule(schedule_id, rooms?.data?._id)
-                //     }
-                //     return res.json(rooms).status(rooms?.status)
-                // }
-                // return res.json(new BodyResponse({
-                //     error:true,
-                //     message: "undefined",
-                //     data:null,
-                // }))
-            }
-
 
         } catch (err) {
             return res.json(new BodyResponse({
@@ -68,9 +55,10 @@ export default class RoomController {
 
     async getRooms(req, res) {
         try {
-            let id = null
-            if (typeof (req.body?.id) !== "undefined") {
-                id = req.body.id
+
+            let id = req.user.id
+            if (ObjResolve(req.query,"id")) {
+                id = ObjResolve(req.query,"id")
             }
 
             return await new RoomController()._getListsRooms(id, {query: req.query, params: req.params})
@@ -243,11 +231,11 @@ export default class RoomController {
     async createRoom(fields, other) {
         try {
 
-            // console.log({fields,other})
             const room = await new Room({
                 ...fields,
                 ...other
             })
+            console.log({room})
 
             // console.log(room)
             if (room) {
@@ -360,11 +348,24 @@ export default class RoomController {
 
     async _getListsRooms(id = null, options = {query: {}, params: {}}) {
         try {
-            const {page, direction, limit} = Pagination(options.query)
-            const count = await Room.find().count()
-            return await Room.find().populate('schedule', ['createdAt', 'updatedAt', 'schedule'])
-                .populate('images._id',['filename','path','prefix_url','originalname'])
+            let select = ['name','facility','is_available','status','seen','is_deleted','_id','schedule','images','createdAt','updatedAt','price'].join(' ')
+            if(ObjResolve(options.query,"select")){
+                select = ObjResolve(options.query,"select")
+            }
+            let populate = []
 
+            if(ObjResolve(options.query,"withVilla") && ToBoolean(ObjResolve(options.query,"withVilla")) === true){
+                populate.push({
+                    path:"villa",
+                    select:ObjResolve(options.query,"villaSelect") ?? ["thumbnail","social","contact","slug","name","rates","id"],
+                })
+            }
+            const {page, direction, limit} = Pagination(options.query)
+            const count = await Room.find({user:id}).count()
+            return await Room.find({user:id})
+                .select(select)
+                .populate(populate)
+                .populate('images._id',['filename','path','prefix_url','originalname'])
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({

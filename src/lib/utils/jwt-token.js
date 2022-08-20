@@ -1,5 +1,6 @@
 import { YuyuidConfig } from "@yuyuid/config";
 import jwt from 'jsonwebtoken'
+import {Villa} from "@yuyuid/models";
 
 const generateToken = (user)=> {
     return jwt.sign(
@@ -24,8 +25,26 @@ const makeIdRandom = (length = 5)=> {
     return result;
 }
 
-const generateCustomToken = (payload)=> {
-    return jwt.sign(payload,YuyuidConfig.jwtSecret,{expiresIn:"1d"})
+const generateCustomToken = async(payload)=> {
+    try{
+        if(typeof(payload?.user) !== "undefined" && typeof(payload?.user?.role) !== "undefined"){
+            if (payload?.user?.role === "villa"){
+                await Villa.findOne({user:payload?.user.id}).select(['name','slug','photos'])
+                    .then((result)=> {
+                        Reflect.set(payload.user,"profile",result)
+                    })
+                    .catch((err)=> {
+
+                    })
+            }
+        }
+
+        console.log({payload})
+
+        return jwt.sign(payload,YuyuidConfig.jwtSecret,{expiresIn:"1d"})
+    }catch(err){
+        return null
+    }
 }
 
 const decodeJwtToken = (token)=> {

@@ -19,6 +19,21 @@ const isAuth = async (req, res, next) => {
     }
 }
 
+export const CheckAuth = async(req) => {
+    try {
+        //Check if there isn't a token
+        if(req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
+            const token = req.headers.authorization.split(" ")[1]
+            const {user} = jwt.verify(token, YuyuidConfig.jwtSecret);
+            Reflect.set(req,"user",user)
+
+        }else{
+            Reflect.set(req,"user", null)
+        }
+    } catch (err) {
+        Reflect.set(req,"user", null)
+    }
+}
 const isAdmins = async (req,res,next)=> {
     try {
         //Check if there isn't a token

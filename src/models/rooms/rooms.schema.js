@@ -34,6 +34,35 @@ const images = new mongoose.Schema({
 
 });
 
+const schedules = new mongoose.Schema(
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref:"user",
+            default: null,
+        },
+        date: {
+            type: Date,
+            default:null,
+        },
+        total: {
+            type: Number,
+            default:1,
+        },
+        total_unit:{
+            type: String,
+            enum: ['day','week','month']
+        },
+        expiresIn: {
+            type: Date,
+            default:null,
+        },
+        limit: {
+            type: Number,
+            default: 1
+        },
+    },
+)
 const RoomSchema = new mongoose.Schema({
     villa: {
         type: mongoose.Schema.Types.ObjectId,
@@ -42,17 +71,14 @@ const RoomSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "users"
+        ref: "user"
     },
     wishlists: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "room_wishlists",
         default:null,
     },
-    schedule: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"room_schedule"
-    },
+    schedule: [schedules],
     type: {
         type: String,
         enum: ['superior', 'deluxe', 'junior', 'presidential', 'single', 'twin', 'standard', 'suite', 'double', 'triple']
@@ -104,7 +130,8 @@ const RoomSchema = new mongoose.Schema({
         },
         bed_type: {
             type: String,
-            enum: ["single","double","large","extra-large"]
+            enum: ["single","double","large","extra-large"],
+            default:"single"
         },
         wifi: {
             type: Boolean,
@@ -115,7 +142,8 @@ const RoomSchema = new mongoose.Schema({
             default: false
         },
         other: {
-            type: String
+            type: String,
+            default:null,
         }
     },
     is_available: {

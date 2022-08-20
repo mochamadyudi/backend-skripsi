@@ -9,3 +9,4 @@ export * from "../rooms/rooms.schema"
 export * from "./villa_promotion.schema"
 export * from './villa.schema'
 export * from './villa_theme.schema'
+export * from './villa_likes.schema'
