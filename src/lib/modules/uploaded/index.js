@@ -42,6 +42,7 @@ const uploadFileSingle = multer({
         checkFileType(file,cb)
     }
 })
+
 export {
     uploadFileMiddleware,
     uploadFileSingle

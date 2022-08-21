@@ -52,6 +52,7 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
 app.post('/auth/reset/password/:token',AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix,routes())
 app.use('/api/v2',RoutesV2())
+
 if(process.env.NODE_ENV === "PRODUCTION"){
     app.use(express.static("client/build"));
     app.get("*", (req, res) => {
