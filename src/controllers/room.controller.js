@@ -8,6 +8,8 @@ import {changeFileName, ObjResolve, pathUploadedByDate, ToBoolean} from "@yuyuid
 import mv from "mv";
 import Pagination from "../lib/utils/Pagination";
 import RoomLib from "../services/lib/room.lib";
+import RoomsService from "../services/rooms.service";
+import YuyuidError from "@yuyuid/exception";
 
 export default class RoomController {
 
@@ -433,6 +435,32 @@ export default class RoomController {
                 message: err.message,
                 status: 500,
                 data: null,
+            })
+        }
+    }
+
+
+    async _getPublicRooms(req,res){
+        try{
+            const [err, data ] = await new RoomsService({
+                query: req.query
+            })._list()
+
+            console.log(err,"ERR CONTROLLER")
+            if(err) throw YuyuidError.badData(err)
+            return res.json({
+                status:200,
+                error:false,
+                message: "Successfully!",
+                data
+            })
+        }catch(err){
+            res.status(500)
+            return res.json({
+                status:500,
+                error:true,
+                message: err.message,
+                data: []
             })
         }
     }

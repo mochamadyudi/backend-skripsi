@@ -111,12 +111,12 @@ const RoomSchema = new mongoose.Schema({
     },
     unit: {
         type: String,
-        enum : ["day","month","year"],
+        enum : ["day","week","month","year"],
         default: "day"
     },
     currency: {
         type: String,
-        enum: ["$","Rp"],
+        enum: ["$","Rp","IDR","USD","INR","RUB"],
         default: "Rp"
     },
     facility: {

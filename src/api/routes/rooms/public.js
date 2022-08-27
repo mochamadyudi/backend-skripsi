@@ -1,5 +1,7 @@
 import {Router} from 'express'
 import {BodyResponse} from "@handler";
+import RoomsService from "../../../services/rooms.service";
+import RoomController from "../../../controllers/room.controller";
 const route = Router()
 export default (app)=> {
     app.use("/", route)
@@ -67,4 +69,7 @@ export default (app)=> {
             }))
         }
     })
+
+
+    route.get('/', new RoomController()._getPublicRooms)
 }

@@ -16,7 +16,8 @@
     "start:prod": "npm run build && node ./build/index.js",
     "start:migrate": "node ./album-migrations/index.js",
     "start:dev": "nodemon --exec babel-node app.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && npm install babel-cli -g -S",
+    "build:client": "/client npm run build",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install && npm install babel-cli -g -S && npm run build:client ",
     "seeder:import": "babel-node config/seeder.js",
     "seeder:destroy": "babel-node config/seeder.js --d"
   },
