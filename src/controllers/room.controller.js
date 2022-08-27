@@ -442,6 +442,7 @@ export default class RoomController {
 
     async _getPublicRooms(req,res){
         try{
+            console.log(req.query)
             const [err, data ] = await new RoomsService({
                 query: req.query
             })._list()
@@ -452,7 +453,7 @@ export default class RoomController {
                 status:200,
                 error:false,
                 message: "Successfully!",
-                data
+                ...data
             })
         }catch(err){
             res.status(500)

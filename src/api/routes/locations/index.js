@@ -5,6 +5,7 @@ import {Regencies} from "../../../models/locations/location-regencie.schema";
 import Pagination from "../../../lib/utils/Pagination";
 import {Districts} from "../../../models/locations/location-district.schema";
 import {Vilages} from "../../../models/locations/location-vilage.schema";
+import LocationsController from "../../../controllers/locations.controller";
 
 const route = Router()
 export default (app)=> {
@@ -217,6 +218,7 @@ export default (app)=> {
             })).status(500)
         }
     })
+    // route.get("/regencies/karawang", async ())
     route.get('/district', async (req,res)=> {
         try{
             let findParams = {}
@@ -284,6 +286,7 @@ export default (app)=> {
             })).status(500)
         }
     })
+    route.get('/district/karawang', new LocationsController().getDistrictsKarawang)
     route.get('/villages', async (req,res)=> {
         try{
             let findParams = {}
