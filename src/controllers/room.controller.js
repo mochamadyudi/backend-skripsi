@@ -442,7 +442,6 @@ export default class RoomController {
 
     async _getPublicRooms(req,res){
         try{
-            console.log(req.query)
             const [err, data ] = await new RoomsService({
                 query: req.query
             })._list()

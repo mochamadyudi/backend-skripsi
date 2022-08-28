@@ -22,21 +22,23 @@ export default class RoomsService {
             }
             const {page, limit, direction} = Pagination(this.query)
             let condition = {}
+            let villa = null
+            if(ObjResolve(this.query,'villa')){
+                if(ObjResolve(ObjResolve(this.query,'villa'),'districts')){
+                    villa = await Villa.find({
+                        'locations.districts':  ObjResolve(ObjResolve(this.query,'villa'),'districts') ??{
+                            $ne: null
+                        },
+                    },).select("_id")
 
-            let villa = await Villa.find({
-                'locations.districts': ObjResolve(ObjResolve(this.query,'villa'),'districts') ??{
-                    $ne: null
-                },
-
-            },).select("_id")
-
-
-
-
+                    if(villa){
+                        Reflect.set(condition,"villa", {
+                            $in:villa.map((item)=> item?._id)
+                        })
+                    }
+                }
+            }
             this.#RoomParams(condition)
-            Reflect.set(condition,"villa", {
-                $in:villa.map((item)=> item?._id)
-            })
 
             let count = await Room.count(condition)
                 .populate({
@@ -61,6 +63,7 @@ export default class RoomsService {
                 },
                 data: []
             }
+            console.log({condition})
             return await Room.find({...condition})
                 .populate({
                     path: "villa",
@@ -152,6 +155,7 @@ export default class RoomsService {
             }
             Reflect.set(obj, "limit", ObjResolve(query, 'room_limit'))
         }
+
         if (ObjResolve(query, "unit")) {
             if (typeof (ObjResolve(query, 'unit')) === "object") {
                 Object.keys(ObjResolve(query, 'unit')).forEach((key) => {
@@ -195,7 +199,54 @@ export default class RoomsService {
             Reflect.set(obj, "currency", currency)
         }
 
+        let newObj = {}
+        this.#FacilityParams(newObj,'ac')
+        this.#FacilityParams(newObj,'tv')
+        this.#FacilityParams(newObj,'wifi')
+        let newArr = []
+        Object.keys(newObj).forEach((key)=> {
+            newArr.push({
+                [key]:newObj[key]
+            })
+        })
+        Reflect.set(obj,'$or', newArr)
     }
 
 
+    async #FacilityParams(obj,keys){
+        let query = this.query
+        if(ObjResolve(query,keys)){
+            if(typeof(ObjResolve(query,keys)) === "object"){
+                let terms = "$in"
+                let values = []
+                Object.keys(ObjResolve(query,keys)).forEach((key)=> {
+                    if(key === "terms"){
+                        terms = query[keys][key]
+                    }
+                    if(key === "value"){
+                        if(ObjResolve(ObjResolve(query,keys),key)){
+                            if(Array.isArray(query[keys]['value']) && query[keys]['value'].length > 0){
+                                let newItem = []
+                                for(let i = 0; i < query[keys]['value'].length;i++){
+                                    newItem.push(
+                                        query[keys]['value'][i] === "true"
+                                    )
+                                }
+                                values = newItem
+                            }else{
+                                values = query[keys]['value']
+                            }
+                        }
+                    }
+                })
+                Reflect.set(obj,`facility.${keys}`, {
+                    $exists:true,
+                    [terms]:values
+                })
+            }
+
+        }
+
+        console.log({obj})
+    }
 }

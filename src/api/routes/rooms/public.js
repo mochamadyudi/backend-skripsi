@@ -70,6 +70,33 @@ export default (app)=> {
         }
     })
 
+    route.get("/bed-type", async (req,res)=> {
+        res.status(200)
+        return res.json({
+            data: [
+                {
+                    name:"single",
+                    value:"single"
+                },
+                {
+                    name: "double",
+                    value:"double"
+                },
+                {
+                    name: "triple",
+                    value: "triple"
+                },
+                {
+                    name: "large",
+                    value: "large"
+                },
+                {
+                    name: "Extra Large",
+                    value:"extra-large"
+                }
+            ]
+        })
+    })
 
     route.get('/', new RoomController()._getPublicRooms)
 }
