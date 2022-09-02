@@ -1,3 +1,10 @@
+import {v4 as uuidv4} from 'uuid'
+
+
+export const hashUuid = ()=> {
+    return uuidv4()
+}
+
 export const DeleteObjKey = async (data,key =[])=> {
     if(typeof(data) !== "undefined" && typeof(data) === "object"){
         for(let i = 0; i < key.length;i++){

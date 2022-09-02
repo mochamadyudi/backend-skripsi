@@ -23,6 +23,7 @@ module.exports = {
                 root: ["."],
                 extensions: [".js"],
                 alias:{
+                    "@yid/controllers": "./src/controllers/index",
                     "@yuyuid/config":"./src/config/index",
                     "@yuyuid/constants": "./src/lib/constants/index",
                     "@yuyuid/core": "./src/lib/core/index",

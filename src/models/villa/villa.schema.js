@@ -55,7 +55,7 @@ const VillaSchema = new mongoose.Schema({
     slug:{
         type: String,
         unique: true,
-        default: makeIdRandom(5),
+        // default: makeIdRandom(5),
     },
     name: {
         type: String,

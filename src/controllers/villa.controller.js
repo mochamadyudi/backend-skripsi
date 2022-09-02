@@ -22,7 +22,7 @@ export default class VillaController {
                 const {page, direction, limit} = Pagination(options.query)
                 let condition = {}
                 if (ObjResolve(query, "notIn")) {
-                    OptParams.villaNotIn(condition, '_id', StrToArr(ObjResolve(query, "notIn")))
+                    OptParams.villaNotIn(condition, '_id', ObjResolve(query, "notIn"))
                 }
 
 
@@ -34,18 +34,25 @@ export default class VillaController {
                         date: direction === "desc" ? -1 : 1
                     })
                     .populate({
+                        path:"locations.provinces",
+                        select:"-_id name alt_name latitude longitude"
+                    })
+                    .populate({
+                        path:"locations.regencies",
+                        select:"-_id name alt_name latitude longitude"
+                    })
+                    .populate({
+                        path:"locations.districts",
+                        select:"-_id name alt_name latitude longitude"
+                    })
+                    .populate({
+                        path:"locations.sub_districts",
+                        select:"-_id"
+                    })
+                    .populate({
                         path: "rates",
                         select: "rates"
                     })
-                    // .populate({
-                    //     path: "likes",
-                    //     select: "likes",
-                    //     populate: {
-                    //         path: "likes.user",
-                    //         model:User,
-                    //         select:'email firstName lastName role',
-                    //     }
-                    // })
                     .populate({
                         path: "user"
                     })

@@ -32,24 +32,23 @@ export default () => {
      */
     app.post('/create', async (req, res) => {
         try {
-            console.log({...req.body})
-            const travel = new Travel({
+            let travel = new Travel({
                 ...req.body
             })
-
-            await new TravelLikes({
+            let likes = await new TravelLikes({
                 travel: travel?.id,
-            }).save()
-            await new TravelDiscuss({
+            })
+            let discuss = await new TravelDiscuss({
                 travel: travel?.id
-            }).save();
-
-            await new TravelRating({
+            });
+            let rating = await new TravelRating({
                 travel: travel?.id
-            }).save()
+            })
 
-            await travel.save();
-
+            await travel.save()
+            await likes.save();
+            await discuss.save();
+            await rating.save();
             console.log({travel})
             return res.json({
                 error: false,
@@ -97,7 +96,7 @@ export default () => {
                         if (fileCheck) {
 
                             let filename = changeFileName(item.originalFilename.toString().toLowerCase().replace(/ /g, "_"), fileExtensions)
-                            const {prefix_date, path_full,only_date} = pathUploadedByDate(filename)
+                            const {prefix_date, path_full, only_date} = pathUploadedByDate(filename)
 
                             newImages.push({
                                 original_filename: item.originalFilename,
@@ -164,7 +163,7 @@ export default () => {
 
                         if (item.mimetype === "video/mp4") {
                             let filename = changeFileName(files.thumbnail.originalFilename.toString().toLowerCase().replace(/ /g, "_"), "mp4")
-                            const {prefix_date, path_full,only_date} = pathUploadedByDate(filename)
+                            const {prefix_date, path_full, only_date} = pathUploadedByDate(filename)
                             // let filename = changeFileName(item.originalFilename.replace(/ /g, "_"), "mp4")
                             // const filePath = uploadVideoWithHashFolder(fields?.id, filename)
 
@@ -217,7 +216,7 @@ export default () => {
     })
 
 
-    app.get('/list',TravelService._getTravelLists)
+    app.get('/list', TravelService._getTravelLists)
 
     app.get('/update/published/:id', async (req, res) => {
         try {

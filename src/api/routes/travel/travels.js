@@ -16,7 +16,8 @@ const route = Router()
 
 export default (app) => {
     app.use('/', route)
-    app.use('/category',category())
+
+    route.get('/:keyword', TravelService.single)
 
     route.get('/likes', MixedMiddlewares.protectLogin[0], new TravelController().Likes)
 
@@ -108,10 +109,8 @@ export default (app) => {
         }
     })
 
+
     route.put('/likes/:id', isAuth, TravelService._addLikes)
-
-
-    route.get('/:id', TravelService.single)
 
 
 }

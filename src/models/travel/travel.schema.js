@@ -57,14 +57,21 @@ const FacilitySchema = new mongoose.Schema({
 const TravelSchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "user"
+        ref: "user",
+        default:null,
+    },
+    name: {
+        type: String,
+        default:null,
     },
     travel_name: {
-        type: String
+        type: String,
+        default:null,
     },
     slug: {
         type: String,
-        default: null
+        default: null,
+        unique:true
     },
     thumbnail: {
 
@@ -79,44 +86,8 @@ const TravelSchema = new Schema({
     facility: FacilitySchema,
     categories: [
         {
-            category: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "travel_category"
-            },
-            hash_id: {
-                type: String,
-                default: null,
-            },
-            about: {
-                title: {
-                    type: String,
-                    default:null,
-                },
-                content:{
-                    type: String,
-                    default:null
-                }
-            },
-            is_published:{
-                type: Boolean,
-                default:false
-            },
-            name: {
-                type: String,
-                default: null
-            },
-            slug: {
-                type: String,
-                default: null
-            },
-            createdAt: {
-                type: String,
-                default:null,
-            },
-            updatedAt: {
-                type: String,
-                default: null
-            }
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "travel_category"
         }
     ],
     locations:{
@@ -127,32 +98,28 @@ const TravelSchema = new Schema({
         },
         provinces:{
             type: mongoose.Schema.Types.ObjectId,
-            ref:"location_provinces"
+            ref:"location_provinces",
+            default:null,
         },
         regencies:{
             type: mongoose.Schema.Types.ObjectId,
-            ref:"location_regencies"
+            ref:"location_regencies",
+            default:null,
         },
         districts:{
             type: mongoose.Schema.Types.ObjectId,
-            ref:"location_districts"
+            ref:"location_districts",
+            default:null,
         },
         sub_districts:{
             type: mongoose.Schema.Types.ObjectId,
-            ref:"location_vilages"
+            ref:"location_vilages",
+            default:null,
         },
         address:{
             type: String,
             default: null
         },
-        // lat:{
-        //     type: Number,
-        //     default:null
-        // },
-        // lng:{
-        //     type: Number,
-        //     default:null
-        // },
         coordinates: {
             type: [Number],
             required:true,
@@ -232,9 +199,10 @@ const TravelSchema = new Schema({
     versionKey:false
 });
 
-TravelSchema.index({locations:"2dsphere"})
+// TravelSchema.index({locations:"2dsphere"})
 
 const Travel = mongoose.model('travel', TravelSchema)
+
 // Travel.createIndexes({})
 // Travel.syncIndexes({'locations':"2dsphere"})
 export {Travel}

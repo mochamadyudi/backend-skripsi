@@ -1,3 +1,5 @@
+import {hashUuid} from "@yuyuid/utils";
+
 const mongoose = require("mongoose");
 
 
@@ -8,7 +10,6 @@ const TravelCategoriesSchema = new mongoose.Schema({
         required: true,
         unique:true,
     },
-
     slug: {
         type: String,
         required: true,
@@ -16,7 +17,9 @@ const TravelCategoriesSchema = new mongoose.Schema({
     },
     hash_id:{
         type: String,
-        required: true
+        required: true,
+        unique:true,
+        default:hashUuid(),
     },
     is_published: {
         type:Number,

@@ -5,6 +5,7 @@ import userRoute from "./routes/user";
 import AdminRoute from "./routes/admin"
 import VillaRoute from './routes/villa';
 import Locations from './routes/locations'
+import CategoryRoute from './routes/travel/category'
 // const request = require('request').defaults({ encoding: null });
 import RoomsRoute from './routes/rooms'
 
@@ -24,6 +25,8 @@ export default ()=> {
     /**
      * scope public
      */
+
+    app.use("/category",CategoryRoute())
     app.use('/rooms', RoomsRoute())
 
     app.use('/scraping', Scraping())

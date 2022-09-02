@@ -4,6 +4,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
+      "@yid/controllers": ["./src/controllers/index"],
       "@yuyuid/config": ["./src/config/index"],
       "@yuyuid/constants": ["./src/lib/constants/index"],
       "@yuyuid/core": ["./src/lib/core/index"],

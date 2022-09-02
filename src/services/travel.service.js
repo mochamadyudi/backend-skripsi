@@ -3,7 +3,7 @@ import {Travel, TravelDiscuss} from "@yuyuid/models";
 import BodyResponse from "../lib/handler/body-response";
 import formidable from "formidable";
 import {v2 as cloudinary} from "cloudinary";
-import {HashId} from "@yuyuid/utils";
+import {HashId, ObjResolve} from "@yuyuid/utils";
 import YuyuidError from "@yuyuid/exception";
 import Pagination from "../lib/utils/Pagination";
 import {TravelCategory} from "../models/travel/travel_categories.schema.";
@@ -135,52 +135,47 @@ export class TravelService {
     static async single(req, res) {
         try {
 
-            const {id} = req.params
-            await Travel.findById({_id: id})
-                .populate('categories.category', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
+            let { query , params } = req
+
+            const {keyword} = params
+            let doc = await Travel.findOne({[ObjResolve(query,'orderBy') ?? "_id"]:keyword})
+                .populate('categories', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
                 .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .populate('locations.regencies', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                .then(async (field) => {
-                    const likes = await TravelLikes.findOne({travel: field.id}).select("-__v -_id -travel -date").populate('likes.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
-                    const discuss = await TravelDiscuss.findOne({travel: field.id}).select("-__v -_id -travel -date").populate('discuss.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
-
-                    if (field) {
-                        await Travel.findOneAndUpdate({_id: id}, {$set: {seen: field.seen + 1},}, {new: true})
-
-                        return res.json({
-                            error: false,
-                            message: "Successfully!",
-                            data: {
-                                ...field._doc,
-                                likes: typeof (likes?.likes) !== "undefined" ? likes.likes : [],
-                                discuss: typeof (discuss?.discuss) !== "undefined" ? discuss?.discuss : []
-                            },
-
-                        }).status(200)
-                    } else {
-                        return res.json({
-                            error: true,
-                            message: `Travel ${id} not found!`,
-                            data: null,
-                            likes: [],
-                            discuss: []
-                        }).status(200)
-                    }
-
-
-                })
-                .catch((err) => {
-                    return res.json({
-                        error: true,
-                        message: err.message,
-                        data: null,
-                        likes: [],
-                        discuss: []
-                    }).status(200)
-                })
-
+                .exec()
+            doc = doc?._doc ?? doc
+            if(doc){
+                let data = {
+                    ...doc
+                }
+                if(ObjResolve(query,'type') === "get"){
+                    await Travel.findOneAndUpdate({_id:doc?._id}, {$inc:{seen:1}}, {new: true})
+                }
+                let likes = await TravelLikes.findOne({travel: doc?._id})
+                    .select("-__v -_id -travel -date")
+                    .populate('likes.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
+                let discuss = await TravelDiscuss.findOne({travel: doc?._id})
+                    .select("-__v -_id -travel -date")
+                    .populate('discuss.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
+                Reflect.set(data,'discuss',discuss)
+                Reflect.set(data,'likes',likes)
+                return res.json(new BodyResponse({
+                    error:false,
+                    status:200,
+                    message: "Successfully!",
+                    data: data
+                }))
+            }else{
+                return res.json({
+                    error: true,
+                    message: "Data Not found!",
+                    data: null,
+                    likes: [],
+                    discuss: []
+                }).status(500)
+            }
 
         } catch (err) {
             return res.json({
