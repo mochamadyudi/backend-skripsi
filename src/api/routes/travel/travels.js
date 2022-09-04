@@ -12,6 +12,8 @@ import {isAuth} from "../../middlewares/auth";
 import Pagination from "../../../lib/utils/Pagination";
 import TravelController from "../../../controllers/travel.controller";
 import category from './category'
+import {ObjResolve} from "@yuyuid/utils";
+import {ObjectId} from "mongodb";
 const route = Router()
 
 export default (app) => {
@@ -47,20 +49,31 @@ export default (app) => {
         try {
             const {page, limit, direction} = Pagination(req.query)
             let find = {
-                locations: {
-                    "$near": {
-                        "$geometry": {
-                            type: "Point",
-                            coordinates:[
-                                req.body.lng,
-                                req.body.lat
-                            ]
-                        },
-                        "$maxDistance": req.body?.max ?? 5000
-                    }
-                }
+                // locations: {
+                //     "$near": {
+                //         "$geometry": {
+                //             type: "Point",
+                //             coordinates:[
+                //                 req.body.lng,
+                //                 req.body.lat
+                //             ]
+                //         },
+                //         "$maxDistance": req.body?.max ?? 5000
+                //     }
+                // }
             }
 
+            if(ObjResolve(req.query,'notIn')){
+                find = {
+                    ...find,
+                    _id:{
+                        $nin: new ObjectId(req.query.notIn)
+                    }
+                }
+                // Reflect.set(find,'_id',{
+                //     $nin:ObjResolve(req.query,'notIn')
+                // })
+            }
             await Travel.find({...find})
                 .populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
                 .limit(limit)

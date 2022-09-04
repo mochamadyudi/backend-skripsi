@@ -9,12 +9,17 @@ import Pagination from "../../../lib/utils/Pagination";
 import {Travel} from "@yuyuid/models";
 import BodyResponse from "../../../lib/handler/body-response";
 import {isAuth} from "../../middlewares/auth";
+import {ObjResolve} from "@yuyuid/utils";
+import DiscussionRoute from './discussions'
+
+
 const route = Router()
 export default ()=> {
     const app = Router();
     app.use("/",route)
     // app.use(isAuth);
 
+    app.use('/discussion',DiscussionRoute())
     // RouteUser(app)
 
 
@@ -45,19 +50,31 @@ export default ()=> {
     route.post('/list/near-me', async (req, res) => {
         try {
             const {page, limit, direction} = Pagination(req.query)
+            let condition = []
             let find = {
-                locations: {
-                    "$near": {
-                        "$geometry": {
-                            type: "Point",
-                            coordinates:[
-                                req.body.lng,
-                                req.body.lat
-                            ]
-                        },
-                        "$maxDistance": req.body?.max ?? 5000
+                $and:[
+                    {locations: {
+                            "$near": {
+                                "$geometry": {
+                                    type: "Point",
+                                    coordinates:[
+                                        req.body.lng,
+                                        req.body.lat
+                                    ]
+                                },
+                                "$maxDistance": req.body?.max ?? 5000
+                            }
+                        }}
+                ],
+
+            }
+
+            if(ObjResolve(req.query,'notIn')){
+                find['$and'].push({
+                    _id: {
+                        $nin: ObjResolve(req.query,'notIn') ?? []
                     }
-                }
+                })
             }
 
             await Travel.find({...find})

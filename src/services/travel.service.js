@@ -139,14 +139,15 @@ export class TravelService {
 
             const {keyword} = params
             let doc = await Travel.findOne({[ObjResolve(query,'orderBy') ?? "_id"]:keyword})
-                .populate('categories', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
-                .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                .populate('locations.regencies', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                // .populate('categories', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
+                // .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                // .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                // .populate('locations.regencies', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                // .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .exec()
             doc = doc?._doc ?? doc
             if(doc){
+
                 let data = {
                     ...doc
                 }
@@ -156,9 +157,93 @@ export class TravelService {
                 let likes = await TravelLikes.findOne({travel: doc?._id})
                     .select("-__v -_id -travel -date")
                     .populate('likes.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
-                let discuss = await TravelDiscuss.findOne({travel: doc?._id})
-                    .select("-__v -_id -travel -date")
-                    .populate('discuss.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
+                let discuss = await TravelDiscuss.aggregate([
+                    {
+                        $match:{
+                            travel: doc?._id
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users', // change your original collection name
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user'
+                        }
+                    },
+                    {
+                        $set:{
+                            user: {$arrayElemAt: ["$user",0]}
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$user",
+                            preserveNullAndEmptyArrays:true
+                        }
+                    },
+                    {
+                        $lookup: {
+                            "from": "users_profiles",
+                            "localField": "user._id",
+                            "foreignField": "user",
+                            "as": "user.profiles"
+                        }
+                    },
+                    {
+                        $set:{
+                            "user.profiles": {$arrayElemAt: ["$user.profiles",0]}
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'travels', // change your original collection name
+                            localField: 'travel',
+                            foreignField: '_id',
+                            as: 'travel'
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: { $cond: ['$parentDiscussId', '$parentDiscussId', '$_id'] },
+                            'user.profiles.thumbnail':1,
+                            'user.profiles.photos':1,
+                            'user._id': 1,
+                            'user.email': 1,
+                            'user.firstName': 1,
+                            'user.lastName': 1,
+                            'user.email': 1,
+                            likes:1,
+                            dislikes:1,
+                            is_updated:1,
+                            is_hidden:1,
+                            date:1,
+                            comment:1,
+                            parentDiscussId: { $ifNull: ['$parentDiscussId', "$parentDiscussId",'$parentDiscussId'] },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id:"$_id",
+                            user:{
+                                $first: "$user",
+                            },
+                            comment: { $min: { $cond: ['$parentDiscussId',"$comment", "$comment"] } },
+                            count_replies:{$sum:1},
+                            replies: {
+                                $push: {
+                                    $cond: ['$parentDiscussId',"$$ROOT", '$$REMOVE']
+                                }
+                            },
+                        },
+                    }
+
+                ]).exec()
+                    // .select("-__v -_id -travel -date")
+                    // .populate({
+                    //     path:'user',
+                    //     select:"role email firstName lastName username avatar"
+                    // })
                 Reflect.set(data,'discuss',discuss)
                 Reflect.set(data,'likes',likes)
                 return res.json(new BodyResponse({
@@ -354,7 +439,8 @@ export class TravelService {
 
 
     static async GetDiscuss(id) {
-        const discuss = await TravelDiscuss.findOne({travel: id}).populate("discuss.user", ["firstName", "lastName", "email", "avatar"])
+        const discuss = await TravelDiscuss.findOne({travel: id})
+            // .populate("discuss.user", ["firstName", "lastName", "email", "avatar"])
         return discuss === null ? [] : typeof (discuss?.discuss) !== "undefined" ? discuss?.discuss : []
     }
 
