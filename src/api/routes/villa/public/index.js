@@ -162,10 +162,32 @@ export default (app) => {
             let condition = [
                 {
                     $lookup:{
+                        from:"users",
+                        foreignField:"_id",
+                        localField: "likes.user",
+                        as:"likes"
+                    }
+                },
+                {
+                    $lookup:{
                         from:"rooms",
                         foreignField:"villa",
                         localField: "_id",
                         as:"rooms"
+                    }
+                },
+                {
+                    $lookup:{
+                        from:"location_districts",
+                        foreignField:"_id",
+                        localField: "locations.districts",
+                        as:"locations.districts"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$locations.districts",
+                        preserveNullAndEmptyArrays:true
                     }
                 },
                 {
@@ -186,19 +208,49 @@ export default (app) => {
                         data: {$arrayElemAt: ["$data",0]}
                     }
                 },
+                {
+                    $set:{
+                        "locations.districts": {$arrayElemAt:["$locations.districts",0]}
+                    }
+                },
             ]
 
             let projected  = {
                 $project: {
-                    data:1
+                    total_likes:{$size:'$data.likes'},
+                    'data.bio':1,
+                    'data.createdAt':1,
+                    'data.description':1,
+                    'data.facility':1,
+                    'data.is_deleted':1,
+                    'data.is_published':1,
+                    'data.is_update':1,
+                    'data.locations':1,
+                    'data.name':1,
+                    'data.social':1,
+                    'data.photos':1,
+                    'data.seen':1,
+                    'data.slug':1,
+                    'data.thumbnail':1,
+                    'data.user':1,
+                    'data.videos':1,
+                    'data.villa_type':1,
+                    'data.website':1,
+                    'data.contact':1,
+                    'data.likes._id':1,
+                    'data.likes.email':1,
+                    'data.likes.avatar':1,
+                    'data.likes.firstName':1,
+                    'data.likes.lastName':1,
+                    'data.likes.is_verify':1,
                 }
             }
-            let roomPage = ObjResolve(query,"roomPage") ?? 0
-            let roomLimit = ObjResolve(query,"roomLimit") ?? 10
+            let roomPage = ObjResolve(query,"roomPage") ? parseInt(ObjResolve(query,"roomPage")) : 0
+            let roomLimit = ObjResolve(query,"roomLimit") ? parseInt(ObjResolve(query,"roomLimit")) : 10
 
             if(ObjResolve(query,'withRooms') && ToBoolean(ObjResolve(query,'withRooms')) === true){
-                Reflect.set(projected.$project,"total", {$size:"$rooms"})
-                Reflect.set(projected.$project,"rooms", {$slice: ["$rooms",roomPage,roomLimit]})
+                Reflect.set(projected['$project'],"total_rooms", {$size:"$rooms"})
+                Reflect.set(projected['$project'],"rooms", {$slice: ["$rooms",roomPage,roomLimit]})
             }
 
             condition.push(projected)
