@@ -148,6 +148,7 @@ export default (app) => {
             const {page, limit, direction} = Pagination(query)
             const {q} = params
             let match = {}
+            let options = {}
 
             Reflect.set(match, "$or", [
                 {

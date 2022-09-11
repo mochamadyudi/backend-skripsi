@@ -3,7 +3,7 @@ import Pagination from "../../../../lib/utils/Pagination";
 import {Villa, Travel, User} from "@yuyuid/models";
 import moment from "moment";
 import VillaService from "../../../../services/villa.service";
-import {ObjResolve} from "@yuyuid/utils";
+import {ObjResolve,ToBoolean} from "@yuyuid/utils";
 import mongoose from "mongoose";
 import VillaController from "../../../../controllers/villa.controller";
 import {CheckAuth, isAuth} from "../../../middlewares/auth";
@@ -153,6 +153,108 @@ export default (app) => {
 
     route.get('/list', VillaService.getVilla)
 
+    route.get('/list-detail', async (req, res) => {
+        try {
+
+            let {query, params} = req
+            const {page, limit, direction} = Pagination(query)
+
+            let condition = [
+                {
+                    $lookup:{
+                        from:"rooms",
+                        foreignField:"villa",
+                        localField: "_id",
+                        as:"rooms"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$rooms",
+                        preserveNullAndEmptyArrays:true
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        rooms: {$push: "$rooms"},
+                        data: { $push: '$$ROOT' }
+                    }
+                },
+                {
+                    $set:{
+                        data: {$arrayElemAt: ["$data",0]}
+                    }
+                },
+            ]
+
+            let projected  = {
+                $project: {
+                    data:1
+                }
+            }
+            let roomPage = ObjResolve(query,"roomPage") ?? 0
+            let roomLimit = ObjResolve(query,"roomLimit") ?? 10
+
+            if(ObjResolve(query,'withRooms') && ToBoolean(ObjResolve(query,'withRooms')) === true){
+                Reflect.set(projected.$project,"total", {$size:"$rooms"})
+                Reflect.set(projected.$project,"rooms", {$slice: ["$rooms",roomPage,roomLimit]})
+            }
+
+            condition.push(projected)
+
+
+            const count = await Villa.count()
+
+            let NewData= []
+            const data = await Villa.aggregate(condition)
+                .limit(limit)
+                .skip(limit * (page > 1 ? page - 1 : 0))
+                .sort({
+                    date: direction === "desc" ? -1 : 1
+                })
+
+            if(Array.isArray(data) && data.length > 0) {
+                for(let i =0; i < data.length;i++) {
+                    data[i] = data[i]?._doc ?? data[i]
+                    data[i] = {
+                        ...data[i]?.data,
+                        ...data[i],
+                    }
+                    if(ObjResolve(query,'withRooms') && ToBoolean(ObjResolve(query,'withRooms')) === true){
+
+                    }else{
+                        Reflect.deleteProperty(data[i],'rooms')
+                    }
+                    Reflect.deleteProperty(data[i],'data')
+                    NewData.push({
+                        ...data[i]
+                    })
+                }
+            }
+            return res.json({
+                error: false,
+                message: "successFully!",
+                query: {
+                    limit,
+                    page: page > 0 ? page : 1,
+                    direction,
+                },
+                pagination: {
+                    total_page: limit > 0 ? Math.ceil(count / limit) : 1,
+                    current_page: page > 0 ? page : 1,
+                    total_record: count,
+                },
+                data: NewData
+            })
+        } catch (err) {
+            return res.json({
+                error: true,
+                message: err.message,
+                data: []
+            })
+        }
+    })
 
     route.get("/detail/:id", async (req, res) => {
         try {
@@ -174,9 +276,9 @@ export default (app) => {
             let villa = await Villa.findOne({_id: id}).select("-__v")
                 .populate({
                     path: "user",
-                    select:["name", "role", "avatar", "email", "firstName", "lastName", "username", "avatar"].join(" "),
-                    populate:{
-                        path:"user-profiles"
+                    select: ["name", "role", "avatar", "email", "firstName", "lastName", "username", "avatar"].join(" "),
+                    populate: {
+                        path: "user-profiles"
                     }
 
                 })
@@ -221,8 +323,8 @@ export default (app) => {
             if (villa) {
 
                 let isLike = false
-                console.log(villa.likes,req.user)
-                let a = Array.isArray(villa.likes) && villa.likes.filter((item)=> item?._id === req.user.id)
+                console.log(villa.likes, req.user)
+                let a = Array.isArray(villa.likes) && villa.likes.filter((item) => item?._id === req.user.id)
                 console.log(a)
                 return res.json({
                     error: false,
@@ -233,7 +335,7 @@ export default (app) => {
                     },
                     data: {
                         ...villa,
-                        isLikes:isLike,
+                        isLikes: isLike,
                         created_at: moment(villa.date, "YYYY MM DD").format("YYYY MMMM DD LTS")
                     }
                 })
