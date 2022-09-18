@@ -116,7 +116,23 @@ export default class RoomController {
 
 
     async update(req, res) {
+        try{
 
+            const [err, data] = await new RoomsService({body:req.body,id:req.params.id,orderBy:"_id"})._patch()
+            return res.json(new BodyResponse({
+                status:200,
+                error:false,
+                message: "Successfully!",
+                data:data
+            }))
+        }catch(err){
+            return res.json(new BodyResponse({
+                status:500,
+                error:true,
+                message: err?.message ?? "Some error",
+                data:null
+            }))
+        }
     }
 
     async updateImages(req, res) {
@@ -462,6 +478,20 @@ export default class RoomController {
                 message: err.message,
                 data: []
             })
+        }
+    }
+
+
+    async _deleteImages(req,res){
+        try{
+
+        }catch(err){
+            return res.json(new BodyResponse({
+                status:500,
+                error:true,
+                message: err?.message ?? "Some error",
+                data: null
+            }))
         }
     }
 

@@ -1,5 +1,5 @@
 import {Room, Villa} from "@yuyuid/models";
-import {ObjResolve} from "@yuyuid/utils";
+import {ObjResolve, StrToBool} from "@yuyuid/utils";
 import Pagination from "../lib/utils/Pagination";
 import {JSONParser} from "formidable/src/parsers";
 
@@ -8,6 +8,8 @@ export default class RoomsService {
         this.props = {
             ...props
         }
+        this.id = props?.id ?? null
+        this.orderBy = props?.orderBy ?? "_id"
         this.body = props?.body ?? {}
         this.query = props?.query ?? {}
 
@@ -99,6 +101,91 @@ export default class RoomsService {
         }
     }
 
+
+    async _patch(){
+        try{
+            let where = {
+                [this.orderBy]:this.id
+            }
+            let setFields = this.body
+            let fields = {
+
+            }
+
+            console.log(this.body)
+
+            if(ObjResolve(setFields,'facility')){
+                let facility = {}
+                if(ObjResolve(ObjResolve(setFields,'facility'),'ac')){
+                    Reflect.set(facility,'ac',StrToBool(ObjResolve(ObjResolve(setFields,'facility'),'ac')))
+                }
+                if(ObjResolve(ObjResolve(setFields,'facility'),'tv')){
+                    Reflect.set(facility,'tv',StrToBool(ObjResolve(ObjResolve(setFields,'facility'),'tv')))
+                }
+                if(ObjResolve(ObjResolve(setFields,'facility'),'wifi')){
+                    Reflect.set(facility,'wifi',StrToBool(ObjResolve(ObjResolve(setFields,'facility'),'wifi')))
+                }
+                if(ObjResolve(ObjResolve(setFields,'facility'),'smoking')){
+                    Reflect.set(facility,'smoking',StrToBool(ObjResolve(ObjResolve(setFields,'facility'),'smoking')))
+                }
+                if(ObjResolve(ObjResolve(setFields,'facility'),'smooking')){
+                    Reflect.set(facility,'smoking',StrToBool(ObjResolve(ObjResolve(setFields,'facility'),'smooking')))
+                }
+                if(ObjResolve(ObjResolve(setFields,'facility'),'other')){
+                    Reflect.set(facility,'other',ObjResolve(ObjResolve(setFields,'facility'),'other'))
+                }
+                if(ObjResolve(ObjResolve(setFields,'facility'),'bed_type')){
+                    Reflect.set(facility,'bed_type',ObjResolve(ObjResolve(setFields,'facility'),'bed_type'))
+                }
+
+                Reflect.set(setFields,'facility',facility)
+            }
+            if(ObjResolve(setFields,"price")){
+                let price = {}
+                if(ObjResolve(ObjResolve(setFields,"price"),'regular')){
+                    Reflect.set(price,'regular',parseInt(ObjResolve(ObjResolve(setFields,"price"),'regular')) ?? 0)
+                }
+                if(ObjResolve(ObjResolve(setFields,"price"),'special')){
+                    Reflect.set(price,'special',parseInt(ObjResolve(ObjResolve(setFields,"price"),'special')) ?? 0)
+                }
+                if(ObjResolve(ObjResolve(setFields,"price"),'discount')){
+                    Reflect.set(price,'discount',parseInt(ObjResolve(ObjResolve(setFields,"price"),'discount')) ?? 0)
+                }
+
+
+                Reflect.set(setFields,"price",price)
+            }
+            if(ObjResolve(setFields,"limit")){
+                Reflect.set(setFields,'limit',parseInt(ObjResolve(setFields,"limit")) ?? 1)
+            }
+            if(ObjResolve(setFields,"is_deleted")){
+                Reflect.set(setFields,'is_deleted',StrToBool(ObjResolve(setFields,"is_deleted")))
+            }
+            if(ObjResolve(setFields,"is_available")){
+                Reflect.set(setFields,'is_available',StrToBool(ObjResolve(setFields,"is_available")))
+            }
+
+            return await Room.findOneAndUpdate(
+                {...where},
+                {
+                    $set: {
+                        ...setFields
+                    }
+                },{
+                    new: true,
+                    rawResult:true,
+                }
+            )
+                .then(({value})=> {
+                    return [ null , value]
+                })
+                .catch((err)=> {
+                    return [ err, null ]
+                })
+        }catch(err){
+            return [err, null ]
+        }
+    }
 
     /**
      *

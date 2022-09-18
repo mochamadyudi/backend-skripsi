@@ -28,6 +28,16 @@ import ResizeModule from "../lib/modules/resize.module";
 
 export default class VillaService {
 
+    constructor(props = {}) {
+        this.req = props?.req ?? undefined
+        this.res = props?.res ?? undefined
+        this.fields = props?.fields ?? {}
+        this.query = props?.query ?? {}
+        this.id = props?.id ?? null
+        this.orderBy = props?.orderBy ?? "_id"
+        this.props = props ?? {}
+    }
+
     /**
      * CREATE VILLA
      * @param payload
@@ -328,4 +338,80 @@ export default class VillaService {
     }
 
 
+    async MyProfile(){
+        try{
+            return await Villa.findOne({
+                [this.orderBy]: this.id
+            }).populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                .populate({
+                    path:"likes",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["likes"]
+                })
+                .populate({
+                    path:"discuss",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select: ["discuss"]
+                })
+                .populate({
+                    path:"rates",
+                    options: {
+                        limit: 10,
+                        sort: { date: -1},
+                        skip: 0
+                    },
+                    select:["rates"]
+                })
+                .populate("user",["email","avatar","firstName","lastName","username"])
+                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
+                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
+                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
+                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
+                // .select("name social _id villa_type slug bio thumbnail description videos photos locations")
+                .exec()
+                .then((result)=> {
+                    return [ null , result ]
+                })
+                .catch((err)=> {
+                    return [ err, null ]
+                })
+        }catch(err){
+            return [ err, null ]
+        }
+    }
+    async updateProfile(){
+        try{
+            let fields = this.fields
+            return await Villa.findOneAndUpdate(
+                {[this.orderBy]: this.id},
+                {
+                    $set: {
+                        ...fields,
+                        is_verify: 1
+                    }
+                },
+                {
+                    rawResult:true,
+                    new: true
+                }
+            )
+                .then(({value})=> {
+                    return [null , value]
+                })
+                .catch((err)=> {
+                    return [ err, null]
+                })
+
+        }catch(err){
+            return [ err , null ]
+        }
+    }
 }

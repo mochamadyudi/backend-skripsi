@@ -22,59 +22,7 @@ export default ()=> {
 
     Rooms(app)
 
-    route.get('/profile', async (req,res)=> {
-        try{
-            let user = req.user
-            const villa = await Villa.findOne({user: user?.id})
-                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
-                .populate({
-                    path:"likes",
-                    options: {
-                        limit: 10,
-                        sort: { date: -1},
-                        skip: 0
-                    },
-                    select:["likes"]
-                })
-                .populate({
-                    path:"discuss",
-                    options: {
-                        limit: 10,
-                        sort: { date: -1},
-                        skip: 0
-                    },
-                    select: ["discuss"]
-                })
-                .populate({
-                    path:"rates",
-                    options: {
-                        limit: 10,
-                        sort: { date: -1},
-                        skip: 0
-                    },
-                    select:["rates"]
-                })
-                .populate("user",["email","avatar","firstName","lastName","username"])
-                .populate("locations.provinces",["name","id",'latitude','longitude','alt_name'])
-                .populate("locations.districts",["name","id",'regency_id','latitude','longitude','alt_name'])
-                .populate("locations.sub_districts",["name","id",'district_id','latitude','longitude'])
-                .populate("locations.regencies",["name","id",'province_id','latitude','longitude','alt_name'])
-                .select("name social _id villa_type slug bio thumbnail description videos photos locations")
-                .exec()
-
-            return res.json({
-                error:false,
-                message: "success",
-                data: villa
-            })
-
-        }catch(err){
-            return res.json({
-                error:true,
-                message:err.message
-            }).status(500)
-        }
-    })
+    route.get('/profile', new VillaController().MyProfile)
 
 
     route.post('/create', new VillaController()._create)
@@ -110,11 +58,12 @@ export default ()=> {
             })).status(500)
         }
     })
+    route.patch("/profile",new VillaController()._villaUpdate)
 
 
     route.get('/likes/:id', new VillaController()._createLikes)
 
-    // route.put('/profile/thumbnail', VillaService._putThumbnail)
+    route.put('/profile/thumbnail', VillaService._putThumbnail)
 
     /**
      * admin scope
@@ -128,7 +77,7 @@ export default ()=> {
     //     }
     // })
 
-    // route.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
+    route.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
     //
     // route.put('/photos/add', uploadFileMiddleware, VillaService._addPhotos)
     // route.delete('/photos/:id', uploadFileMiddleware, VillaService._deletePhoto)

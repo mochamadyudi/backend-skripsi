@@ -215,7 +215,6 @@ export default () => {
         }
     })
 
-
     app.get('/list', TravelService._getTravelLists)
 
     app.get('/update/published/:id', async (req, res) => {

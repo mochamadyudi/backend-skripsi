@@ -5,11 +5,17 @@ import formidable from "formidable";
 import {v2 as cloudinary} from "cloudinary";
 import {HashId, ObjResolve} from "@yuyuid/utils";
 import YuyuidError from "@yuyuid/exception";
+import {first} from 'lodash'
 import Pagination from "../lib/utils/Pagination";
 import {TravelCategory} from "../models/travel/travel_categories.schema.";
+import {ObjectId} from "mongodb";
 
 
 export class TravelService {
+    constructor(props = {}) {
+        this.query = props?.query ?? {}
+    }
+
     static async constructTravel() {
     }
 
@@ -135,10 +141,10 @@ export class TravelService {
     static async single(req, res) {
         try {
 
-            let { query , params } = req
+            let {query, params} = req
 
             const {keyword} = params
-            let doc = await Travel.findOne({[ObjResolve(query,'orderBy') ?? "_id"]:keyword})
+            let doc = await Travel.findOne({[ObjResolve(query, 'orderBy') ?? "_id"]: keyword})
                 // .populate('categories', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
                 // .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 // .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
@@ -146,20 +152,20 @@ export class TravelService {
                 // .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .exec()
             doc = doc?._doc ?? doc
-            if(doc){
+            if (doc) {
 
                 let data = {
                     ...doc
                 }
-                if(ObjResolve(query,'type') === "get"){
-                    await Travel.findOneAndUpdate({_id:doc?._id}, {$inc:{seen:1}}, {new: true})
+                if (ObjResolve(query, 'type') === "get") {
+                    await Travel.findOneAndUpdate({_id: doc?._id}, {$inc: {seen: 1}}, {new: true})
                 }
                 let likes = await TravelLikes.findOne({travel: doc?._id})
                     .select("-__v -_id -travel -date")
                     .populate('likes.user', ['firstName', 'avatar', 'lastName', 'email', 'is_verify'])
                 let discuss = await TravelDiscuss.aggregate([
                     {
-                        $match:{
+                        $match: {
                             travel: doc?._id
                         }
                     },
@@ -172,14 +178,14 @@ export class TravelService {
                         }
                     },
                     {
-                        $set:{
-                            user: {$arrayElemAt: ["$user",0]}
+                        $set: {
+                            user: {$arrayElemAt: ["$user", 0]}
                         }
                     },
                     {
                         $unwind: {
                             path: "$user",
-                            preserveNullAndEmptyArrays:true
+                            preserveNullAndEmptyArrays: true
                         }
                     },
                     {
@@ -191,8 +197,8 @@ export class TravelService {
                         }
                     },
                     {
-                        $set:{
-                            "user.profiles": {$arrayElemAt: ["$user.profiles",0]}
+                        $set: {
+                            "user.profiles": {$arrayElemAt: ["$user.profiles", 0]}
                         }
                     },
                     {
@@ -205,54 +211,53 @@ export class TravelService {
                     },
                     {
                         $project: {
-                            _id: { $cond: ['$parentDiscussId', '$parentDiscussId', '$_id'] },
-                            'user.profiles.thumbnail':1,
-                            'user.profiles.photos':1,
+                            _id: {$cond: ['$parentDiscussId', '$parentDiscussId', '$_id']},
+                            'user.profiles.thumbnail': 1,
+                            'user.profiles.photos': 1,
                             'user._id': 1,
                             'user.email': 1,
                             'user.firstName': 1,
                             'user.lastName': 1,
-                            'user.email': 1,
-                            likes:1,
-                            dislikes:1,
-                            is_updated:1,
-                            is_hidden:1,
-                            date:1,
-                            comment:1,
-                            parentDiscussId: { $ifNull: ['$parentDiscussId', "$parentDiscussId",'$parentDiscussId'] },
+                            likes: 1,
+                            dislikes: 1,
+                            is_updated: 1,
+                            is_hidden: 1,
+                            date: 1,
+                            comment: 1,
+                            parentDiscussId: {$ifNull: ['$parentDiscussId', "$parentDiscussId", '$parentDiscussId']},
                         },
                     },
                     {
                         $group: {
-                            _id:"$_id",
-                            user:{
+                            _id: "$_id",
+                            user: {
                                 $first: "$user",
                             },
-                            comment: { $min: { $cond: ['$parentDiscussId',"$comment", "$comment"] } },
-                            count_replies:{$sum:1},
+                            comment: {$min: {$cond: ['$parentDiscussId', "$comment", "$comment"]}},
+                            count_replies: {$sum: 1},
                             replies: {
                                 $push: {
-                                    $cond: ['$parentDiscussId',"$$ROOT", '$$REMOVE']
+                                    $cond: ['$parentDiscussId', "$$ROOT", '$$REMOVE']
                                 }
                             },
                         },
                     }
 
                 ]).exec()
-                    // .select("-__v -_id -travel -date")
-                    // .populate({
-                    //     path:'user',
-                    //     select:"role email firstName lastName username avatar"
-                    // })
-                Reflect.set(data,'discuss',discuss)
-                Reflect.set(data,'likes',likes)
+                // .select("-__v -_id -travel -date")
+                // .populate({
+                //     path:'user',
+                //     select:"role email firstName lastName username avatar"
+                // })
+                Reflect.set(data, 'discuss', discuss)
+                Reflect.set(data, 'likes', likes)
                 return res.json(new BodyResponse({
-                    error:false,
-                    status:200,
+                    error: false,
+                    status: 200,
                     message: "Successfully!",
                     data: data
                 }))
-            }else{
+            } else {
                 return res.json({
                     error: true,
                     message: "Data Not found!",
@@ -440,7 +445,7 @@ export class TravelService {
 
     static async GetDiscuss(id) {
         const discuss = await TravelDiscuss.findOne({travel: id})
-            // .populate("discuss.user", ["firstName", "lastName", "email", "avatar"])
+        // .populate("discuss.user", ["firstName", "lastName", "email", "avatar"])
         return discuss === null ? [] : typeof (discuss?.discuss) !== "undefined" ? discuss?.discuss : []
     }
 
@@ -450,133 +455,244 @@ export class TravelService {
     }
 
 
-    static async _getTravelLists(req, res) {
-        let { query } = req
+    async getList() {
         try {
+            let query = this.query
             const {page, limit, direction} = Pagination(query)
-            let obj = {}
-            let taxonomy = ""
-            if(typeof(query?.taxonomy) !== "undefined"){
-                try{
-                    let taxParse = JSON.parse(query?.taxonomy)
-                    if(taxParse !== null){
-                        if(Array.isArray(taxParse) && taxParse.length> 0){
-                            taxonomy = taxParse
-                        }
+            let condition = [
+                {
+                    $lookup: {
+                        from: 'travel_categories', // change your original collection name
+                        localField: 'categories',
+                        foreignField: '_id',
+                        as: 'categories'
                     }
-                }catch(err){
-                    taxonomy = query.taxonomy
-                }
-            }
-
-            if (typeof(query?.taxonomy) === "undefined" || query?.taxonomy === null){
-                obj = {
-                    'categories.slug': {
-                        $ne : null
+                },
+                {
+                    $lookup: {
+                        from: 'location_provinces', // change your original collection name
+                        localField: 'locations.provinces',
+                        foreignField: '_id',
+                        as: 'locations.provinces'
                     }
-                }
-            }else{
-                if(query.taxonomy === "recomendation" || query.taxonomy === "top-10"){
-                    obj = {}
-                }else{
-                    obj = {
-                        'categories.slug': {
-                            "$exists": true,
-                            $all: taxonomy,
-                            // $regex: '.*'+ taxonomy + "*.",
-                            // $options: "i"
-                        }
+                },
+                {
+                    $lookup: {
+                        from: 'location_districts', // change your original collection name
+                        localField: 'locations.districts',
+                        foreignField: '_id',
+                        as: 'locations.districts'
                     }
-                }
-            }
-
-            if (typeof (query?.is_published) !== "undefined") {
-                let isPublished = []
-                try {
-                    if (query?.is_published !== "") {
-                        isPublished = JSON.parse(query?.is_published) ?? [true, false]
+                },
+                {
+                    $lookup: {
+                        from: 'location_regencies', // change your original collection name
+                        localField: 'locations.regencies',
+                        foreignField: '_id',
+                        as: 'locations.regencies'
                     }
-                } catch (err) {
-                    isPublished = [true, false]
-                }
-                Reflect.set(obj, "is_published", {
-                    $in: isPublished
-                })
-            }
+                },
+                {
+                    $lookup: {
+                        from: 'location_vilages', // change your original collection name
+                        localField: 'locations.sub_districts',
+                        foreignField: '_id',
+                        as: 'locations.sub_districts'
+                    }
+                },
 
-            if(typeof(query?.notIn) !== "undefined"){
-                Reflect.set(obj,"_id",{$ne:query?.notIn})
-            }
+                {
+                    $set:{
+                        'locations.districts': {$arrayElemAt: ["$locations.districts",0]},
+                        'locations.provinces': {$arrayElemAt: ["$locations.provinces",0]},
+                        'locations.regencies': {$arrayElemAt: ["$locations.regencies",0]},
+                        'locations.sub_districts': {$arrayElemAt: ["$locations.sub_districts",0]}
+                    }
+                },
 
-            const count = await Travel.find({...obj}).count()
 
-            let travel = Travel.find({...obj})
+            ]
 
-
-            if(typeof(req.query.taxonomy) !== "undefined"){
-                if(req.query.taxonomy === "recomendation" || req.query.taxonomy === "top-10"){
-                    travel
-                        .where('seen')
-                        .gt(req.query.taxonomy === "recomendation" ? 40 : 250)
-                }
-            }
-
-            travel.populate("categories.category",["_id",'name','is_published','slug','about'])
-                .limit(limit)
-                .skip(limit * (page > 1 ? page - 1 : 0))
-                .sort({
-                    date: direction === "desc" ? -1 : 1
-                })
-                travel.exec(async function (err, field) {
-                    if (!err) {
-                        let data = []
-                        if (Array.isArray(field)) {
-                            for (let i = 0; i < field.length; i++) {
-                                let item = field[i]?._doc
-                                const discuss = await TravelService.GetDiscuss(item._id)
-                                const likes = await TravelService.GetLikes(item._id)
-                                // if(typeof(item?.categories) !== "undefined"){
-                                //     if(Array.isArray(item?.categories) && item.categories.length > 0){
-                                //         let Categories = []
-                                //         for(let k = 0 ; k < item?.categories?.length; k ++){
-                                //             let cat = (item?.categories[k])?.toJSON()
-                                //             Reflect.set(item?.categories[k],'about',cat?.about)
-                                //             Reflect.set(item?.categories[k],'categoryId',cat?.category?._id)
-                                //             Reflect.set(item?.categories[k],'is_published',typeof(cat?.category?.is_published) === "number" ? cat?.category?.is_published > 0 : cat?.category?.is_published)
-                                //             Reflect.deleteProperty(item?.categories[k],'category')
-                                //             Categories.push({
-                                //                 ...cat
-                                //             })
-                                //         }
-                                //         Reflect.set(item, "categories",Categories)
-                                //     }
-                                // }
-                                data.push({
-                                    ...item,
-                                    discuss,
-                                    likes
-                                })
-
+            if (ObjResolve(query, 'taxonomy')) {
+                if (Array.isArray(ObjResolve(query, 'taxonomy')) && ObjResolve(query, 'taxonomy').length > 0) {
+                    condition.push({
+                        $match: {
+                            "categories.slug": {
+                                $in: ObjResolve(query, 'taxonomy')
                             }
                         }
+                    })
+                } else {
+                    condition.push({
+                        $match: {
+                            "categories.slug": ObjResolve(query, 'taxonomy')
+                        }
+                    })
+                }
 
-                        return res.json({
-                            error: false,
-                            message: null,
-                            query: {
-                                limit,
-                                page: page > 0 ? page : 1,
-                                direction,
-                            },
-                            pagination: {
-                                total_page: limit > 0 ? Math.ceil(count / limit) : 1,
-                                current_page: page > 0 ? page : 1,
-                                total_record: count,
-                            },
-                            data: data
-                        })
+            }
+            if (ObjResolve(query, 'notIn')) {
+                if (Array.isArray(ObjResolve(query, 'notIn')) && ObjResolve(query, 'notIn').length > 0) {
+                    let NotIn = []
+                    for(let i = 0; i < ObjResolve(query, 'notIn').length;i++){
+                        NotIn.push(
+                            new ObjectId(ObjResolve(query, 'notIn')[i]),
+                        )
                     }
-                })
+                    condition.push({
+                        $match: {
+                            "_id": {
+                                $nin: NotIn
+                            }
+                        }
+                    })
+                } else {
+                    condition.push({
+                        $match: {
+                            "_id": {
+                                $ne:ObjResolve(query, 'notIn')
+                            }
+                        }
+                    })
+                }
+
+            }
+
+
+            condition.push({
+                '$facet': {
+                    metadata: [{$count: "total_record"}, {$addFields: {page:page,limit:limit,offset:limit * (page > 1 ? page - 1 : 0) }}],
+                    data: [{$skip: limit * (page > 1 ? page - 1 : 0)}, {$limit: limit}] // add projection here wish you re-shape the docs
+                }
+            })
+            condition.push({
+                $set:{
+                    "metadata": {$arrayElemAt: ["$metadata",0]}
+                }
+            })
+
+            const data = await Travel.aggregate(condition).exec()
+
+            return [null, first(data)]
+
+        } catch (err) {
+            return [err, null]
+        }
+    }
+
+    static async _getTravelLists(req, res) {
+        let {query} = req
+        try {
+            const [err, data] = await new TravelService({query: req.query}).getList()
+
+            if (err) throw YuyuidError.badImplementation(first(err?.errors)?.message ?? "Some Error")
+
+            return res.json(new BodyResponse({
+                status: 200,
+                error: false,
+                message: "Successfull!",
+                ...data
+            }))
+            // const {page, limit, direction} = Pagination(query)
+            // let obj = {}
+            // console.log(query.taxonomy)
+
+            // if(ObjResolve(query,'taxonomy')){
+            // //
+            //     Reflect.set(obj,'categories.slug', {
+            //         $exists:true,
+            //         $eq:ObjResolve(query,'taxonomy'),
+            //         // $regex: '.*'+query.taxonomy+"*.",
+            //         // $options: "i"
+            //     })
+            // }
+
+
+            // if(typeof(query?.notIn) !== "undefined"){
+            //     Reflect.set(obj,"_id",{$ne:query?.notIn})
+            // }
+
+            // console.log({query,obj})
+            // const count = await Travel.find({...obj}).count()
+
+            // return await Travel.find({...obj})
+            //     .populate({
+            //         path:"categories",
+            //         select: "_id name is_published slug about",
+            //         // match:{
+            //         //     slug: {
+            //         //         $eq: ObjResolve(query,'taxonomy')
+            //         //     }
+            //         //     // _id:'6321f5d79637bbd9318cb348'
+            //         //
+            //         // }
+            //     //    "categories", {
+            //         //
+            //         //                 }, ["_id",'name','is_published','slug','about']
+            //     })
+            //     .limit(limit)
+            //     .skip(limit * (page > 1 ? page - 1 : 0))
+            //     .sort({
+            //         date: direction === "desc" ? -1 : 1
+            //     })
+            //     .exec(async function (err, field) {
+            //         if (!err) {
+            //             let data = []
+            //             if (Array.isArray(field)) {
+            //                 for (let i = 0; i < field.length; i++) {
+            //                     let item = field[i]?._doc
+            //                     const discuss = await TravelService.GetDiscuss(item._id)
+            //                     const likes = await TravelService.GetLikes(item._id)
+            //                     // if(typeof(item?.categories) !== "undefined"){
+            //                     //     if(Array.isArray(item?.categories) && item.categories.length > 0){
+            //                     //         let Categories = []
+            //                     //         for(let k = 0 ; k < item?.categories?.length; k ++){
+            //                     //             let cat = (item?.categories[k])?.toJSON()
+            //                     //             Reflect.set(item?.categories[k],'about',cat?.about)
+            //                     //             Reflect.set(item?.categories[k],'categoryId',cat?.category?._id)
+            //                     //             Reflect.set(item?.categories[k],'is_published',typeof(cat?.category?.is_published) === "number" ? cat?.category?.is_published > 0 : cat?.category?.is_published)
+            //                     //             Reflect.deleteProperty(item?.categories[k],'category')
+            //                     //             Categories.push({
+            //                     //                 ...cat
+            //                     //             })
+            //                     //         }
+            //                     //         Reflect.set(item, "categories",Categories)
+            //                     //     }
+            //                     // }
+            //                     data.push({
+            //                         ...item,
+            //                         discuss,
+            //                         likes
+            //                     })
+            //
+            //                 }
+            //             }
+            //
+            //             return res.json({
+            //                 error: false,
+            //                 message: null,
+            //                 query: {
+            //                     limit,
+            //                     page: page > 0 ? page : 1,
+            //                     direction,
+            //                 },
+            //                 pagination: {
+            //                     total_page: limit > 0 ? Math.ceil(count / limit) : 1,
+            //                     current_page: page > 0 ? page : 1,
+            //                     total_record: count,
+            //                 },
+            //                 data: data
+            //             })
+            //         }
+            //     })
+
+            // if(typeof(req.query.taxonomy) !== "undefined"){
+            //     if(req.query.taxonomy === "recomendation" || req.query.taxonomy === "top-10"){
+            //         travel
+            //             .where('seen')
+            //             .gt(req.query.taxonomy === "recomendation" ? 40 : 250)
+            //     }
+            // }
 
 
         } catch (err) {

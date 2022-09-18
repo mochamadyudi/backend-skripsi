@@ -311,7 +311,7 @@ export default (app) => {
     route.get("/detail/:id", async (req, res) => {
         try {
             CheckAuth(req)
-            const {id} = req.params
+            let {id} = req.params
             let likes = {
                 limit: 2,
                 page: 1,
@@ -326,14 +326,14 @@ export default (app) => {
             let countLikes = await new VillaController().getCountLikes(id)
 
             let villa = await Villa.findOne({_id: id}).select("-__v")
-                .populate({
-                    path: "user",
-                    select: ["name", "role", "avatar", "email", "firstName", "lastName", "username", "avatar"].join(" "),
-                    populate: {
-                        path: "user-profiles"
-                    }
-
-                })
+                // .populate({
+                //     path: "user",
+                //     select: ["name", "role", "avatar", "email", "firstName", "lastName", "username", "avatar"].join(" "),
+                //     populate: {
+                //         path: "user-profiles"
+                //     }
+                //
+                // })
                 .populate({
                     path: "likes",
                     select: "email role firstName lastName avatar",
@@ -346,30 +346,30 @@ export default (app) => {
                         skip: (likes.limit * (likes.page > 1 ? likes.page : 0))
                     }
                 })
-                .populate({
-                    path: "discuss",
-                    options: {
-                        limit: 10,
-                        sort: {date: -1},
-                        skip: 0
-                    },
-                    select: ["discuss"]
-                })
-                .populate({
-                    path: "rates",
-                    options: {
-                        limit: 10,
-                        sort: {date: -1},
-                        skip: 0
-                    },
-                    select: ["rates"]
-                })
+                // .populate({
+                //     path: "discuss",
+                //     options: {
+                //         limit: 10,
+                //         sort: {date: -1},
+                //         skip: 0
+                //     },
+                //     select: ["discuss"]
+                // })
+                // .populate({
+                //     path: "rates",
+                //     options: {
+                //         limit: 10,
+                //         sort: {date: -1},
+                //         skip: 0
+                //     },
+                //     select: ["rates"]
+                // })
                 .populate("user", ["email", "avatar", "firstName", "lastName", "username"])
                 .populate("locations.provinces", ["name", "id", 'latitude', 'longitude', 'alt_name'])
                 .populate("locations.districts", ["name", "id", 'regency_id', 'latitude', 'longitude', 'alt_name'])
                 .populate("locations.sub_districts", ["name", "id", 'district_id', 'latitude', 'longitude'])
                 .populate("locations.regencies", ["name", "id", 'province_id', 'latitude', 'longitude', 'alt_name'])
-                .select("name social _id villa_type slug bio thumbnail description videos photos locations")
+                // .select("name social _id villa_type slug bio thumbnail description videos photos locations")
             villa = villa?._doc ?? villa
 
             if (villa) {

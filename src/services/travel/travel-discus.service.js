@@ -8,6 +8,8 @@ export default class TravelDiscusService {
         this.query = props?.query ?? {}
     }
 
+
+
     async get() {
         try {
             if (this.id) {
@@ -109,7 +111,6 @@ export default class TravelDiscusService {
                         'user.email': 1,
                         'user.firstName': 1,
                         'user.lastName': 1,
-                        'user.email': 1,
                         likes:1,
                         dislikes:1,
                         is_updated:1,

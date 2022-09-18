@@ -5,6 +5,7 @@ import VillaService from "../services/villa.service";
 import {ObjArr, ObjResolve, OptParams, StrToArr} from "@yuyuid/utils";
 import YuyuidError from "@yuyuid/exception";
 import mongoose from "mongoose";
+import first from 'lodash'
 
 export default class VillaController {
 
@@ -374,6 +375,61 @@ export default class VillaController {
             })
         } catch (err) {
             return [err, null]
+        }
+    }
+
+
+    /**
+     * @access - [ villa ]
+     */
+    async _villaUpdate(req,res){
+        try{
+            console.log({user:req.user})
+            const [err,data ] = await new VillaService({
+                fields:req.body,
+                id:req.user.id,
+                orderBy:"user"
+            }).updateProfile()
+
+            if(err) throw YuyuidError.internal(first(err?.errors)?.message ?? "Some Error")
+
+            res.status(200)
+            return res.json(new BodyResponse({
+                error:false,
+                message : "Successfully!",
+                data: data
+            }))
+
+        }catch(err){
+            return res.json(new BodyResponse({
+                status:500,
+                error:true,
+                message: err?.message ?? "Some Error",
+                data:null
+            }))
+        }
+    }
+
+    async MyProfile(req,res){
+        try{
+            const [err,data] = await new VillaService({
+                orderBy:"user",
+                id:req.user.id
+            }).MyProfile()
+
+            if(err) throw YuyuidError.internal(first(err?.errors)?.message ?? "Some error")
+            return res.json(new BodyResponse({
+                status:200,
+                error:false,
+                message: "Successfully!",
+                data:data
+            }))
+        }catch(err){
+            return res.json(new BodyResponse({
+                error:true,
+                message: err.message ?? "Some error",
+                data:null
+            }))
         }
     }
 }

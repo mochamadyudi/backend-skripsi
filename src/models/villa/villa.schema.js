@@ -170,15 +170,20 @@ const VillaSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref:"location_regencies"
         },
-        districts:{
+        districts: {
             type: mongoose.Schema.Types.ObjectId,
             ref:"location_districts"
         },
-        sub_districts:{
+        sub_districts: {
             type: mongoose.Schema.Types.ObjectId,
             ref:"location_vilages"
         },
-        address:{
+        type: {
+            type: String,
+            enum: ["Point"],
+            default: "Point"
+        },
+        address: {
             type: String,
             default: null
         },
@@ -186,15 +191,15 @@ const VillaSchema = new mongoose.Schema({
             type: [Number],
             required:true,
         },
-        lat:{
+        lat: {
             type: Number,
             default:null
         },
-        lng:{
+        lng: {
             type: Number,
             default:null
         },
-        zip_code:{
+        zip_code: {
             type:Number,
             default:null
         }

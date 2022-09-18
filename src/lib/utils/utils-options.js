@@ -1,4 +1,6 @@
 import {v4 as uuidv4} from 'uuid'
+import path from "path";
+import fs from "fs";
 
 
 export const hashUuid = ()=> {
@@ -47,6 +49,51 @@ export const ObjArr = (obj,key = '')=> {
         }
     }
     return []
+}
+export const StrToBool = (str)=> {
+    try{
+        if(typeof(str) === "string"){
+            return str === "true"
+        }else if (typeof(str) === "boolean"){
+            return str
+        }else{
+            return false
+        }
+    }catch(err){
+        return false
+    }
+
+}
+
+
+export const clearPath = (filePath,filename)=> {
+    let newPath = filePath.toString().split('uploads/')[1].split('/')
+    console.log({newPath})
+    return path.resolve(__dirname,'..','..','..','..','public','uploads',[...newPath,filename].join('/'))
+}
+
+export const GetThumbnailPath = async (filePath,withResize = true, resize = ',_30,_50,_80')=> {
+    if (withResize){
+        let re = resize.split(",")
+        for(let i = 0; i < re.length; i ++){
+            let pathSplit = filePath.split(".")
+            let NewPath = `${pathSplit[0]}${re[i]}.${pathSplit[1]}`
+            if (fs.existsSync(NewPath)) {
+                fs.unlink(NewPath,(err)=> {
+                    if(err) throw YuyuidError.internal(err.message)
+
+                })
+            }
+        }
+    }else{
+        if (fs.existsSync(filePath)) {
+            await fs.unlink(filePath,(err)=> {
+                if(err) throw YidError.internal(err.message)
+
+            })
+        }
+    }
+
 }
 
 export class OptParams{

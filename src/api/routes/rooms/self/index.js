@@ -1,18 +1,23 @@
+import first from 'lodash'
 import {Router} from 'express'
 import {BodyResponse} from "@handler";
 import {isAuth} from "../../../middlewares/auth";
 import {Room} from "@yuyuid/models";
 import Pagination from "../../../../lib/utils/Pagination";
+import RoomController from "../../../../controllers/room.controller";
 export default ()=> {
     const app = Router()
     app.use(isAuth)
 
     app.get('/list', async (req,res)=> {
         try{
-            console.log(req.user)
             const {page, limit, direction} = Pagination(req.query)
-            const count = await Room.find({user:req.user?.id}).count()
-            await Room.find({user:req.user?.id})
+            const count = await Room.find({
+                user: req.user?.id
+            }).count()
+            await Room.find({
+                user: req.user?.id
+            })
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
@@ -87,14 +92,15 @@ export default ()=> {
     app.get('/list/:id', async (req,res)=> {
         try{
             const {id} = req.params
-            return await Room.find({id})
+            return await Room.findById({_id:id})
                 .populate('schedule', ['id', 'schedule','rooms'])
+                .populate('images')
                 .then((field)=> {
                     if(field){
                         return res.json(new BodyResponse({
                             error:false,
                             message: null,
-                            data: field[0],
+                            data: field,
                             status:200
                         })).status(200)
                     }else{
@@ -122,5 +128,6 @@ export default ()=> {
             })).status(500)
         }
     })
+    app.get('/:id/images/:imageId',new RoomController()._deleteImages)
     return app;
 }

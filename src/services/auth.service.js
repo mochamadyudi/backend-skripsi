@@ -48,7 +48,7 @@ export class AuthService {
                 await ThemeService.SetTheme(user.id, 1)
         }
 
-        const token = generateCustomToken({user})
+        const token = await generateCustomToken({user})
 
         const activate = new Activations({
             user: user.id,
