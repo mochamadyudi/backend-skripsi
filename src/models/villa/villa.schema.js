@@ -3,7 +3,31 @@ import moment from 'moment'
 
 const mongoose = require("mongoose");
 const photos = new mongoose.Schema({
-    images:{
+    path:{
+        type: String,
+        default :null
+    },
+    filename: {
+        type: String,
+        default :null
+    },
+    destination:{
+        type: String,
+        default :null
+    },
+    resize_active:{
+        type: Array,
+        default :[]
+    },
+    prefix_url:{
+        type: String,
+        default :null
+    },
+    originalname:{
+        type: String,
+        default :null
+    },
+    format:{
         type: String,
         default :null
     },
@@ -66,14 +90,6 @@ const VillaSchema = new mongoose.Schema({
         default: null,
     },
     thumbnail: {
-        // url:{
-        //     type:String,
-        //     default:null
-        // },
-        // prefix_url:{
-        //     type:String,
-        //     default:null
-        // },
         path:{
             type: String,
             default :null

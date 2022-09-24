@@ -6,6 +6,7 @@ import {ObjArr, ObjResolve, OptParams, StrToArr} from "@yuyuid/utils";
 import YuyuidError from "@yuyuid/exception";
 import mongoose from "mongoose";
 import first from 'lodash'
+import RoomsService from "../services/rooms.service";
 
 export default class VillaController {
 
@@ -63,7 +64,6 @@ export default class VillaController {
                     })
                     .then((fields) => {
                         if (fields) {
-                            fields = fields?._doc ?? fields
                             if (Array.isArray(fields) && fields.length > 0) {
                                 for (let i = 0; i < fields.length; i++) {
                                     fields[i] = fields[i]?._doc ?? fields[i]
@@ -429,6 +429,30 @@ export default class VillaController {
                 error:true,
                 message: err.message ?? "Some error",
                 data:null
+            }))
+        }
+    }
+
+    async getRoomInVilla(req,res){
+        try{
+            let id = null
+            if(ObjResolve(req.query,'id')){
+                id = ObjResolve(req.query,'id')
+            }
+            const [err, data ] = await new RoomsService({query:req.query})._list(id)
+
+
+            return res.json(new BodyResponse({
+                status:200,
+                error:false,
+                message: "Successfully!",
+                data: data
+            }))
+        }catch(err){
+            return res.json(new BodyResponse({
+                status:500,
+                error:true,
+                message: err?.message ?? "-"
             }))
         }
     }

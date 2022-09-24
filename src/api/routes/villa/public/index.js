@@ -432,5 +432,5 @@ export default (app) => {
         }
     })
 
-
+    route.get('/rooms/:id', new VillaController().getRoomInVilla)
 }

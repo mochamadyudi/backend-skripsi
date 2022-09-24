@@ -287,9 +287,75 @@ export default class VillaService {
             }).status(500)
         }
     }
+
     static async _addPhotos(req,res){
         try{
+            let files = []
+            if(typeof(req?.files) !== "undefined"){
+                if (Array.isArray(req.files) && req.files.length > 0 ){
+                    for(let i = 0;i< req.files.length;i++){
+                        /**
+                         * RESIZE [ 70, 50, 30 ]
+                         */
+                        let filename = req.files[i].filename.toString().toLowerCase().replace(/ /g,"-")
+                        await new ResizeModule({
+                            filename: filename,
+                            destination: req.files[i].destination,
+                            path:req.files[i].path,
+                            resize: [80,50,30]
+                        })
+                        files.push({
+                            prefix_url:`${process.env.APP_URL}/public${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`,
+                            originalname: req.files[i]?.originalname,
+                            filename: filename,
+                            resize_active: [80,50,30],
+                            format: req.files[i]?.mimetype,
+                            path: ['public',`${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`].join('')
+                        })
+                    }
+                }
+            }
 
+            await Villa.findOneAndUpdate({user:req.user.id},{
+                $push:{
+                    photos:files,
+                }
+            },{
+                new:true,
+                returnOriginal: false,
+                returnNewDocument: true
+            })
+                .then((field)=> {
+                    if(field){
+                        return res.json(
+                            new BodyResponse({
+                                error:false,
+                                message:"Successfully!",
+                                status:200,
+                                data: field,
+                            })
+                        ).status(200)
+                    }else{
+                        return res.json(
+                            new BodyResponse({
+                                error:true,
+                                message:"Not found!",
+                                status:200,
+                                data: null
+                            })
+                        ).status(200)
+                    }
+                })
+                .catch((err)=> {
+                    return res.json(
+                        new BodyResponse({
+                            error:true,
+                            message:err.message,
+                            status:500,
+                            data:null
+                        })
+                    ).status(500)
+                })
         }catch(err){
 
         }

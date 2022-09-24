@@ -23,7 +23,9 @@ export default ()=> {
     Rooms(app)
 
     route.get('/profile', new VillaController().MyProfile)
-
+    route.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
+    route.put('/profile/photo', uploadFileMiddleware, VillaService._addPhotos)
+    route.delete('/profile/photo/:imageId', VillaService._putThumbnail)
 
     route.post('/create', new VillaController()._create)
 
@@ -77,7 +79,7 @@ export default ()=> {
     //     }
     // })
 
-    route.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
+
     //
     // route.put('/photos/add', uploadFileMiddleware, VillaService._addPhotos)
     // route.delete('/photos/:id', uploadFileMiddleware, VillaService._deletePhoto)
