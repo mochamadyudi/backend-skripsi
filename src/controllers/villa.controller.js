@@ -435,18 +435,18 @@ export default class VillaController {
 
     async getRoomInVilla(req,res){
         try{
-            let id = null
-            if(ObjResolve(req.query,'id')){
-                id = ObjResolve(req.query,'id')
-            }
-            const [err, data ] = await new RoomsService({query:req.query})._list(id)
+            Reflect.set(req.query,'villaIn',[req.params.id])
+
+            const [err, data ] = await new RoomsService({query:req.query})._list()
+
+            if(err) throw YuyuidError.badData(first(err?.errors)?.message ?? err ?? "Some Error")
 
 
             return res.json(new BodyResponse({
                 status:200,
                 error:false,
                 message: "Successfully!",
-                data: data
+                data,
             }))
         }catch(err){
             return res.json(new BodyResponse({

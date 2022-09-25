@@ -495,4 +495,16 @@ export default class RoomController {
         }
     }
 
+
+
+    async _singleRoom(req,res){
+        try{
+
+        }catch(err){
+            return res.json(new BodyResponse({
+                status:200,
+                error:false
+            }))
+        }
+    }
 }

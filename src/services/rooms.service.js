@@ -17,7 +17,7 @@ export default class RoomsService {
 
     async _list(id = null) {
         try {
-            if (id) {
+            if (id !== null ) {
                 const [err, data] = await this.#single(id)
                 if (err) return [err, null]
                 return [null, data]
@@ -25,22 +25,36 @@ export default class RoomsService {
             const {page, limit, direction} = Pagination(this.query)
             let condition = {}
             let villa = null
-            if(ObjResolve(this.query,'villa')){
-                if(ObjResolve(ObjResolve(this.query,'villa'),'districts')){
-                    villa = await Villa.find({
-                        'locations.districts':  ObjResolve(ObjResolve(this.query,'villa'),'districts') ??{
-                            $ne: null
-                        },
-                    },).select("_id")
+            console.log({condition,query:this.query})
 
-                    if(villa){
-                        Reflect.set(condition,"villa", {
-                            $in:villa.map((item)=> item?._id)
-                        })
+
+            if(Object.keys(this.query).length > 0){
+                if(ObjResolve(this.query,'villaIn')){
+                    Reflect.set(condition,'villa', {
+                        $in: Array.isArray(ObjResolve(this.query,'villaIn')) ? ObjResolve(this.query,'villaIn') : [ObjResolve(this.query,'villaIn')]
+                    })
+                }else{
+                    if(ObjResolve(this.query,'villa') !== null){
+                        if(ObjResolve(ObjResolve(this.query,'villa'),'districts')){
+                            villa = await Villa.find({
+                                'locations.districts':  ObjResolve(ObjResolve(this.query,'villa'),'districts') ??{
+                                    $ne: null
+                                },
+                            },).select("_id")
+
+                            if(villa){
+                                Reflect.set(condition,"villa", {
+                                    $in:villa.map((item)=> item?._id)
+                                })
+                            }
+                        }
                     }
+                    this.#RoomParams(condition)
                 }
             }
-            this.#RoomParams(condition)
+
+
+
 
             let count = await Room.count(condition)
                 .populate({
@@ -50,7 +64,7 @@ export default class RoomsService {
                     path: "locations.districts",
                 }
             })
-            count = count.length ?? count
+            count = count?.length ?? count
             let response = {
                 params: {
                     ...this.query,
@@ -65,7 +79,7 @@ export default class RoomsService {
                 },
                 data: []
             }
-            console.log({condition})
+
             return await Room.find({...condition})
                 .populate({
                     path: "villa",
@@ -298,6 +312,7 @@ export default class RoomsService {
         })
         Reflect.set(obj,'$or', newArr)
     }
+
 
 
     async #FacilityParams(obj,keys){
