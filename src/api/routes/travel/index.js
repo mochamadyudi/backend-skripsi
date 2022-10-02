@@ -47,38 +47,35 @@ export default ()=> {
 
     route.get('/list', TravelService._getTravelLists)
 
+    route.get('/list/near-me', new TravelController()._nearMe)
     route.post('/list/near-me', async (req, res) => {
         try {
             const {page, limit, direction} = Pagination(req.query)
             let condition = []
             let find = {
-                $and:[
-                    {locations: {
-                            "$near": {
-                                "$geometry": {
-                                    type: "Point",
-                                    coordinates:[
-                                        req.body.lng,
-                                        req.body.lat
-                                    ]
-                                },
-                                "$maxDistance": req.body?.max ?? 5000
-                            }
-                        }}
-                ],
+                locations: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates:[
+                                req.body.lng,
+                                req.body.lat
+                            ]
+                        },
+                        $maxDistance: req.body?.max ?? 5000
+                    }
+                }
 
             }
 
             if(ObjResolve(req.query,'notIn')){
-                find['$and'].push({
-                    _id: {
-                        $nin: ObjResolve(req.query,'notIn') ?? []
-                    }
+                Reflect.set(find,"_id", {
+                    $nin: ObjResolve(req.query,'notIn') ?? []
                 })
             }
 
             await Travel.find({...find})
-                .populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
+                .populate("categories",['-about'])
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({

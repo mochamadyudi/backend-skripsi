@@ -32,6 +32,7 @@ export default ()=> {
     route.put("/profile/update",async (req,res)=> {
         try{
             let {id} = req.user
+            console.log({user:req.user})
             return await Villa.findOne({user:id})
                 .then(async (field)=> {
                     if (field){

@@ -289,7 +289,7 @@ export default class RoomController {
         try {
             return await Room.findOne({_id: id})
                 .populate("schedule", ["schedule"])
-                .populate("villa", ["name", "thumbnail", "website", "social", "contact", "location", "seen"])
+                .populate("villa", ["name", "thumbnail", "website", "social", "contact", "location", "seen",'photos','videos'])
                 .then((field) => {
                     if (field) {
                         return field
@@ -499,11 +499,20 @@ export default class RoomController {
 
     async _singleRoom(req,res){
         try{
-
-        }catch(err){
+            const data = await new RoomController().getRoomById(req.params.id)
             return res.json(new BodyResponse({
                 status:200,
-                error:false
+                error:false,
+                message: "successfully!",
+                data:data
+            }))
+        }catch(err){
+            return res.json(new BodyResponse({
+                status:500,
+                error:true,
+                ...err,
+                message: err.message,
+                data:null
             }))
         }
     }

@@ -45,37 +45,39 @@ export default (app) => {
 
     route.get('/list', TravelService._getTravelLists)
 
+    route.get('/list/near-me', new TravelController()._nearMe)
     route.post('/list/near-me', async (req, res) => {
         try {
             const {page, limit, direction} = Pagination(req.query)
             let find = {
-                // locations: {
-                //     "$near": {
-                //         "$geometry": {
-                //             type: "Point",
-                //             coordinates:[
-                //                 req.body.lng,
-                //                 req.body.lat
-                //             ]
-                //         },
-                //         "$maxDistance": req.body?.max ?? 5000
-                //     }
-                // }
+                locations: {
+                    // $near: {
+                    //     $geometry: {
+                    //         type: "Point",
+                    //         coordinates:[
+                    //             req.body.lng,
+                    //             req.body.lat
+                    //         ]
+                    //     },
+                    //     $maxDistance:5000
+                    //     // "$maxDistance": req.body?.max ?? 5000
+                    // }
+                }
             }
 
             if(ObjResolve(req.query,'notIn')){
-                find = {
-                    ...find,
-                    _id:{
-                        $nin: new ObjectId(req.query.notIn)
-                    }
-                }
-                // Reflect.set(find,'_id',{
-                //     $nin:ObjResolve(req.query,'notIn')
-                // })
+                // find = {
+                //     ...find,
+                //     _id:{
+                //         $nin: new ObjectId(req.query.notIn)
+                //     }
+                // }
+                Reflect.set(find,'_id',{
+                    $nin:ObjResolve(req.query,'notIn')
+                })
             }
-            await Travel.find({...find})
-                .populate("categories.category", ['slug', 'name', 'is_verify', 'is_published'])
+            await Travel.find(find)
+                .populate("categories")
                 .limit(limit)
                 .skip(limit * (page > 1 ? page - 1 : 0))
                 .sort({
@@ -84,8 +86,9 @@ export default (app) => {
                 .exec((err, travel) => {
                 if (err) {
                     return res.json(new BodyResponse({
+                        ...err,
                         error:true,
-                        message: err.message,
+                        message: err?.message,
                         query: {
                             limit,
                             page: page > 0 ? page : 1,
@@ -118,7 +121,10 @@ export default (app) => {
                 }
             })
         } catch (err) {
-
+            return res.json(new BodyResponse({
+                ...err,
+                error:true,
+            })).status(err?.status ?? 500)
         }
     })
 

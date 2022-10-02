@@ -6,6 +6,7 @@ import {PermissionsService} from "../../services/permissions.service";
 import ActivationService from "../../services/activation.service";
 import {isAuth} from "../middlewares/auth";
 import {BodyResponse} from "@handler";
+import {generateCustomToken} from "@yuyuid/utils";
 
 
 const route = Router()
@@ -134,7 +135,23 @@ export default (app)=> {
             Object.keys(newUser).forEach((key,index)=> {
                 user = (newUser[key])
             })
-            return res.json({ message: "Register successfully",data:user }).status(201);
+            let payload = {
+                user: {
+                    id: user.id,
+                    role: user.role,
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    username: user.username,
+                }
+            }
+            const token = await generateCustomToken(payload)
+
+            let data = {
+                user
+            }
+            Reflect.set(data,'token',token)
+            return res.json({ message: "Register successfully",data }).status(201);
         } catch (e) {
             return next(e);
         }

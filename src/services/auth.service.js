@@ -2,7 +2,7 @@ import {Cart, CartInfo, UpRolePermissions, User} from "@yuyuid/models";
 import YuyuidError from "@yuyuid/exception";
 import bcrypt from 'bcryptjs'
 import {UserService, ThemeService, CartService} from "@yuyuid/services"
-import {YuyuidEmitter, encryptPassword, generateToken, generateCustomToken} from "@yuyuid/utils";
+import {YuyuidEmitter, encryptPassword, generateToken, generateCustomToken, ObjResolve} from "@yuyuid/utils";
 
 import {YuyuidEvent} from "../lib/constants/event-name";
 import {Activations} from "../models/auth";
@@ -27,11 +27,17 @@ export class AuthService {
         const [err, user] = await UserService.create(userInputDto)
         if(err) throw YuyuidError.badData(err)
 
-        console.log({user,err})
+        let villaFields = {}
         switch (userInputDto.role) {
             case "villa":
-
-                const villa = await VillaService.createVilla({user: user.id})
+                if(ObjResolve(userInputDto,'villa')){
+                    if(typeof(ObjResolve(userInputDto,'villa')) === "object"){
+                        Object.keys(ObjResolve(userInputDto,'villa')).forEach((key)=> {
+                            Reflect.set(villaFields,key,ObjResolve(userInputDto,'villa')[key])
+                        })
+                    }
+                }
+                const villa = await VillaService.createVilla({user: user.id,...villaFields})
                 await ThemeService.VillaSetTheme(villa.id, 1)
                 break;
             case "customer":

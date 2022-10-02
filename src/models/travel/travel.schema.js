@@ -64,10 +64,6 @@ const TravelSchema = new Schema({
         type: String,
         default:null,
     },
-    travel_name: {
-        type: String,
-        default:null,
-    },
     slug: {
         type: String,
         default: null,
@@ -199,7 +195,7 @@ const TravelSchema = new Schema({
     versionKey:false
 });
 
-// TravelSchema.index({locations:"2dsphere"})
+TravelSchema.index({locations:"2dsphere"})
 
 const Travel = mongoose.model('travel', TravelSchema)
 
