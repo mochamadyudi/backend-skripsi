@@ -145,6 +145,7 @@ export class TravelService {
 
             const {keyword} = params
             let doc = await Travel.findOne({[ObjResolve(query, 'orderBy') ?? "_id"]: keyword})
+
                 // .populate('categories', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
                 // .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 // .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
@@ -500,7 +501,6 @@ export class TravelService {
                         as: 'locations.sub_districts'
                     }
                 },
-
                 {
                     $set:{
                         'locations.districts': {$arrayElemAt: ["$locations.districts",0]},
@@ -509,8 +509,6 @@ export class TravelService {
                         'locations.sub_districts': {$arrayElemAt: ["$locations.sub_districts",0]}
                     }
                 },
-
-
             ]
 
             if (ObjResolve(query, 'taxonomy')) {

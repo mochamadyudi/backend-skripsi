@@ -8,8 +8,9 @@ import Locations from './routes/locations'
 import CategoryRoute from './routes/travel/category'
 // const request = require('request').defaults({ encoding: null });
 import RoomsRoute from './routes/rooms'
-
+import BookRoute from './routes/book'
 import Scraping from './routes/scraping/locations'
+import {isAuth} from "./middlewares/auth";
 
 export default ()=> {
     const app = Router();
@@ -28,6 +29,11 @@ export default ()=> {
 
     app.use("/category",CategoryRoute())
     app.use('/rooms', RoomsRoute())
+
+    /**
+     * booking
+     */
+    app.use("/book",isAuth, BookRoute())
 
     app.use('/scraping', Scraping())
 

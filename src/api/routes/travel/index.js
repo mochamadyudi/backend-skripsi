@@ -22,6 +22,7 @@ export default ()=> {
     app.use('/discussion',DiscussionRoute())
     // RouteUser(app)
 
+    route.get('/:id', TravelService.single)
 
     route.get('/likes', MixedMiddlewares.protectLogin[0], new TravelController().Likes)
 
@@ -44,6 +45,7 @@ export default ()=> {
             throw next(e)
         }
     })
+
 
     route.get('/list', TravelService._getTravelLists)
 

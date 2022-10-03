@@ -76,7 +76,7 @@ function PathWithYMD(date = [],filename = ""){
 
 
 function pathUploadedByDate(filename){
-    let dates = moment(Date.now()).format("YYYY-MM-DD").split("-")
+    let dates = moment().format("YYYY-MM-DD").split("-")
     let fullPath =  PathWithYMD([...dates],filename)
     let onlydate =  PathWithYMD([...dates])
     return {

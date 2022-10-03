@@ -123,7 +123,7 @@ export default () => {
                 const travels = await Travel.findOneAndUpdate(
                     {_id: fields.id},
                     {
-                        $set: {
+                        $push: {
                             photo: newImages
                         }
                     },

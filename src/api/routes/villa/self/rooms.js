@@ -168,7 +168,7 @@ export default (app) => {
 
     route.put('/update/schedule', new RoomController().putSchedule)
 
-
+    route.delete("/:id", new RoomController().delete)
     route.put("/update/:id/foto", new RoomController().updateImages)
     // return app
 }

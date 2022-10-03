@@ -4,7 +4,7 @@ import {RoomSchedule} from "../models/rooms/room_schedule.schema";
 import formidable from "formidable";
 import {generatePublic, uploadFile} from "../lib/modules/google-apis";
 import ImagesChecker from "../lib/utils/images-checker";
-import {changeFileName, ObjResolve, pathUploadedByDate, ToBoolean} from "@yuyuid/utils";
+import {changeFileName, clearPath, GetThumbnailPath, ObjResolve, pathUploadedByDate, ToBoolean} from "@yuyuid/utils";
 import mv from "mv";
 import Pagination from "../lib/utils/Pagination";
 import RoomLib from "../services/lib/room.lib";
@@ -238,7 +238,48 @@ export default class RoomController {
     }
 
     async delete(req, res) {
+        try{
+            const id = req.params.id
+            await Room.findOneAndRemove({_id:id})
+                .then(async (row)=> {
+                    if(row){
+                        if(ObjResolve(row,'images')){
+                            if(Array.isArray(ObjResolve(row,'images')) && ObjResolve(row,'images').length > 0){
+                                let images = ObjResolve(row,'images')
+                                for(let i = 0 ; i < images.length ; i ++){
+                                    console.log(clearPath(images[i]?.prefix_url,images[i]?.filename),`CLEAR PATH ${i}`)
+                                    await GetThumbnailPath(clearPath(images[i]?.prefix_url,images[i]?.filename))
+                                }
+                            }
+                        }
+                    }
 
+                    return res.json(new BodyResponse({
+                        status:200,
+                        error:false,
+                        message: "Successfully",
+                        data: row
+                    }))
+                })
+                .catch((err)=> {
+                    return res.json(new BodyResponse({
+                        ...err,
+                        status:500,
+                        error: true,
+                        message : err?.message ?? "Some Error",
+                        data: null
+                    }))
+                })
+
+        }catch(err){
+            return res.json(new BodyResponse({
+                ...err,
+                status:500,
+                error: true,
+                message : err?.message ?? "Some Error",
+                data: null
+            }))
+        }
     }
 
     async get(req, res) {

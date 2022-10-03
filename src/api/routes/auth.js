@@ -26,7 +26,7 @@ export default (app)=> {
                         case "admin":
                         case "customer":
                             return await Profile.findOne({ user: user.id })
-                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar",'is_verify'])
                                 .then((field)=> {
                                     if(field){
                                         return res.json(new BodyResponse({
@@ -51,7 +51,7 @@ export default (app)=> {
                                 })
                         case "villa":
                             return await Villa.findOne({user:user.id})
-                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar"])
+                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar",'is_verify'])
                                 .populate({
                                     path:"likes",
                                     options: {

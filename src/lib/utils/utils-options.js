@@ -1,6 +1,7 @@
 import {v4 as uuidv4} from 'uuid'
 import path from "path";
 import fs from "fs";
+import YuyuidError from "@yuyuid/exception";
 
 
 export const hashUuid = ()=> {
@@ -68,8 +69,7 @@ export const StrToBool = (str)=> {
 
 export const clearPath = (filePath,filename)=> {
     let newPath = filePath.toString().split('uploads/')[1].split('/')
-    console.log({newPath})
-    return path.resolve(__dirname,'..','..','..','..','public','uploads',[...newPath,filename].join('/'))
+    return path.resolve(__dirname,'..','..','..','public','uploads',[...newPath,filename].join('/'))
 }
 
 export const GetThumbnailPath = async (filePath,withResize = true, resize = ',_30,_50,_80')=> {
@@ -88,7 +88,7 @@ export const GetThumbnailPath = async (filePath,withResize = true, resize = ',_3
     }else{
         if (fs.existsSync(filePath)) {
             await fs.unlink(filePath,(err)=> {
-                if(err) throw YidError.internal(err.message)
+                if(err) throw YuyuidError.internal(err.message)
 
             })
         }
