@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
-import strpad from 'strpad'
 const Schema = mongoose.Schema
 import {encryptChar, HashId, hashUuid} from "@yuyuid/utils";
 import { first } from 'lodash'
+import moment from "moment";
 
 //Option to not delete posts, this is why we're using this
-const Booking = new Schema({
+const Order = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
@@ -35,9 +35,19 @@ const Booking = new Schema({
         type: Number,
         required:true
     },
-    book_date:{
+    limit: {
+        type: Number,
+        default:1,
+    },
+    expiresIn: {
         type: Date,
-        required:true
+        default: moment().add(23,'hour')
+    },
+    date: {
+        type: Date,
+        default:null,
+        // required:true
+
     }
 }, {
     timestamps:true,
@@ -45,10 +55,10 @@ const Booking = new Schema({
     autoIndex: true,
 });
 
-const BookingSchema = mongoose.model('book', Booking)
-BookingSchema.events.on('error', err => console.log({
+const OrderSchema = mongoose.model('order', Order)
+OrderSchema.events.on('error', err => console.log({
     error:err.message,
     model:"Booking Schema"
 }));
 
-export {BookingSchema}
+export {OrderSchema}

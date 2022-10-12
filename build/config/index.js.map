@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../src/config/index.js"],"names":[],"mappings":"AAAA,cAAc,kBAAd","file":"index.js","sourcesContent":["export * from './default.config'\r\n"]}

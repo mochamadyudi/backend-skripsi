@@ -99,5 +99,6 @@ export default (app)=> {
     })
 
     route.get("/list/:id", new RoomController()._singleRoom)
+    route.get("/:id", new RoomController()._singleRoom)
     route.get('/', new RoomController()._getPublicRooms)
 }

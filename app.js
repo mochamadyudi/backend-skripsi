@@ -13,6 +13,7 @@ import AppendExpressResponseProperty from "./src/lib/core/append-express-respons
 import "./src/loaders/events"
 import jobLoaders from './src/loaders/jobs'
 import {AuthService} from "@yuyuid/services";
+import moment from "moment";
 
 const app = express();
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || YuyuidConfig.port || 5000;
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
+app.use(cookieParser())
 
 app.use(express.urlencoded({extended: true}))
 
@@ -35,6 +37,17 @@ app.use((req,res,next)=> {
     res.header("Access-Control-Allow-Credentials", 'true');
     next();
 })
+
+app.use(function (req, res, next) {
+    const cookie = req.cookies['express-auth'];
+    if (cookie === undefined) {
+        let randomNumber=Math.random().toString();
+        res.cookie('express-auth',moment().format('YYYY-MM-DD'), { maxAge: 900000, httpOnly: true });
+    } else {
+
+    }
+    next();
+});
 
 jobLoaders();
 
@@ -53,11 +66,11 @@ app.post('/auth/reset/password/:token',AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix,routes())
 app.use('/api/v2',RoutesV2())
 
-if(process.env.NODE_ENV === "PRODUCTION"){
+// if(process.env.NODE_ENV === "PRODUCTION"){
     app.use(express.static("client/build"));
     app.get("*", (req, res) => {
         res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
     });
-}
+// }
 
 app.listen(PORT, ()=> console.log(`Server is running on : ${PORT}`))

@@ -58,7 +58,8 @@ const isAdmins = async (req,res,next)=> {
         res.status(500).json(new BodyResponse({
             status:500,
             error:true,
-            message: err?.message ?? "Permission Denied!!"}));
+            message: err.message
+        }));
     }
 }
 const isVillas = async (req,res,next)=> {

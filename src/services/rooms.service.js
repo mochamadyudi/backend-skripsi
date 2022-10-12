@@ -15,6 +15,24 @@ export default class RoomsService {
 
     }
 
+    async get(){
+        try {
+            let query = this.query
+            let condition = {
+                [this.orderBy]:this.id
+            }
+
+            return await Room.findOne(condition)
+                .then((result) => {
+                    return [null, result]
+                })
+                .catch((err) => {
+                    return [err, null]
+                })
+        } catch (err) {
+            return [err, null]
+        }
+    }
     async _list(id = null) {
         try {
             if (id !== null ) {
@@ -28,7 +46,7 @@ export default class RoomsService {
             console.log({condition,query:this.query})
 
 
-            if(Object.keys(this.query).length > 0){
+            // if(Object.keys(this.query).length > 0){
                 if(ObjResolve(this.query,'villaIn')){
                     Reflect.set(condition,'villa', {
                         $in: Array.isArray(ObjResolve(this.query,'villaIn')) ? ObjResolve(this.query,'villaIn') : [ObjResolve(this.query,'villaIn')]
@@ -51,7 +69,7 @@ export default class RoomsService {
                     }
                     this.#RoomParams(condition)
                 }
-            }
+            // }
 
 
 
@@ -212,7 +230,7 @@ export default class RoomsService {
             let condition = {}
 
             if (ObjResolve(query, 'orderBy')) {
-                Reflect.set(condition, ObjResolve(query, 'orderBy'), id)
+                Reflect.set(condition, ObjResolve(query, 'orderBy') ?? "_id", id)
             }
             return await Room.findOne(condition)
                 .then((result) => {
@@ -310,7 +328,11 @@ export default class RoomsService {
                 [key]:newObj[key]
             })
         })
-        Reflect.set(obj,'$or', newArr)
+
+        if(Array.isArray(newArr) && newArr.length > 0){
+            Reflect.set(obj,'$or', newArr)
+        }
+
     }
 
 

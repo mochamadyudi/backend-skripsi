@@ -2,6 +2,9 @@ module.exports = {
     "ignore": [
         "**/*.test.js"
     ],
+    "assumptions": {
+        "setSpreadProperties": true
+    },
     presets: [
         [
             require.resolve('@babel/preset-env'),
@@ -14,15 +17,18 @@ module.exports = {
     ],
     plugins: [
         // require.resolve("babel-plugin-transform-object-rest-spread"),
+        require.resolve("@babel/plugin-proposal-optional-chaining"),
         require.resolve("babel-plugin-transform-export-extensions"),
         require.resolve("@babel/plugin-proposal-class-properties"),
         require.resolve("@babel/plugin-proposal-private-methods"),
+        require.resolve("@babel/plugin-proposal-nullish-coalescing-operator"),
         [
             require.resolve("babel-plugin-module-resolver"),
             {
                 root: ["."],
                 extensions: [".js"],
                 alias:{
+                    "@Modules":"./src/module/index",
                     "@yid/controllers": "./src/controllers/index",
                     "@yuyuid/config":"./src/config/index",
                     "@yuyuid/constants": "./src/lib/constants/index",

@@ -11,12 +11,18 @@ import RoomsRoute from './routes/rooms'
 import BookRoute from './routes/book'
 import Scraping from './routes/scraping/locations'
 import {isAuth} from "./middlewares/auth";
+import BookingRoute from "../module/booking/booking.route";
 
 export default ()=> {
     const app = Router();
     auth(app)
     Locations(app)
+    /**
+     * booking
+     */
+    BookingRoute(app)
 
+    // new BookingRoute()
     app.use('/villa', VillaRoute())
     app.use('/admin',AdminRoute())
 
@@ -30,10 +36,8 @@ export default ()=> {
     app.use("/category",CategoryRoute())
     app.use('/rooms', RoomsRoute())
 
-    /**
-     * booking
-     */
-    app.use("/book",isAuth, BookRoute())
+
+
 
     app.use('/scraping', Scraping())
 

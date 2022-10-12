@@ -330,7 +330,25 @@ export default class RoomController {
         try {
             return await Room.findOne({_id: id})
                 .populate("schedule", ["schedule"])
-                .populate("villa", ["name", "thumbnail", "website", "social", "contact", "location", "seen",'photos','videos'])
+                .populate({
+                    path:"villa",
+                    select: ["name", "thumbnail", "website", "social", "contact", "locations", "seen",'photos','videos'].join(" "),
+                    populate:[
+                        {
+                            path:"locations.districts",
+                        },
+                        {
+                            path:"locations.provinces",
+                        },
+                        {
+                            path:"locations.regencies",
+                        },
+                        {
+                            path:"locations.sub_districts",
+                        },
+
+                    ]
+                })
                 .then((field) => {
                     if (field) {
                         return field

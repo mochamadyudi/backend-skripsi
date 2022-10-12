@@ -25,6 +25,9 @@ Object.freeze(EmailConstant);
 const EmailTemplate = {
   resetPassword: "reset-password",
   verifyEmail: "verify-email",
+  book:{
+    create:"book/create"
+  }
 };
 
 export { EmailConstant, EmailTemplate };

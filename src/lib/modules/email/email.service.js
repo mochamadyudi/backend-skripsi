@@ -45,7 +45,7 @@ export class EmailService {
    * Send Email
    *
    * @param {string} templateName - Email Template
-   * @param {SendMailOptions} options - Email Options
+   * @param {{subject: string, to}} options - Email Options
    * @param {object} data - Data which you want to send in email
    *
    * @returns {Promise<boolean>} Return true if sent successfully
