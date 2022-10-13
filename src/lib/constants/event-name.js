@@ -14,6 +14,15 @@ const YuyuidEvent = {
         update:{
             status:"onBookUpdateStatus"
         }
+    },
+    notify: {
+        book: {
+            push: "onPushNotifyBook",
+            update:{
+                status:"onPushNotifyUpdateStatus",
+                bulk_read: "onPushNotifyUpdateBulkRead"
+            }
+        }
     }
 };
 

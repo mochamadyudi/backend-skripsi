@@ -19,7 +19,6 @@ class BookingSubscribe {
     }
 }
 
-
 YuyuidEmitter.on(YuyuidEvent.book.create, async function (email = '', _id = '', room = {}) {
 
     YuyuidEmitter.dispatch(YuyuidEvent.email.book.create, {
