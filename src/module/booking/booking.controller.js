@@ -13,7 +13,35 @@ export default class BookingController {
     }
 
     async _list(req, res) {
+        try{
+            const [err, data] = await new _MBooking.Module({query:req.query, req,isUser:true}).list()
 
+            if(err){
+                res.status(400)
+                return res.json(new BodyResponse({
+                    ...err,
+                    status:400,
+                    error:true,
+                    message: err?.message ?? err ?? "Some Error",
+                    ...data
+                }))
+            }
+            res.status(200)
+            return res.json(new BodyResponse({
+                status:200,
+                error:false,
+                message: "Successfully!",
+                ...data
+            }))
+
+
+        }catch(err){
+            return res.json(new BodyResponse({
+                ...err,
+                status:500,
+                data: null
+            }))
+        }
     }
 
     async _delete(req, res) {

@@ -1,8 +1,12 @@
-import {User} from "@yuyuid/models";
-
 export default class LibService {
     constructor(props = {}) {
         this.props = props
+        this.body = props?.body ?? {}
+        this.query = props?.query ?? {}
+        this.method = props?.method ?? {}
+        this.path = props?.path ?? {}
+        this.fields = props?.fields ?? {}
+
         this.req = props?.req ?? undefined
         this.res = props?.res ?? undefined
         this.query = props?.query ?? {}

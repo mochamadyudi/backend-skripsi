@@ -23,6 +23,11 @@ const YuyuidEvent = {
                 bulk_read: "onPushNotifyUpdateBulkRead"
             }
         }
+    },
+    tmp: {
+        queue:{
+            rooms:'onTmpQueueRoomsCreate'
+        }
     }
 };
 

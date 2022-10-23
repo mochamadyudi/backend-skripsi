@@ -2,7 +2,7 @@ export * from './app'
 export * from './travel'
 export * from './villa'
 export * from './users'
-
+export * from './__tmp/index'
 export * from './locations/location-province.schema'
 export * from './locations/location-vilage.schema'
 export * from './locations/location-regencie.schema'

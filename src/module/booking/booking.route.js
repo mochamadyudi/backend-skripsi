@@ -7,4 +7,5 @@ export default (app)=> {
     app.use('/book',isAuth,route)
 
     route.post("/", new _MBooking.Controller().create)
+    route.get("/", new _MBooking.Controller()._list)
 }

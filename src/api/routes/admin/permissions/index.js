@@ -64,7 +64,6 @@ export default (app)=> {
         try{
 
 
-            console.log(ObjResolve(query,'q'))
             if(ObjResolve(query,'q')){
                 Reflect.set(condition,ObjResolve(query,'order') ?? "slug", {
                     $regex: ['.*',ObjResolve(query,'q'),'.*'].join("")

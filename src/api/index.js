@@ -12,11 +12,19 @@ import BookRoute from './routes/book'
 import Scraping from './routes/scraping/locations'
 import {isAuth} from "./middlewares/auth";
 import BookingRoute from "../module/booking/booking.route";
+import __ConfRooms from "../module/__tmp/confirm-rooms";
 
 export default ()=> {
     const app = Router();
     auth(app)
     Locations(app)
+
+
+    /**
+     * queue
+     */
+    __ConfRooms.Route(app)
+
     /**
      * booking
      */

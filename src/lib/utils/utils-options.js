@@ -30,6 +30,17 @@ export const ToBoolean = (str)=> {
     if(Boolean(JSON.parse(str))) return JSON.parse(str)
     return false
 }
+
+export const _ArrBooleanValue = (array)=>{
+    if(Array.isArray(array) && array.length > 0){
+        for(let i = 0; i < array.length; i++){
+            array[i] = array[i] === "true"
+        }
+        return array
+    }
+    return [ false ]
+}
+
 export const StrToArr = (str)=> {
     try{
         if(typeof (str) === "string"){

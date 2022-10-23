@@ -29,6 +29,15 @@ const Create = async (req,res,next)=> {
     })
     validator(schema.validate(req.body),res,next)
 }
+
+
+const ConfirmRoomQueue = async (req,res,next)=> {
+    const schema = JoiBase.append({
+        status:Joi.string(),
+    })
+    validator(schema.validate(req.body),res,next)
+}
 export default {
-    Create
+    Create,
+    ConfirmRoomQueue
 }
