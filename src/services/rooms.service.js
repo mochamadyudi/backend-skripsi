@@ -45,6 +45,7 @@ export default class RoomsService {
             let villa = null
             console.log({condition,query:this.query})
 
+            console.log(ObjResolve(this.query,'villaIn'),'PARAMS ID')
 
             // if(Object.keys(this.query).length > 0){
                 if(ObjResolve(this.query,'villaIn')){

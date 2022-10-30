@@ -156,6 +156,7 @@ export default class VillaService {
                         data
                     }))
                 }).catch(({data, error, message, status, pagination, query}) => {
+                    console.log(err)
                     return res.json({
                         error, message, status,
                         pagination: pagination ?? null,

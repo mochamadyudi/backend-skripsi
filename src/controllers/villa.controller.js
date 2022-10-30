@@ -139,6 +139,13 @@ export default class VillaController {
                             })
                         }
                     })
+                    .catch((err)=> {
+                        return new BodyResponse({
+                            error:true,
+                            message: err?.message ?? "Some Error",
+                            data: null
+                        })
+                    })
             }
         } catch (err) {
             return new BodyResponse({error: true, message: err.message})
@@ -435,8 +442,7 @@ export default class VillaController {
 
     async getRoomInVilla(req,res){
         try{
-            Reflect.set(req.query,'villaIn',[req.params.id])
-
+            Reflect.set(req.query,'villaIn',[ ObjResolve(req.query,'id') ?? ObjResolve(req.params,'id')])
             const [err, data ] = await new RoomsService({query:req.query})._list()
 
             if(err) throw YuyuidError.badData(first(err?.errors)?.message ?? err ?? "Some Error")
@@ -446,7 +452,7 @@ export default class VillaController {
                 status:200,
                 error:false,
                 message: "Successfully!",
-                data,
+                ...data,
             }))
         }catch(err){
             return res.json(new BodyResponse({

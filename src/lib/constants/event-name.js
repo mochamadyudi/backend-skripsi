@@ -7,6 +7,9 @@ const YuyuidEvent = {
             update:{
                 status:"onSendEmailUpdateBookStatus"
             }
+        },
+        transaction: {
+            waiting: "onSendEmailTransactionWaiting"
         }
     },
     book:{
