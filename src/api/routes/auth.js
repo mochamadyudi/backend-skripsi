@@ -130,7 +130,17 @@ export default (app)=> {
     route.post("/signup", AuthValidator.signupValidator, async (req, res, next) => {
         try {
 
-            const newUser = await AuthService.SignUp(req);
+            const [ err ,newUser] = await AuthService.SignUp(req,res);
+            if(err){
+                res.status(400);
+                return res.json(new BodyResponse({
+                    ...err,
+                    error:true,
+                    status:400,
+                    message: err?.message ?? "Some Error",
+                    data: null
+                }))
+            }
             let user = {}
             Object.keys(newUser).forEach((key,index)=> {
                 user = (newUser[key])
@@ -153,7 +163,14 @@ export default (app)=> {
             Reflect.set(data,'token',token)
             return res.json({ message: "Register successfully",data }).status(201);
         } catch (e) {
-            return next(e);
+            res.status(500);
+            return res.json(new BodyResponse({
+                ...e,
+                error:true,
+                status:500,
+                message: e?.message ?? "Some Error",
+                data:null
+            }));
         }
     });
 
