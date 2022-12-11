@@ -61,7 +61,7 @@ const VillaSchema = new mongoose.Schema({
     },
     rates:[rates],
     likes: [
-        {
+        {   
             user:{
                 type: mongoose.Schema.Types.ObjectId,
                 ref:"user"

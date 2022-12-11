@@ -3,9 +3,8 @@ import moment from "moment";
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 import strpad from 'strpad'
+import {hashUuid} from "@yuyuid/utils";
 
-
-//Option to not delete posts, this is why we're using this
 const Order = new Schema({
     hashId:{
         type:String,
