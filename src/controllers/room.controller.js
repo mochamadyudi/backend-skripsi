@@ -520,8 +520,6 @@ export default class RoomController {
             const [err, data ] = await new RoomsService({
                 query: req.query
             })._list()
-
-            console.log(err,"ERR CONTROLLER")
             if(err) throw YuyuidError.badData(err)
             return res.json({
                 status:200,
