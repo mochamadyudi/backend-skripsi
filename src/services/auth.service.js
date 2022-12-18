@@ -25,7 +25,7 @@ export class AuthService {
         Reflect.set(userInputDto, "salt", salt)
 
         const [err, user] = await UserService.create(userInputDto)
-        if(err) throw YuyuidError.badData(err)
+        if(err) return [ err , null ]
 
         let villaFields = {}
         switch (userInputDto.role) {
@@ -65,7 +65,7 @@ export class AuthService {
         await activate.save();
 
         // console.log(user,err)
-        if (err) throw YuyuidError.internal("User can't be created.");
+        if (err)  return [new Error("User can't be created."),null]
         //
 
 
@@ -75,10 +75,9 @@ export class AuthService {
         Reflect.set(user, "email", userInputDto.email)
         Reflect.deleteProperty(user, "salt");
         Reflect.deleteProperty(user, "password");
-        console.log({user})
 
         YuyuidEmitter.dispatch(YuyuidEvent.email.verificationEmail, userInputDto.email, token);
-        return {user};
+        return [ null, user];
     }
 
 

@@ -43,9 +43,6 @@ export default class RoomsService {
             const {page, limit, direction} = Pagination(this.query)
             let condition = {}
             let villa = null
-            console.log({condition,query:this.query})
-
-            console.log(ObjResolve(this.query,'villaIn'),'PARAMS ID')
 
             // if(Object.keys(this.query).length > 0){
                 if(ObjResolve(this.query,'villaIn')){

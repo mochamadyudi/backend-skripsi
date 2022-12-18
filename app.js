@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import routes from "./src/api";
 import RoutesV2 from './src/api/v2/index'
-import { YuyuidConfig } from "./src/config";
+import {YuyuidConfig} from "./src/config";
 import bodyParser from 'body-parser'
 import connectDB from "./config/db";
 import 'dotenv/config'
@@ -15,10 +15,11 @@ import jobLoaders from './src/loaders/jobs'
 import {AuthService} from "@yuyuid/services";
 import moment from "moment";
 
+
 const app = express();
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
 
-(async function(){
+(async function () {
     await connectDB()
 }())
 
@@ -31,7 +32,7 @@ app.use(express.urlencoded({extended: true}))
 
 app.use(express.json({extended: true}))
 
-app.use((req,res,next)=> {
+app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", 'GET, POST, PUT, DELETE');
     res.header("Access-Control-Allow-Credentials", 'true');
@@ -41,8 +42,8 @@ app.use((req,res,next)=> {
 app.use(function (req, res, next) {
     const cookie = req.cookies['express-auth'];
     if (cookie === undefined) {
-        let randomNumber=Math.random().toString();
-        res.cookie('express-auth',moment().format('YYYY-MM-DD'), { maxAge: 900000, httpOnly: true });
+        let randomNumber = Math.random().toString();
+        res.cookie('express-auth', moment().format('YYYY-MM-DD'), {maxAge: 900000, httpOnly: true});
     } else {
 
     }
@@ -51,7 +52,7 @@ app.use(function (req, res, next) {
 
 jobLoaders();
 
-app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
+app.get("/public/uploads/:years/:month/:day/:filename", async (req, res, next) => {
     let paths = path.resolve(__dirname + req.url)
     fs.readFile(paths, (err, data) => {
         if (err) {
@@ -62,15 +63,11 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req,res,next)=> {
     })
 })
 
-app.post('/auth/reset/password/:token',AuthService.ResetPassword)
-app.use(YuyuidConfig.apiPrefix,routes())
-app.use('/api/v2',RoutesV2())
-
-// if(process.env.NODE_ENV === "PRODUCTION"){
-    app.use(express.static("client/build"));
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-    });
-// }
-
-app.listen(PORT, ()=> console.log(`Server is running on : ${PORT}`))
+app.post('/auth/reset/password/:token', AuthService.ResetPassword)
+app.use(YuyuidConfig.apiPrefix, routes())
+app.use('/api/v2', RoutesV2())
+app.use(express.static("client/build"));
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
+app.listen(PORT, () => console.log(`Server is running on : ${PORT}`))

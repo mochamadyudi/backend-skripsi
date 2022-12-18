@@ -1,13 +1,29 @@
+import moment from "moment";
+
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 import strpad from 'strpad'
+import {hashUuid} from "@yuyuid/utils";
 
-//Option to not delete posts, this is why we're using this
 const Order = new Schema({
     hashId:{
         type:String,
         required:true,
         require:true,
+    },
+    uuid:{
+        type:String,
+        default: (_)=> {
+            return hashUuid()
+        }
+    },
+    order_number:{
+        type: String,
+        default:null
+    },
+    order_code: {
+        type: String,
+        default:null
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +32,7 @@ const Order = new Schema({
     room: {
         type: mongoose.Schema.Types.ObjectId,
         ref:"room",
+        required:true
     },
     status:{
         type: String,
@@ -29,16 +46,21 @@ const Order = new Schema({
         type: Number,
         default:1,
     },
-    date: {
+    expiresIn: {
         type: Date,
         default: Date.now
-    }
+    },
 }, {
     timestamps:true,
     versionKey:false
 });
 
-
+Order.pre('save', async function(next){
+    let count =await OrderSchema.count()
+    let bigCount = strpad.left(count + 1,7,"0")
+    this.order_code = bigCount
+    this.order_number = [bigCount,moment().format("MM/YYYY")].join("/")
+    next();
+})
 const OrderSchema = mongoose.model('order', Order)
-
 export {OrderSchema}

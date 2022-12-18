@@ -55,10 +55,10 @@ const Order = new Schema({
     autoIndex: true,
 });
 
-const OrderSchema = mongoose.model('order', Order)
-OrderSchema.events.on('error', err => console.log({
-    error:err.message,
-    model:"Booking Schema"
-}));
+// const OrderSchema = mongoose.model('order', Order)
+// OrderSchema.events.on('error', err => console.log({
+//     error:err.message,
+//     model:"Booking Schema"
+// }));
 
 export {OrderSchema}
