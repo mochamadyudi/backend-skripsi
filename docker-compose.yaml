@@ -1,9 +1,12 @@
-version: '3'
+version: '3.8'
 services:
-  db:
-    image: node
-    container_name: 'be_skripsi'
-  web:
+  stg:
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    image: skripsi:${TAG}
+    container_name: oc-stg-srv
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,7 +14,34 @@ services:
       - npm-cache:/root/.npm
     ports:
       - "5000:5000"
-
+  prod:
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    image: oc91srv:${TAG}-production
+    container_name: oc-prod-srv
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - npm-cache/root/.npm
+    ports:
+      - "5000:5000"
+  dev:
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    image: oc91srv:${TAG}-development
+    container_name: oc-dev-srv
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - npm-cache/root/.npm
+    ports:
+      - "5000:5000"
 volumes:
   npm-cache:
     external: false
