@@ -19,7 +19,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-    image: oc91srv:${TAG}-production
+    image: skripsi:${TAG}-production
     container_name: oc-prod-srv
     build:
       context: .
@@ -33,7 +33,7 @@ services:
       - .env
     environment:
       - NODE_ENV=development
-    image: oc91srv:${TAG}-development
+    image: skripsi:${TAG}-development
     container_name: oc-dev-srv
     build:
       context: .

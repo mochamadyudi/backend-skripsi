@@ -1,6 +1,7 @@
 import {BodyResponse} from "@handler";
 import __ConfRooms from "./index";
 import {ObjResolve} from "@yuyuid/utils";
+import YuyuidError from "@yuyuid/exception";
 
 export default class TmpConfirmRoomsController {
     constructor(props = {}) {
@@ -48,6 +49,22 @@ export default class TmpConfirmRoomsController {
     }
     async update(req,res){
         try{
+            if(!ObjResolve(req.body,'status')) throw YuyuidError.badRequest(new Error('Status not found'))
+            if(ObjResolve(req.body,'status') === 'accepted'){
+
+                const [err,data] = await new __ConfRooms.Module({
+                    ...req,
+                    isVilla:true,
+                    user: req.user,
+                    id: ObjResolve(req.params,'id') ?? ObjResolve(req.query,'id') ?? null,
+                    orderBy: ObjResolve(req.query,'orderBy') ?? "_id"
+                }).accepted()
+                if(err) throw YuyuidError.badRequest(err)
+
+
+                res.status(201) // statusCode OK
+                return res.send();
+            }
             const [ err,data ] = await new __ConfRooms.Module({
                 isVilla: true,
                 user: req.user,

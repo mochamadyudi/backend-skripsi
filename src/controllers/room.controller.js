@@ -573,4 +573,13 @@ export default class RoomController {
             }))
         }
     }
+
+
+    async _ConfirmMyQueue(req,res){
+        try{
+
+        }catch(err){
+            throw YuyuidError.expectationFailed(err)
+        }
+    }
 }

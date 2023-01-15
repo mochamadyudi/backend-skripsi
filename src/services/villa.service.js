@@ -233,7 +233,7 @@ export default class VillaService {
                             resize: [80,50,30]
                         })
                         files = {
-                            prefix_url:`${process.env.APP_URL}/public${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`,
+                            prefix_url:`/public${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`,
                             originalname: req.files[i]?.originalname,
                             filename: filename,
                             resize_active: [80,50,30],
@@ -306,7 +306,7 @@ export default class VillaService {
                             resize: [80,50,30]
                         })
                         files.push({
-                            prefix_url:`${process.env.APP_URL}/public${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`,
+                            prefix_url:`/public${req.files[i].destination.split("public")[1].replace(/\\/g,'/')}`,
                             originalname: req.files[i]?.originalname,
                             filename: filename,
                             resize_active: [80,50,30],

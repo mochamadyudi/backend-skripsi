@@ -14,6 +14,7 @@ import "./src/loaders/events"
 import jobLoaders from './src/loaders/jobs'
 import {AuthService} from "@yuyuid/services";
 import moment from "moment";
+import ExpressErrorHandler from "./src/lib/handler/error.handler";
 
 
 const app = express();
@@ -66,8 +67,14 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req, res, next) =
 app.post('/auth/reset/password/:token', AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix, routes())
 app.use('/api/v2', RoutesV2())
-app.use(express.static("clients"));
-app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "clients", "index.html"));
-});
+
+
+app.use(ExpressErrorHandler)
+
+if(process.env.NODE_ENV === 'production'){
+    app.use(express.static("clients/build"));
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "clients","build", "index.html"));
+    });
+}
 app.listen(PORT, () => console.log(`Server is running on : ${PORT}`))

@@ -1,4 +1,4 @@
-import {Room, Villa} from "@yuyuid/models";
+import {ConfirmRoomsSchema, Room, Villa} from "@yuyuid/models";
 import {ObjResolve, StrToBool} from "@yuyuid/utils";
 import Pagination from "../lib/utils/Pagination";
 import {JSONParser} from "formidable/src/parsers";
@@ -132,6 +132,16 @@ export default class RoomsService {
     }
 
 
+
+    async _confirmQueue(){
+        try{
+            let body = this.body
+
+
+        }catch(err){
+            return [ err, null ]
+        }
+    }
     async _patch(){
         try{
             let where = {
@@ -332,9 +342,6 @@ export default class RoomsService {
         }
 
     }
-
-
-
     async #FacilityParams(obj,keys){
         let query = this.query
         if(ObjResolve(query,keys)){
