@@ -1,43 +1,42 @@
 import moment from "moment";
 import mongoose from 'mongoose'
 
-const days = new mongoose.Schema(
-    {
-        day:{
-            type: String,
-            default:null
-        }
-    }
-);
-
-const schedule = new mongoose.Schema(
-    {
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref:"user",
-            default: null,
-        },
-        year: {
-            type: String,
-            default: moment(Date.now(), 'YYYY').format('YYYY')
-        },
-        month: {
-            type: String,
-            enum: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
-        },
-        days: [days],
-    },{
-        timestamps:true,
-        versionKey:false
-});
-
 const RoomScheduleSchema = new mongoose.Schema({
-    rooms: {
+    room: {
         type: mongoose.Schema.Types.ObjectId,
         ref:"rooms",
         default: null,
     },
-    schedule: [schedule],
+    book:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'books'
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+    },
+    entryDate: {
+        type: mongoose.Schema.Types.Date,
+    },
+    isActive: {
+        type: mongoose.Schema.Types.Boolean,
+        default: false
+    },
+    expiresOn: {
+        type: mongoose.Schema.Types.Date,
+        default:moment().add(2,'day')
+    },
+    status:{
+        type: mongoose.Schema.Types.String,
+        default: 'waiting'
+    },
+    outDate:{
+        type: mongoose.Schema.Types.Date,
+        default:null
+    },
+    periods: [],
+    payRemember:[]
+
 }, {
     timestamps:true,
     versionKey:false

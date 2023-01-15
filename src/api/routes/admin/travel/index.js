@@ -170,7 +170,7 @@ export default () => {
                             newVideo.push({
                                 original_filename: item.originalFilename,
                                 name: filename,
-                                prefix: `${process.env.PREFIX_URL}/public/uploads`,
+                                prefix: `/public/uploads`,
                                 url: `${prefix_date}/${filename}`
                             })
                             video.push({
