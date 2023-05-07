@@ -2,6 +2,7 @@ import verifyCurrentUser from './verifyCurrentUser'
 import jwt from "jsonwebtoken";
 import {YuyuidConfig} from "@yuyuid/config";
 import {BodyResponse} from "@handler";
+import {next} from "lodash/seq";
 
 const isAuth = async (req, res, next) => {
     try {
@@ -9,29 +10,32 @@ const isAuth = async (req, res, next) => {
         if(req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
             const token = req.headers.authorization.split(" ")[1]
             const {user} = jwt.verify(token, YuyuidConfig.jwtSecret);
-            req.user = user
-            next();
+            if(user){
+                req.user = user
+                next();
+            }
         }else{
             res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
         }
     } catch (err) {
-        res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
+        res.status(500).json(new BodyResponse({message: err?.message ?? "Some Error!",error:true,status:500}));
     }
 }
 
-export const CheckAuth = async(req) => {
+export const CheckAuth = async(req,res,next) => {
     try {
         //Check if there isn't a token
         if(req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
             const token = req.headers.authorization.split(" ")[1]
             const {user} = jwt.verify(token, YuyuidConfig.jwtSecret);
             Reflect.set(req,"user",user)
-
         }else{
             Reflect.set(req,"user", null)
         }
+        next()
     } catch (err) {
         Reflect.set(req,"user", null)
+        // next()
     }
 }
 const isAdmins = async (req,res,next)=> {
@@ -68,6 +72,8 @@ const isVillas = async (req,res,next)=> {
         if(req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
             const token = req.headers.authorization.split(" ")[1]
             const {user} = jwt.verify(token, YuyuidConfig.jwtSecret);
+
+            console.log({isVillas:user});
             if(user.role === "villa"){
                 next();
             }else{
@@ -83,7 +89,7 @@ const isVillas = async (req,res,next)=> {
             res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
         }
     } catch (err) {
-        res.status(401).json(new BodyResponse({message: "unAuthorization!",error:true,status:401}));
+        res.status(500).json(new BodyResponse({message: err?.message ?? "Some Error",error:true,status:500}));
     }
 }
 export {

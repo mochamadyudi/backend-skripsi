@@ -4,4 +4,6 @@ export default class NotificationsModule extends NotificationsService{
     constructor(props = {}) {
         super(props)
     }
+
+
 }

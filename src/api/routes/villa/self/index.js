@@ -7,7 +7,7 @@ import Pagination from "../../../../lib/utils/Pagination";
 import {BodyResponse} from "@handler";
 import VillaService from "../../../../services/villa.service";
 import Rooms from './rooms'
-import {uploadFileMiddleware} from "../../../../lib/modules/uploaded";
+import {uploadFileMiddleware, uploadFiles} from "../../../../lib/modules/uploaded";
 import ResizeModule from "../../../../lib/modules/resize.module";
 import VillaController from "../../../../controllers/villa.controller";
 
@@ -23,8 +23,8 @@ export default ()=> {
     Rooms(app)
 
     route.get('/profile', new VillaController().MyProfile)
-    route.put('/update/thumbnail', uploadFileMiddleware, VillaService._putThumbnail)
-    route.put('/profile/photo', uploadFileMiddleware, VillaService._addPhotos)
+    route.put('/update/thumbnail', uploadFiles, VillaService._putThumbnail)
+    route.put('/profile/photo', uploadFiles, VillaService._addPhotos)
     route.delete('/profile/photo/:imageId', VillaService._putThumbnail)
 
     route.post('/create', new VillaController()._create)

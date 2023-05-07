@@ -6,6 +6,7 @@ const Create = async (req,res,next)=> {
     const schema = JoiBase.append({
         name:Joi.string().required(),
         description:Joi.string().trim().required(),
+        type: Joi.string().optional(),
         limit: Joi.number().required(),
         price: Joi.object({
             regular: Joi.number().required(),
@@ -19,7 +20,7 @@ const Create = async (req,res,next)=> {
             tv: Joi.bool().required(),
             wifi: Joi.bool().required(),
             bed_type: Joi.any().required(),
-            smooking: Joi.bool().required(),
+            smoking: Joi.bool().required(),
             other: Joi.string().required(),
         }),
         is_available:Joi.bool(),

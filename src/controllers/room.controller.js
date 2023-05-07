@@ -10,6 +10,7 @@ import Pagination from "../lib/utils/Pagination";
 import RoomLib from "../services/lib/room.lib";
 import RoomsService from "../services/rooms.service";
 import YuyuidError from "@yuyuid/exception";
+import TmpConfirmRoomsService from "../module/__tmp/confirm-rooms/tmp-confirm-rooms.service";
 
 export default class RoomController {
 
@@ -557,10 +558,44 @@ export default class RoomController {
     async _singleRoom(req,res){
         try{
             const data = await new RoomController().getRoomById(req.params.id)
+
+            if(data){
+                if(!ObjResolve(req.query,'withoutCount')){
+                    await new TmpConfirmRoomsService({
+                        options: {
+                            new:true,
+                        },
+                        schema: Room,
+                        orderBy: "_id",
+                        id: req.params.id,
+                        fields: {
+                            $inc: {
+                                seen: 1
+                            }
+                        }
+                    }).update()
+                }else{
+                    if(ObjResolve(req.query,'withoutCount') === "false"){
+                        await new TmpConfirmRoomsService({
+                            options: {
+                                new:true,
+                            },
+                            schema: Room,
+                            orderBy: "_id",
+                            id: req.params.id,
+                            fields: {
+                                $inc: {
+                                    seen: 1
+                                }
+                            }
+                        }).update()
+                    }
+                }
+            }
             return res.json(new BodyResponse({
-                status:200,
-                error:false,
-                message: "successfully!",
+                status:data ? 200 : 404,
+                error:!data,
+                message: data ? "successfully!": "Data not found",
                 data:data
             }))
         }catch(err){

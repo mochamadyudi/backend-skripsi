@@ -334,18 +334,18 @@ export default (app) => {
                 //     }
                 //
                 // })
-                .populate({
-                    path: "likes",
-                    select: "email role firstName lastName avatar",
-                    // populate:{
-                    //     path:"villa-profiles"
-                    // },
-                    options: {
-                        limit: likes.limit,
-                        sort: {date: -1},
-                        skip: (likes.limit * (likes.page > 1 ? likes.page : 0))
-                    }
-                })
+                // .populate({
+                //     path: "likes",
+                //     select: "email role firstName lastName avatar",
+                //     // populate:{
+                //     //     path:"villa-profiles"
+                //     // },
+                //     options: {
+                //         limit: likes.limit,
+                //         sort: {date: -1},
+                //         skip: (likes.limit * (likes.page > 1 ? likes.page : 0))
+                //     }
+                // })
                 // .populate({
                 //     path: "discuss",
                 //     options: {
@@ -364,7 +364,7 @@ export default (app) => {
                 //     },
                 //     select: ["rates"]
                 // })
-                .populate("user", ["email", "avatar", "firstName", "lastName", "username"])
+                // .populate("user", ["email", "avatar", "firstName", "lastName", "username"])
                 .populate("locations.provinces", ["name", "id", 'latitude', 'longitude', 'alt_name'])
                 .populate("locations.districts", ["name", "id", 'regency_id', 'latitude', 'longitude', 'alt_name'])
                 .populate("locations.sub_districts", ["name", "id", 'district_id', 'latitude', 'longitude'])
@@ -375,9 +375,7 @@ export default (app) => {
             if (villa) {
 
                 let isLike = false
-                console.log(villa.likes, req.user)
                 let a = Array.isArray(villa.likes) && villa.likes.filter((item) => item?._id === req.user.id)
-                console.log(a)
                 return res.json({
                     error: false,
                     message: null,

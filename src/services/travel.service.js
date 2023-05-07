@@ -146,11 +146,11 @@ export class TravelService {
             const {keyword} = params
             let doc = await Travel.findOne({[ObjResolve(query, 'orderBy') ?? "_id"]: keyword})
 
-                // .populate('categories', ['name', 'slug', 'is_published', 'about', 'createdAt', 'hash_id'])
-                // .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                // .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                // .populate('locations.regencies', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
-                // .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('categories', ['name', 'slug', 'is_published','background', 'createdAt', 'hash_id'])
+                .populate('locations.districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('locations.provinces', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('locations.regencies', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
+                .populate('locations.sub_districts', ['name', 'alt_name', 'latitude', 'longitude', 'id', '_id'])
                 .exec()
             doc = doc?._doc ?? doc
             if (doc) {
@@ -243,14 +243,13 @@ export class TravelService {
                             },
                         },
                     }
-
                 ]).exec()
                 // .select("-__v -_id -travel -date")
                 // .populate({
                 //     path:'user',
                 //     select:"role email firstName lastName username avatar"
                 // })
-                Reflect.set(data, 'discuss', discuss)
+                // Reflect.set(data, 'discuss', discuss)
                 Reflect.set(data, 'likes', likes)
                 return res.json(new BodyResponse({
                     error: false,

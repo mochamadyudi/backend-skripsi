@@ -3,6 +3,10 @@ import moment from 'moment'
 
 const mongoose = require("mongoose");
 const photos = new mongoose.Schema({
+    villaId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "villa"
+    },
     path:{
         type: String,
         default :null
@@ -31,6 +35,21 @@ const photos = new mongoose.Schema({
         type: String,
         default :null
     },
+    isPrimary:{
+        type: Boolean,
+        default: false,
+    }
+},{
+    timestamps:true,
+    versionKey: false,
+    toJSON: {
+        transform: function(doc, ret, options) {
+            ret.id = ret._id;
+            delete ret._id;
+            delete ret.__v;
+            return ret;
+        }
+    }
 });
 const videos = new mongoose.Schema({
     url:{
@@ -119,7 +138,6 @@ const VillaSchema = new mongoose.Schema({
             default :null
         },
     },
-    photos: [photos],
     videos: [videos],
     social: {
         twitter: {
@@ -277,6 +295,6 @@ VillaSchema.virtual('villa-profiles', {
     foreignField: '_id',    // Of user collection
     justOne: true
 })
-let Villa = mongoose.model("villa", VillaSchema, );
-
-export { Villa }
+let Villa = mongoose.model("villa", VillaSchema );
+let VillaPhotos = mongoose.model("villa_photos", photos)
+export { Villa,VillaPhotos }

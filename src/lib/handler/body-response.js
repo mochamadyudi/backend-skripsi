@@ -7,7 +7,7 @@ export default class BodyResponse{
         try{
             return {
                 ...props,
-                status: props.status ? props.status : 200,
+                status: props.status ? props.status : props?.statusCode ? props?.statusCode : 200,
                 error: props.error ? props.error :  false,
                 message: props.message ? props.message :null,
                 data: props.data ? props.data : null,

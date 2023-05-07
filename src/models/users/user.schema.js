@@ -4,6 +4,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['customer','villa','admin']
     },
+    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
     email: {
         type: String,
         required: true,

@@ -9,7 +9,7 @@ import {first} from "lodash";
 export default class TmpConfirmRoomsService extends LibService {
     constructor(props) {
         super(props);
-        this.schema = ConfirmRoomsSchema
+        this.schema = props?.schema ?? ConfirmRoomsSchema
         this.isVilla = props?.isVilla ?? false
         this.user = props?.user ?? undefined
     }
@@ -34,12 +34,15 @@ export default class TmpConfirmRoomsService extends LibService {
 
             return await this.schema.findOneAndUpdate(
                 condition,
+
                 {
-                    $set:{
-                        ...this.fields,
-                    }
+                    ...this.fields,
+                    // $set:{
+                    //     ...this.fields,
+                    // }
                 },
                 {
+                    ...this.options,
                     rawResult:false,
                 }
             )

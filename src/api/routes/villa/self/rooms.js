@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import RoomController from "../../../../controllers/room.controller";
-import {uploadFileMiddleware} from "../../../../lib/modules/uploaded";
+import {uploadFileMiddleware, uploadFiles, uploadFileSingle} from "../../../../lib/modules/uploaded";
 import {Room} from "@yuyuid/models";
 import sharp from "sharp";
 import first from 'lodash'
@@ -28,16 +28,18 @@ export default (app) => {
                          * RESIZE [ 70, 50, 30 ]
                          */
                         let filename = req.files[i].filename.toString().toLowerCase().replace(/ /g, "-")
-                        await new ResizeModule({
+                        const resizes = await new ResizeModule({
                             filename: filename,
                             destination: req.files[i].destination,
                             path: req.files[i].path,
                             resize: [80, 50]
                         })
+                        console.log({...resizes});
                         files.push({
                             prefix_url: `${process.env.APP_URL}/public${req.files[i].destination.split("public")[1].replace(/\\/g, '/')}`,
                             original_name: req.files[i]?.originalname,
                             filename: filename,
+                            resize_active:[80,50],
                             path: ['public', `${req.files[i].destination.split("public")[1].replace(/\\/g, '/')}`].join('')
                         })
 

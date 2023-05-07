@@ -31,4 +31,5 @@ app.use(YuyuidConfig.apiPrefix, routes)
 app.use('/', (req,res)=> {
     return res.json({message:"OK!"}).status(200)
 })
+
 app.listen(PORT, ()=> console.log(`Server is running on : ${PORT}`))

@@ -129,7 +129,6 @@ export default (app)=> {
      */
     route.post("/signup", AuthValidator.signupValidator, async (req, res, next) => {
         try {
-
             const [ err ,newUser] = await AuthService.SignUp(req,res);
             if(err){
                 res.status(400);

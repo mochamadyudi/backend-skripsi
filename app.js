@@ -14,12 +14,19 @@ import "./src/loaders/events"
 import jobLoaders from './src/loaders/jobs'
 import {AuthService} from "@yuyuid/services";
 import moment from "moment";
+import http from 'http';
+// import io from "socket.io"
+import NotificationsService from "./src/module/notifications/notifications.service";
+import SocketIoModule from "./src/lib/modules/socket.io.module";
 
 
 const app = express();
+const server = http.createServer(app);
+
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
 
 (async function () {
+
     await connectDB()
 }())
 
@@ -33,7 +40,7 @@ app.use(express.urlencoded({extended: true}))
 app.use(express.json({extended: true}))
 
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Origin", ["*"]);
     res.header("Access-Control-Allow-Methods", 'GET, POST, PUT, DELETE');
     res.header("Access-Control-Allow-Credentials", 'true');
     next();
@@ -70,4 +77,6 @@ app.use(express.static("client/build"));
 app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
 });
-app.listen(PORT, () => console.log(`Server is running on : ${PORT}`))
+
+new SocketIoModule(server);
+server.listen(PORT, () => console.log(`Server is running on : ${PORT}`))

@@ -56,5 +56,7 @@ const uploadFileSingle = multer({
 export {
     uploadFileMiddleware,
     uploadFileSingle,
+    uploadFile,
+    uploadFiles,
     uploadFilesMiddleware
 }

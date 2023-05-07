@@ -1,13 +1,37 @@
 import LibService from "../../services/lib.service";
-import {OrderSchema, Villa} from "@yuyuid/models";
+import {OrderSchema, User, Villa} from "@yuyuid/models";
 import Pagination from "../../lib/utils/Pagination";
 import {ObjResolve} from "@yuyuid/utils";
 import {ObjectId, ObjectID} from "mongodb";
 import {first} from "lodash";
+import {BodyResponse} from "@handler";
 
 export default class VillaService extends LibService {
     constructor(props) {
         super(props)
+    }
+
+    async list() {
+        try {
+            const {page, limit, direction} = Pagination(this.query)
+
+            let condition = {}
+
+            const data = await Villa.find(condition)
+                .limit(limit)
+                .skip(limit * (page > 1 ? page - 1 : 0))
+                .sort({
+                    date: direction === "desc" ? -1 : 1
+                })
+                .populate("locations.provinces", ["name", "id", 'latitude', 'longitude', 'alt_name'])
+                .populate("locations.districts", ["name", "id", 'regency_id', 'latitude', 'longitude', 'alt_name'])
+                .populate("locations.sub_districts", ["name", "id", 'district_id', 'latitude', 'longitude'])
+                .populate("locations.regencies", ["name", "id", 'province_id', 'latitude', 'longitude', 'alt_name'])
+
+            return [ null, data ]
+        } catch (err) {
+            return [err, null]
+        }
     }
 
     async _detailVilla() {
@@ -109,7 +133,6 @@ export default class VillaService extends LibService {
                     }
                 },
 
-
                 {
                     $project: {
                         _id: 1,
@@ -122,37 +145,37 @@ export default class VillaService extends LibService {
              * pagination
              */
             let order_pagination = {
-                page:0,
-                limit:10
+                page: 0,
+                limit: 10
             }
 
-            if(ObjResolve(this.query,'order_limit')){
-                let ordLimit = ObjResolve(this.query,'order_limit')
+            if (ObjResolve(this.query, 'order_limit')) {
+                let ordLimit = ObjResolve(this.query, 'order_limit')
                 ordLimit = parseInt(ordLimit)
-                if(!isNaN(ordLimit)){
+                if (!isNaN(ordLimit)) {
                     order_pagination.limit = ordLimit
                 }
             }
-            if(ObjResolve(this.query,'order_page')){
-                let pages = ObjResolve(this.query,'order_page')
+            if (ObjResolve(this.query, 'order_page')) {
+                let pages = ObjResolve(this.query, 'order_page')
                 pages = parseInt(pages)
-                if(!isNaN(pages)){
-                   order_pagination.page = order_pagination.limit * (pages > 1 ? pages - 1 : 0)
+                if (!isNaN(pages)) {
+                    order_pagination.page = order_pagination.limit * (pages > 1 ? pages - 1 : 0)
                 }
             }
             let projected = {
-                    $project: {
-                        _id: 1,
-                        data: 1,
-                        count:1,
-                        order: {
-                            $slice: ['$order', order_pagination?.page, order_pagination?.limit]
-                        },
-                        room: {
-                            $slice: ['$room', 0, 10]
-                        }
+                $project: {
+                    _id: 1,
+                    data: 1,
+                    count: 1,
+                    order: {
+                        $slice: ['$order', order_pagination?.page, order_pagination?.limit]
+                    },
+                    room: {
+                        $slice: ['$room', 0, 10]
                     }
                 }
+            }
             aggregate.push({...projected})
             if (this.id) {
                 aggregate.push({
