@@ -6,6 +6,8 @@
 /out-tsc
 /deploy
 
+
+.env
 # dependencies
 /node_modules
 
