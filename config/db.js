@@ -1,24 +1,21 @@
 import mongodb from 'mongoose'
 import 'dotenv/config'
-import config from 'config'
 
-const url = process.env.DATABASE_DEV || config.get("db.detail")
-// const database = process.env.DATABASE || "mongodb+srv://vodonesia:arjuna46@vodonesia.vysbe.mongodb.net/vodonesia?retryWrites=true&w=majority"
-
+const url = process.env.DB_URI
 
 const connectDB = async function(){
     try{
         await mongodb.connect(url, {
+            appname:process.env.DB_NAME,
+            dbName: process.env.DB_NAME || 'skripsi',
             useNewUrlParser: true,
             useUnifiedTopology: true,
         }).then(()=> {
-            console.log("Connected to MongoDB..."+url)
+            console.log('Connected: ',process.env.DB_NAME)
         })
-            .catch((err)=> {
-                console.error({
-                    testing:"error bosku",
-                    message:err.message
-                })
+            .catch((err) => {
+                console.log(err,'Connected :'+ ' ' +process.env.DB_NAME + ' ' + err?.message)
+
             })
     }catch(err){
         console.error(err.message)

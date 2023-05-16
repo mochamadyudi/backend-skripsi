@@ -36,7 +36,7 @@ export default (app) => {
                         })
                         console.log({...resizes});
                         files.push({
-                            prefix_url: `${process.env.APP_URL}/public${req.files[i].destination.split("public")[1].replace(/\\/g, '/')}`,
+                            prefix_url: `/public${req.files[i].destination.split("public")[1].replace(/\\/g, '/')}`,
                             original_name: req.files[i]?.originalname,
                             filename: filename,
                             resize_active:[80,50],
