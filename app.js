@@ -14,13 +14,23 @@ import "./src/loaders/events"
 import jobLoaders from './src/loaders/jobs'
 import {AuthService} from "@yuyuid/services";
 import moment from "moment";
+<<<<<<< HEAD
+import http from 'http';
+// import io from "socket.io"
+import NotificationsService from "./src/module/notifications/notifications.service";
+import SocketIoModule from "./src/lib/modules/socket.io.module";
+=======
 import ExpressErrorHandler from "./src/lib/handler/error.handler";
+>>>>>>> 3b27c679bcbf7f205c6916780a9e9181e8644008
 
 
 const app = express();
+const server = http.createServer(app);
+
 const PORT = process.env.PORT || YuyuidConfig.port || 5000;
 
 (async function () {
+
     await connectDB()
 }())
 
@@ -34,7 +44,7 @@ app.use(express.urlencoded({extended: true}))
 app.use(express.json({extended: true}))
 
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Origin", ["*"]);
     res.header("Access-Control-Allow-Methods", 'GET, POST, PUT, DELETE');
     res.header("Access-Control-Allow-Credentials", 'true');
     next();
@@ -67,6 +77,15 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req, res, next) =
 app.post('/auth/reset/password/:token', AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix, routes())
 app.use('/api/v2', RoutesV2())
+<<<<<<< HEAD
+app.use(express.static("client/build"));
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
+
+new SocketIoModule(server);
+server.listen(PORT, () => console.log(`Server is running on : ${PORT}`))
+=======
 
 
 app.use(ExpressErrorHandler)
@@ -78,3 +97,4 @@ if(process.env.NODE_ENV === 'production'){
     });
 }
 app.listen(PORT, () => console.log(`Server is running on : ${PORT}`))
+>>>>>>> 3b27c679bcbf7f205c6916780a9e9181e8644008

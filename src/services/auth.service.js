@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 import moment from "moment";
 import jwt from "jsonwebtoken";
 import {YuyuidConfig} from "@yuyuid/config";
+import {_MVilla} from "@Modules";
 
 
 export class AuthService {
@@ -177,7 +178,6 @@ export class AuthService {
 
         await AuthService.isMatchPassword(userInputDto.password, user.password)
 
-        // const profile = await UserService.getMyProfile(user.id)
         const payload = {
             verify,
             user: {
@@ -189,6 +189,24 @@ export class AuthService {
                 username: user.username,
             }
         };
+        // const profile = await UserService.getMyProfile(user.id)
+        if(user.role){
+            switch (user.role){
+                case "villa":
+                    const [errVilla,villa] = await new _MVilla.Service({
+                        orderBy:"user",
+                        id: user.id
+                    })._detailVilla()
+
+                    if(villa){
+                        Reflect.set(payload.user,'villaId',villa?._id ?? undefined);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
         const token = await generateCustomToken(payload)
 
