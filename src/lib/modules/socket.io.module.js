@@ -28,7 +28,7 @@ export default class SocketIoModule{
         this.user = undefined;
         this.io = require("socket.io")(server,{
             cors: {
-                origin: "http://villa.localhost:6001",
+                origin: ["http://villa.localhost:6001","http://skripsi-dashboard.localhost:6001","http://localhost:6001"],
                 methods: ["GET", "POST"]
             }
         });
