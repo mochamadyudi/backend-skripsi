@@ -14,14 +14,12 @@ import "./src/loaders/events"
 import jobLoaders from './src/loaders/jobs'
 import {AuthService} from "@yuyuid/services";
 import moment from "moment";
-<<<<<<< HEAD
+
 import http from 'http';
 // import io from "socket.io"
 import NotificationsService from "./src/module/notifications/notifications.service";
 import SocketIoModule from "./src/lib/modules/socket.io.module";
-=======
 import ExpressErrorHandler from "./src/lib/handler/error.handler";
->>>>>>> 3b27c679bcbf7f205c6916780a9e9181e8644008
 
 
 const app = express();
@@ -77,18 +75,8 @@ app.get("/public/uploads/:years/:month/:day/:filename", async (req, res, next) =
 app.post('/auth/reset/password/:token', AuthService.ResetPassword)
 app.use(YuyuidConfig.apiPrefix, routes())
 app.use('/api/v2', RoutesV2())
-<<<<<<< HEAD
-app.use(express.static("client/build"));
-app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-});
-
-new SocketIoModule(server);
-server.listen(PORT, () => console.log(`Server is running on : ${PORT}`))
-=======
 
 
-app.use(ExpressErrorHandler)
 
 if(process.env.NODE_ENV === 'production'){
     app.use(express.static("clients/build"));
@@ -96,5 +84,7 @@ if(process.env.NODE_ENV === 'production'){
         res.sendFile(path.resolve(__dirname, "clients","build", "index.html"));
     });
 }
-app.listen(PORT, () => console.log(`Server is running on : ${PORT}`))
->>>>>>> 3b27c679bcbf7f205c6916780a9e9181e8644008
+
+new SocketIoModule(server);
+app.use(ExpressErrorHandler)
+server.listen(PORT, () => console.log(`Server is running on : ${PORT}`))

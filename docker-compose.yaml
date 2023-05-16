@@ -1,26 +1,10 @@
 version: '3.8'
 services:
-  stg:
+  web:
     env_file:
       - .env
-    environment:
-      - NODE_ENV=development
     image: skripsi:${TAG}
-    container_name: oc-stg-srv
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - npm-cache:/root/.npm
-    ports:
-      - "5000:5000"
-  prod:
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-    image: skripsi:${TAG}-production
-    container_name: oc-prod-srv
+    container_name: skripsi-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -28,20 +12,31 @@ services:
       - npm-cache/root/.npm
     ports:
       - "5000:5000"
-  dev:
-    env_file:
-      - .env
     environment:
-      - NODE_ENV=development
-    image: skripsi:${TAG}-development
-    container_name: oc-dev-srv
-    build:
-      context: .
-      dockerfile: Dockerfile
+      NODE_ENV: production
+      DATABASE: mongodb://mongo:27017/admin
+      DATABASE_DEV: mongodb://mongo:27017/admin
+      GEO_KEO_API_KEY: 1d72bde0197694267326387af7980981
+      DB_SCRAPING:
+      APP_URL: https://api.yuyuid.id
+      PREFIX_URL: /public/uploads
+      MAILTRAP_API: 586113868518fa1f4bc29462fb3dd3d3
+      MAILTRAP_JWT: eyJhbGciOiJIUzUxMiJ9.eyJkYXRhIjp7InRva2VuIjoiNTg2MTEzODY4NTE4ZmExZjRiYzI5NDYyZmIzZGQzZDMifX0.JfDkkeK0VgblyO8z61qr6tP4Vb-ngxh8ZW3ZHrNFhArCxgcfSpwoIXWNANKs9vKMBjIj0vAULQqfsjo7nTOdfQ
+      DB_ORM: mongodb://localhost:27017/vodonesia
+      DBMS: mongodb
+      DB_PORT: 27017
+      DB_URI: mongodb://mongo
+      DB_NAME: myskripsi
+      DB_USERNAME:
+      DB_PASSWORD:
+      HOST: http://localhost
+      PORT: 5001
+  mongo:
+    image: mongo
     volumes:
-      - npm-cache/root/.npm
+      - /data/mongodb/db:/data/db
     ports:
-      - "5000:5000"
+      - "27017:27017"
 volumes:
   npm-cache:
     external: false
