@@ -3,8 +3,8 @@ services:
   web:
     env_file:
       - .env
-    image: skripsi:${TAG}-development
-    container_name: oc-dev-srv
+    image: skripsi:${TAG}
+    container_name: skripsi_api
     build:
       context: .
       dockerfile: Dockerfile
