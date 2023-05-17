@@ -3,7 +3,7 @@ services:
   web:
     env_file:
       - .env
-    image: skripsi:${TAG}
+    image: skripsi_api:v1
     container_name: skripsi_api
     build:
       context: .
@@ -22,15 +22,15 @@ services:
       PREFIX_URL: /public/uploads
       MAILTRAP_API: 586113868518fa1f4bc29462fb3dd3d3
       MAILTRAP_JWT: eyJhbGciOiJIUzUxMiJ9.eyJkYXRhIjp7InRva2VuIjoiNTg2MTEzODY4NTE4ZmExZjRiYzI5NDYyZmIzZGQzZDMifX0.JfDkkeK0VgblyO8z61qr6tP4Vb-ngxh8ZW3ZHrNFhArCxgcfSpwoIXWNANKs9vKMBjIj0vAULQqfsjo7nTOdfQ
-      DB_ORM: mongodb://localhost:27017/vodonesia
+      DB_ORM: mongodb://mongo:27017/admin
       DBMS: mongodb
       DB_PORT: 27017
       DB_URI: mongodb://mongo
       DB_NAME: myskripsi
       DB_USERNAME:
       DB_PASSWORD:
-      HOST: http://localhost
-      PORT: 5001
+      HOST: https://api.yuyuid.id
+      PORT: 5000
   mongo:
     image: mongo
     volumes:
