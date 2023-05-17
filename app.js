@@ -25,7 +25,7 @@ import ExpressErrorHandler from "./src/lib/handler/error.handler";
 const app = express();
 const server = http.createServer(app);
 
-const PORT = process.env.PORT || YuyuidConfig.port || 5000;
+const PORT = process.env.PORT || 5000;
 
 (async function () {
 
