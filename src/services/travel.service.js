@@ -138,6 +138,39 @@ export class TravelService {
     static async delete() {
     }
 
+    static async getDetailPeriods(req,res){
+        try{
+            let {  id } = req.params
+
+            let response = {
+                error:false,
+                message: null,
+                data: null
+            }
+
+            let doc = await Travel.findOne({[ObjResolve(req.query, 'orderBy') ?? "_id"]: id})
+                .select("periods")
+                .populate('periods', ['name', 'slug', 'is_published','background', 'createdAt', 'hash_id'])
+                .exec()
+            doc = doc?.periods ?? doc?._doc?.periods ?? []
+
+            let statusCode = Array.isArray(doc) && doc.length > 0 ? 200 : 400
+            res.status(statusCode)
+            Reflect.set(response,'status',statusCode)
+            Reflect.set(response,'message',Array.isArray(doc) && doc.length > 0 ? "Successfully!" :"Data not found")
+            Reflect.set(response,'data',doc ?? [])
+            return res.json(new BodyResponse({
+                ...response
+            }))
+
+        }catch(err){
+            return res.json({
+                error: true,
+                message: "Data Not found!",
+                data: null,
+            }).status(500)
+        }
+    }
     static async single(req, res) {
         try {
 
@@ -244,12 +277,6 @@ export class TravelService {
                         },
                     }
                 ]).exec()
-                // .select("-__v -_id -travel -date")
-                // .populate({
-                //     path:'user',
-                //     select:"role email firstName lastName username avatar"
-                // })
-                // Reflect.set(data, 'discuss', discuss)
                 Reflect.set(data, 'likes', likes)
                 return res.json(new BodyResponse({
                     error: false,

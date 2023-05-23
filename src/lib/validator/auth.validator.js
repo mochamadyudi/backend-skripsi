@@ -10,9 +10,21 @@ const signupValidator = async (req,res,next)=> {
         username: Joi.string().trim().required(),
         email: JoiEmail.required(),
         role:Joi.string().trim().required(),
-        password: JoiPassword.required()
+        password: JoiPassword.required(),
+        villa: Joi.object().optional()
     })
 
+    validator(schema.validate(req.body),next)
+}
+
+const signUpAdmin = async (req,res,next)=> {
+    const schema = JoiBase.append({
+        firstName: Joi.string().trim().required(),
+        lastName: Joi.string().trim().required(),
+        username: Joi.string().trim().required(),
+        email: JoiEmail.required(),
+        password: JoiPassword.required()
+    })
     validator(schema.validate(req.body),next)
 }
 
@@ -35,6 +47,7 @@ const changePasswordValidator = async (req,res,next)=> {
 
 export default {
     signupValidator,
+    signUpAdmin,
     signinValidator,
     changePasswordValidator
 }

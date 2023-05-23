@@ -1,21 +1,26 @@
-import {Cart, CartInfo, UpRolePermissions, User} from "@yuyuid/models";
+import {UpRolePermissions, User} from "@yuyuid/models";
 import YuyuidError from "@yuyuid/exception";
 import bcrypt from 'bcryptjs'
 import {UserService, ThemeService, CartService} from "@yuyuid/services"
 import {YuyuidEmitter, encryptPassword, generateToken, generateCustomToken, ObjResolve} from "@yuyuid/utils";
 
-import {YuyuidEvent} from "../lib/constants/event-name";
+import {YuyuidEvent} from "@yuyuid/constants";
 import {Activations} from "../models/auth";
 import VillaService from "./villa.service";
 import {ForgotPassword} from "../models/auth/forgot_password.schema";
-import mongoose from "mongoose";
 import moment from "moment";
 import jwt from "jsonwebtoken";
 import {YuyuidConfig} from "@yuyuid/config";
 import {_MVilla} from "@Modules";
+import LibService from "./lib.service";
 
 
-export class AuthService {
+export class AuthService  extends  LibService{
+
+    constructor(props) {
+        super(props);
+        this.schema = props?.schema ?? User
+    }
 
     static async SignUp(req) {
         let userInputDto = req.body
@@ -40,6 +45,7 @@ export class AuthService {
                 }
                 const villa = await VillaService.createVilla({user: user.id,...villaFields})
                 await ThemeService.VillaSetTheme(villa.id, 1)
+                console.log({villa})
                 break;
             case "customer":
                 await UserService.firstAddProfile(user.id,false)
@@ -153,7 +159,6 @@ export class AuthService {
 
 
     static async VerifyUniqueEmail(email) {
-
         const user = await User.findOne({email})
         if (user !== null) throw YuyuidError.badData('Email has a been registered.');
 
@@ -338,8 +343,6 @@ export class AuthService {
             })
         }
     }
-
-
     static async deleteUser(req,res){
         try{
             const {id} = req.params
@@ -354,5 +357,46 @@ export class AuthService {
         }
     }
 
+
+    /**
+     * ===============================================================
+     *  NEW SERVICE
+     * ===============================================================
+     */
+    async signUpAdmin(){
+        try{
+            const {hashedPassword, salt} = await encryptPassword(this.fields.password)
+            await AuthService.VerifyUniqueEmail(this.fields?.email)
+            Reflect.set(this.fields, "password", hashedPassword)
+            Reflect.set(this.fields, "salt", salt)
+
+            const data = new this.schema({
+                ...this.fields,
+                role:"admin"
+            })
+
+
+            const token = await generateCustomToken({user:data})
+
+            const activate = new Activations({
+                user: data.id,
+                refType: "user",
+                token
+            });
+            await activate.save();
+
+            const saved = await data.save();
+
+            YuyuidEmitter.dispatch(YuyuidEvent.email.verificationEmail, this.fields.email, token);
+            Reflect.set(saved, "token", token)
+            Reflect.set(saved, "email", this.fields.email)
+            Reflect.deleteProperty(saved, "salt");
+            Reflect.deleteProperty(saved, "password");
+
+            return [ null, saved]
+        }catch(err){
+            return [ err , null ]
+        }
+    }
 
 }

@@ -7,6 +7,8 @@ import ActivationService from "../../services/activation.service";
 import {isAuth} from "../middlewares/auth";
 import {BodyResponse} from "@handler";
 import {generateCustomToken} from "@yuyuid/utils";
+import AuthController from "../../controllers/auth.controller";
+import {DeleteObjKey} from "../../lib/utils/delete-obj-key";
 
 
 const route = Router()
@@ -20,15 +22,27 @@ export default (app)=> {
     route.get('/loaduser',isAuth, async (req,res)=> {
         try{
             const user = await User.findById(req.user.id).select("-password");
+
             if (user){
                 if(typeof(user?.role) !== "undefined"){
                     switch (user?.role){
                         case "admin":
                         case "customer":
-                            return await Profile.findOne({ user: user.id })
-                                .populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar",'is_verify'])
+                            let profile = Profile.findOne({ user: user.id })
+                            if(user?.role === 'admin'){
+                                profile.select(['-address','bio','birthday','contact','cover','location','social','status','thumbnail'].join(" -"))
+                            }
+                                profile.populate("user", ["name","role", "avatar","email","firstName","lastName","username","avatar",'is_verify'])
+                            return await profile
                                 .then((field)=> {
+                                    if(user?.role === 'admin'){
+                                        DeleteObjKey(field?._doc,['is_admin'])
+                                    }
+
+
                                     if(field){
+
+
                                         return res.json(new BodyResponse({
                                             error:false,
                                             message: "Successfully!",
@@ -173,6 +187,9 @@ export default (app)=> {
         }
     });
 
+    route.post('/register-admin',AuthValidator.signUpAdmin,new AuthController().signUpAdmin)
+
+    route.post('/register-villa', new AuthController().signUpVilla)
     /**
      * SIGN IN
      */

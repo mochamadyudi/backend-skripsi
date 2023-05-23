@@ -1,4 +1,4 @@
-import {Travel, Villa, VillaLikes} from "@yuyuid/models";
+import {Travel, Villa, VillaLikes, VillaPhotos} from "@yuyuid/models";
 import YuyuidError from "@yuyuid/exception";
 import {
     changeFileName,
@@ -45,26 +45,9 @@ export default class VillaService {
      */
     static async createVilla(payload) {
         try {
-            // const likes = await VillaService.initialLikes()
-            // const rates = await VillaService.initialRates()
-            // const discuss = await VillaService.initialDiscuss()
-            //    rates:{
-            //         type: mongoose.Schema.Types.ObjectId,
-            //         ref:"villa_rates"
-            //     },
-            //     likes: {
-            //         type: mongoose.Schema.Types.ObjectId,
-            //         ref:"villa_likes"
-            //     },
-            //     discuss:{
-            //         type: mongoose.Schema.Types.ObjectId,
-            //         ref:"villa_discuss"
-            //     },
+
             const villa = new Villa({
                 ...payload,
-                // likes: likes.id,
-                // rates: rates.id,
-                // discuss: discuss.id,
                 user: payload.user,
                 slug: payload?.slug ?? makeIdRandom(10),
                 facility: {
@@ -291,6 +274,7 @@ export default class VillaService {
 
     static async _addPhotos(req,res){
         try{
+            console.log(req.files,'FILES')
             let files = []
             if(typeof(req?.files) !== "undefined"){
                 if (Array.isArray(req.files) && req.files.length > 0 ){
@@ -316,18 +300,29 @@ export default class VillaService {
                     }
                 }
             }
+            // console.log({files})
 
-            await Villa.findOneAndUpdate({user:req.user.id},{
-                $push:{
-                    photos:files,
-                }
-            },{
-                new:true,
-                returnOriginal: false,
-                returnNewDocument: true
-            })
-                .then((field)=> {
+            files = files.map((item)=> ({
+                villaId:req.user.id,
+                ...item
+            }))
+            console.log({files})
+            await Villa.findOne({user:req.user.id}
+            //     ,{
+            //     // $push:{
+            //     //     photos:files,
+            //     // }
+            // },
+            //     {
+            //     new:true,
+            //     returnOriginal: false,
+            //     returnNewDocument: true
+            // }
+            )
+                .then( async(field)=> {
+                    // console.log({field})
                     if(field){
+                        await VillaPhotos.insertMany(files)
                         return res.json(
                             new BodyResponse({
                                 error:false,

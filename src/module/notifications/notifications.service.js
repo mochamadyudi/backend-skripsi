@@ -18,7 +18,6 @@ export default class NotificationsService{
     ) {
         let socket = require("socket.io")(server);
 
-        console.log({socket});
         this.io = socket;
         this.socket = undefined;
         this.callback = args?.callback ?? undefined

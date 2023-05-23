@@ -17,13 +17,6 @@ const ExpressErrorHandler = (err, req, res, next) => {
         errObj.error = err.output.payload.error;
         errObj.status = err.output.statusCode;
     } else if (err.name === "ValidationError") {
-        log.error({
-            ...err,
-            path:req.path,
-            method: req.method,
-            name: "ERR_VALIDATION",
-            message: "Validation Failed"
-        })
         errObj.error = "Validation Failed";
         errObj.status = 400;
     } /* Handle Joi Validation */ else if (isCelebrateError(err)) {
